@@ -30,6 +30,17 @@ public class ProductDto
     public DateTime UpdatedAt { get; set; }
 }
 
+/// <summary>GET /products/{id} yanıtı. Tam güncelleme (PUT) için gereken alanları da içerir.</summary>
+public class ProductDetailDto : ProductDto
+{
+    /// <summary>Alış maliyeti, KURUŞ cinsinden.</summary>
+    public int CostPrice { get; set; }
+
+    public int SupplierId { get; set; }
+
+    public string Description { get; set; } = "";
+}
+
 /// <summary>GET /products sorgu parametreleri.</summary>
 public class ProductQuery
 {

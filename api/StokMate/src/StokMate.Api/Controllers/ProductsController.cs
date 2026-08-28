@@ -22,6 +22,11 @@ public class ProductsController : ControllerBase
     public async Task<ActionResult<PagedResult<ProductDto>>> GetList([FromQuery] ProductQuery query)
         => await _productService.GetListAsync(query);
 
+    /// <summary>Tek ürünün detayını döner. Tam güncelleme (PUT) için gereken alanları da içerir.</summary>
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<ProductDetailDto>> GetById(int id)
+        => await _productService.GetByIdAsync(id);
+
     /// <summary>Stok durumu özeti.</summary>
     [HttpGet("stats")]
     public async Task<ActionResult<ProductStatsDto>> GetStats()
