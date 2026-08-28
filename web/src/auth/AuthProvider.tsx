@@ -39,28 +39,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Session restore (UX-007): validate a persisted session once on startup so
   // a valid session skips the login screen. Failure paths always resolve the
   // restoring state — auth never hangs in loading.
+  // The ref (not cleanup-based cancellation) dedupes StrictMode's double
+  // effect: the provider lives at the app root, so the settled promise must
+  // always resolve the restoring state even though the first effect instance
+  // was cleaned up.
   const restoreStarted = useRef(false);
   useEffect(() => {
     if (restoreStarted.current || !hasPersistedSession()) return;
     restoreStarted.current = true;
-    let cancelled = false;
     apiClient
       .me()
       .then((me) => {
-        if (cancelled) return;
         setUser(me);
         setStatus('authenticated');
       })
       .catch(() => {
         // 401 with failed refresh already cleared tokens via onSessionInvalid;
         // network errors leave tokens for a later attempt but still show login.
-        if (cancelled) return;
         setUser(null);
         setStatus('unauthenticated');
       });
-    return () => {
-      cancelled = true;
-    };
   }, []);
 
   useEffect(() => {
