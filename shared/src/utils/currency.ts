@@ -4,13 +4,13 @@ const LOCALE_TAGS: Record<Locale, string> = { en: 'en-US', tr: 'tr-TR' };
 
 const formatterCache = new Map<string, Intl.NumberFormat>();
 
-function currencyFormatter(locale: Locale): Intl.NumberFormat {
+// Plain decimal formatting only: Hermes (Android) ignores currencyDisplay
+// "narrowSymbol" for TRY and prints "TRY 39.50", so the ₺ symbol is applied
+// manually below instead of trusting the engine's currency data.
+function decimalFormatter(locale: Locale): Intl.NumberFormat {
   let formatter = formatterCache.get(locale);
   if (!formatter) {
     formatter = new Intl.NumberFormat(LOCALE_TAGS[locale], {
-      style: 'currency',
-      currency: 'TRY',
-      currencyDisplay: 'narrowSymbol',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });
@@ -32,9 +32,9 @@ export function formatKurus(kurus: number, locale: Locale): string {
   const abs = Math.abs(kurus);
   const lira = Math.trunc(abs / 100);
   const cents = abs % 100;
-  const formatted = currencyFormatter(locale)
+  const formatted = decimalFormatter(locale)
     .formatToParts(lira)
     .map((part) => (part.type === 'fraction' ? String(cents).padStart(2, '0') : part.value))
     .join('');
-  return negative ? `-${formatted}` : formatted;
+  return `${negative ? '-' : ''}₺${formatted}`;
 }
