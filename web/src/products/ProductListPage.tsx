@@ -139,7 +139,7 @@ export function ProductListPage() {
         <h1 className="text-2xl font-semibold">{t('productsTitle')}</h1>
         {data && (
           <span className="text-sm text-muted-foreground">
-            {t('productCount', { count: data.total })}
+            {t(data.total === 1 ? 'productCountOne' : 'productCount', { count: data.total })}
           </span>
         )}
         {showRefetchSpinner && (
