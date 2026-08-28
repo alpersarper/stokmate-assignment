@@ -338,3 +338,41 @@ Validation must:
 - treat backend validation as authoritative
 
 General server/business errors use the global snackbar feedback system.
+
+---
+
+## UX-009 — Language & Localization
+
+> **Provenance.** This is a coordinator-approved decision from the 2026-08-28 discovery checkpoint review, recorded here on the coordinator's behalf by the Discovery Integration task. It is not an agent-invented decision. Like UX-001–UX-008, it may not be changed without coordinator approval.
+
+### Decision
+
+Both applications support two user-facing languages:
+
+- `en` (English) — default
+- `tr` (Turkish)
+
+The user can switch the language from within each application; the choice persists per client.
+
+### What is localized
+
+- application chrome and navigation
+- buttons and actions
+- form labels and client-side validation messages
+- loading, empty, and known error states
+- status and domain labels (e.g. status 1/2/3 shown as Active/Passive/Discontinued in English and Aktif/Pasif/Üretim Durduruldu in Turkish)
+
+### What is not localized
+
+- API data (product, category, brand, and supplier names) is displayed as delivered
+- arbitrary backend message strings are never translated by string matching
+
+### Currency
+
+Prices are always TRY and use ₺ formatting (locale-aware, e.g. `₺39,50`) in both languages. Currency is data, not chrome: it is never converted or re-denominated by the language switch.
+
+### Error-message fallback policy
+
+- Known, reliably identifiable failures — recognized by status code and request context, not by matching backend message text — are shown as localized client-side messages.
+- Unknown or unrecognized failures use a localized generic error message; the raw server text may appear as secondary detail.
+
