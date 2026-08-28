@@ -1,22 +1,84 @@
 import type { Locale } from '@stokmate/shared';
 
 /**
- * Typed mobile message catalog (UX-009 infrastructure). `en` defines the key
- * set; `tr` is forced to cover exactly the same keys. Feature copy lands with
- * the Mobile Agent — foundation only ships the chrome it renders.
+ * Typed mobile message catalog (UX-009). `en` defines the key set; `tr` is
+ * forced to cover exactly the same keys. API data and arbitrary backend prose
+ * are never translated — only chrome, actions, labels, validation, and known
+ * failure states identified by status code + request context.
  */
 const en = {
   appTitle: 'StokMate',
   language: 'Language',
   languageEnglish: 'English',
   languageTurkish: 'Türkçe',
+
+  // Auth
   loginTitle: 'Sign in',
+  loginSubtitle: 'Store stock management',
+  emailLabel: 'Email',
+  passwordLabel: 'Password',
+  showPassword: 'Show password',
+  hidePassword: 'Hide password',
+  rememberMe: 'Remember me',
+  signIn: 'Sign in',
+  signingIn: 'Signing in…',
+  validationEmailRequired: 'Email is required.',
+  validationPasswordRequired: 'Password is required.',
+  errorBadCredentials: 'Email or password is incorrect.',
+  sessionExpired: 'Your session has expired. Please sign in again.',
+  restoringSession: 'Loading…',
+  logout: 'Log out',
+
+  // Common
+  retry: 'Retry',
+  errorGeneric: 'Something went wrong.',
+  errorNetwork: 'Could not reach the server. Check your connection.',
+  errorNotFound: 'Product not found.',
+
+  // Product list
   productsTitle: 'Products',
+  searchPlaceholder: 'Search name, SKU or barcode',
+  clearSearch: 'Clear search',
+  loadingProducts: 'Loading products…',
+  listErrorTitle: 'Products could not be loaded.',
+  emptyCatalogTitle: 'No products',
+  emptyCatalogBody: 'There are no products in the catalog yet.',
+  noResultsTitle: 'No matching products',
+  noResultsBody: 'No products match your search.',
+  loadMoreFailed: 'More products could not be loaded.',
+  stockLabel: 'Stock',
+
+  // Product detail
   productDetailTitle: 'Product detail',
-  placeholderNotice: 'Placeholder screen — feature implementation follows.',
-  openProductList: 'Open product list',
-  openProductDetail: 'Open product detail #1',
-  backToLogin: 'Back to login',
+  detailErrorTitle: 'Product could not be loaded.',
+  skuLabel: 'SKU',
+  barcodeLabel: 'Barcode',
+  categoryLabel: 'Category',
+  brandLabel: 'Brand',
+  priceLabel: 'Price',
+  unitFieldLabel: 'Unit',
+  statusFieldLabel: 'Status',
+  descriptionLabel: 'Description',
+  updatedAtLabel: 'Last updated',
+  outOfStockBadge: 'Out of stock',
+  lowStockBadge: 'Low stock',
+
+  // Stock editor (UX-005)
+  stockEditorTitle: 'Update stock',
+  currentStockLabel: 'Current stock',
+  decreaseStock: 'Decrease stock',
+  increaseStock: 'Increase stock',
+  saveStock: 'Save Stock',
+  savingStock: 'Saving…',
+  stockInvalid: 'Enter a whole number of 0 or more.',
+  stockSaved: 'Stock updated.',
+  stockSaveFailed: 'Stock could not be saved.',
+
+  // Unsaved-changes guard (UX-003)
+  unsavedTitle: 'Discard changes?',
+  unsavedMessage: 'Your stock change has not been saved.',
+  stay: 'Stay',
+  discardChanges: 'Discard Changes',
 } as const;
 
 export type MessageKey = keyof typeof en;
@@ -26,13 +88,68 @@ const tr: Record<MessageKey, string> = {
   language: 'Dil',
   languageEnglish: 'English',
   languageTurkish: 'Türkçe',
+
   loginTitle: 'Giriş yap',
+  loginSubtitle: 'Mağaza stok yönetimi',
+  emailLabel: 'E-posta',
+  passwordLabel: 'Şifre',
+  showPassword: 'Şifreyi göster',
+  hidePassword: 'Şifreyi gizle',
+  rememberMe: 'Beni hatırla',
+  signIn: 'Giriş yap',
+  signingIn: 'Giriş yapılıyor…',
+  validationEmailRequired: 'E-posta zorunludur.',
+  validationPasswordRequired: 'Şifre zorunludur.',
+  errorBadCredentials: 'E-posta veya şifre hatalı.',
+  sessionExpired: 'Oturumunuzun süresi doldu. Lütfen tekrar giriş yapın.',
+  restoringSession: 'Yükleniyor…',
+  logout: 'Çıkış yap',
+
+  retry: 'Tekrar dene',
+  errorGeneric: 'Bir şeyler ters gitti.',
+  errorNetwork: 'Sunucuya ulaşılamadı. Bağlantınızı kontrol edin.',
+  errorNotFound: 'Ürün bulunamadı.',
+
   productsTitle: 'Ürünler',
+  searchPlaceholder: 'Ad, SKU veya barkod ara',
+  clearSearch: 'Aramayı temizle',
+  loadingProducts: 'Ürünler yükleniyor…',
+  listErrorTitle: 'Ürünler yüklenemedi.',
+  emptyCatalogTitle: 'Ürün yok',
+  emptyCatalogBody: 'Katalogda henüz ürün yok.',
+  noResultsTitle: 'Eşleşen ürün yok',
+  noResultsBody: 'Aramanızla eşleşen ürün bulunamadı.',
+  loadMoreFailed: 'Diğer ürünler yüklenemedi.',
+  stockLabel: 'Stok',
+
   productDetailTitle: 'Ürün detayı',
-  placeholderNotice: 'Yer tutucu ekran — özellik geliştirmesi devam edecek.',
-  openProductList: 'Ürün listesini aç',
-  openProductDetail: 'Ürün detayını aç #1',
-  backToLogin: 'Girişe dön',
+  detailErrorTitle: 'Ürün yüklenemedi.',
+  skuLabel: 'SKU',
+  barcodeLabel: 'Barkod',
+  categoryLabel: 'Kategori',
+  brandLabel: 'Marka',
+  priceLabel: 'Fiyat',
+  unitFieldLabel: 'Birim',
+  statusFieldLabel: 'Durum',
+  descriptionLabel: 'Açıklama',
+  updatedAtLabel: 'Son güncelleme',
+  outOfStockBadge: 'Stokta yok',
+  lowStockBadge: 'Düşük stok',
+
+  stockEditorTitle: 'Stok güncelle',
+  currentStockLabel: 'Mevcut stok',
+  decreaseStock: 'Stok azalt',
+  increaseStock: 'Stok artır',
+  saveStock: 'Stoku Kaydet',
+  savingStock: 'Kaydediliyor…',
+  stockInvalid: '0 veya daha büyük bir tam sayı girin.',
+  stockSaved: 'Stok güncellendi.',
+  stockSaveFailed: 'Stok kaydedilemedi.',
+
+  unsavedTitle: 'Değişiklikler silinsin mi?',
+  unsavedMessage: 'Stok değişikliğiniz kaydedilmedi.',
+  stay: 'Kal',
+  discardChanges: 'Değişiklikleri Sil',
 };
 
 export const messages: Record<Locale, Record<MessageKey, string>> = { en, tr };
