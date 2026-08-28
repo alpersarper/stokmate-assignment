@@ -1,0 +1,21 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+web/dist/
+
+# expo / native build output
+mobile/.expo/
+mobile/android/
+mobile/ios/
+*.apk
+*.aab
+
+# logs and OS noise
+npm-debug.log*
+.DS_Store
+
+# local env overrides (committed .env files are defaults, not secrets)
+.env.local
+.env.*.local
