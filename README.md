@@ -115,7 +115,8 @@ The addition is read-only, follows the backend's existing patterns, and changes 
 ## Assumptions & known limitations
 
 - **In-memory backend**: all data resets and **all sessions are invalidated** on every backend restart; clients handle this by returning to login when refresh fails.
-- **Concurrency**: the API has no versioning/ETag mechanism, so product and stock updates are **last-write-wins**; the clients re-fetch after saving to show the persisted server state.
+- **Concurrency**: the API has no versioning/ETag mechanism, so product and stock updates are **last-write-wins** (with the single exception below); the clients re-fetch after saving to show the persisted server state.
+- **Discontinued products are stock-locked** (explicit assignment decision): the backend rejects `PATCH /products/{id}/stock` with `409 Conflict` when a product's status is Discontinued — enforced server-side so a stale client that opened the product while it was Active cannot book stock onto it afterwards. The mobile app disables the stock editor for Discontinued products and maps the 409 to a specific message plus a detail refresh. Passive products deliberately still accept stock updates (the assignment defines no restriction for Passive). Rationale: `docs/DECISIONS.md` §12; contract: `docs/API_CONTRACT.md` §8.
 - **Search/collation is server-defined**: search input is passed through untouched; Turkish dotted/dotless-I matching follows the backend host's locale and is not re-filtered client-side.
 - **Currency**: prices are TRY (₺) per the provided domain documentation; the symbol is rendered explicitly for consistency across JS engines.
 - **Filters are single-value** (one category, one brand) — the API has no multi-select filtering.

@@ -128,6 +128,64 @@ describe('live backend', () => {
     expect(storage.current()).toBeNull();
   });
 
+  it('stock update domain rule: Active/Passive allowed, Discontinued → 409, stock unchanged (DOMAIN/API-003)', async () => {
+    const storage = makeStorage();
+    const client = createApiClient({ baseUrl: BASE, ...storage, onSessionInvalid: vi.fn() });
+    await client.login(EMAIL, PASSWORD);
+
+    // Product 3 is untouched by the other tests in this file.
+    const original = await client.getProduct(3);
+    const putBody = (status: 1 | 2 | 3) => ({
+      name: original.name,
+      sku: original.sku,
+      barcode: original.barcode,
+      categoryId: original.categoryId,
+      brandId: original.brandId,
+      supplierId: original.supplierId,
+      price: original.price,
+      costPrice: original.costPrice,
+      stock: original.stock,
+      minStock: original.minStock,
+      unit: original.unit,
+      status,
+      description: original.description,
+      isFeatured: original.isFeatured,
+    });
+
+    try {
+      // Active: allowed.
+      const active = await client.updateStock(3, original.stock + 1);
+      expect(active.stock).toBe(original.stock + 1);
+
+      // Passive: deliberately unchanged behavior — still allowed.
+      await client.updateProduct(3, putBody(2));
+      const passive = await client.updateStock(3, original.stock + 2);
+      expect(passive.stock).toBe(original.stock + 2);
+
+      // Discontinued: terminal operational state — stock update rejected.
+      // (The full-replace PUT itself resets stock to the body value, original.stock.)
+      await client.updateProduct(3, putBody(3));
+      await expect(client.updateStock(3, 999)).rejects.toMatchObject({
+        status: 409,
+        message: 'Üretimi durdurulmuş ürünün stoğu güncellenemez.',
+      });
+      const afterConflict = await client.getProduct(3);
+      expect(afterConflict.stock).toBe(original.stock); // the rejected PATCH (999) never landed
+      expect(afterConflict.status).toBe(3);
+
+      // Unknown product: 404 convention unchanged.
+      await expect(client.updateStock(9999, 1)).rejects.toMatchObject({ status: 404 });
+    } finally {
+      // PUT remains allowed on Discontinued (status itself must stay editable) — restore.
+      await client.updateProduct(3, putBody(original.status));
+      await client.updateStock(3, original.stock);
+    }
+
+    const restored = await client.getProduct(3);
+    expect(restored.status).toBe(original.status);
+    expect(restored.stock).toBe(original.stock);
+  });
+
   it('logout revokes: the old pair is unusable afterwards', async () => {
     const storage = makeStorage();
     const client = createApiClient({ baseUrl: BASE, ...storage, onSessionInvalid: vi.fn() });

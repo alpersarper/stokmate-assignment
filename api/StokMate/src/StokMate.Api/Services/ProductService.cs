@@ -166,6 +166,14 @@ public class ProductService
 
         var product = await FindAsync(id);
 
+        // Üretimi durdurulmuş ürün operasyonel olarak kapalıdır; stoğu değiştirilemez
+        // (assignment kararı — bkz. docs/DECISIONS.md). Diğer alan güncellemeleri (PUT)
+        // bilinçli olarak serbest bırakılmıştır: durumun kendisi PUT ile değiştirilebilmelidir.
+        if (product.Status == ProductStatus.UretimDurduruldu)
+        {
+            throw new ConflictException("Üretimi durdurulmuş ürünün stoğu güncellenemez.");
+        }
+
         product.Stock = request.Stock;
         product.UpdatedAt = DateTime.UtcNow;
 
