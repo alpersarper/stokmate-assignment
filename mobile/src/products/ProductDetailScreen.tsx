@@ -1,3 +1,4 @@
+import { useIsFocused } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
   formatKurus,
@@ -7,9 +8,9 @@ import {
   type Locale,
   type ProductDetail,
 } from '@stokmate/shared';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { Alert, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, AppState, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { apiClient } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import { ErrorState, LoadingState } from '../components/ui';
@@ -23,15 +24,41 @@ type Props = NativeStackScreenProps<RootStackParamList, 'ProductDetail'>;
 
 const LOCALE_TAGS: Record<Locale, string> = { en: 'en-US', tr: 'tr-TR' };
 
+/** MOB-004: conservative freshness poll — this product only, only while the
+ * detail screen is focused AND the app is foregrounded. */
+const DETAIL_POLL_MS = 10_000;
+
 export function ProductDetailScreen({ navigation, route }: Props) {
   const { id } = route.params;
   const { t, locale } = useI18n();
   const { status: authStatus } = useAuth();
+  const queryClient = useQueryClient();
+
+  const isFocused = useIsFocused();
+  const [appActive, setAppActive] = useState(AppState.currentState === 'active');
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (next) =>
+      setAppActive(next === 'active'),
+    );
+    return () => subscription.remove();
+  }, []);
+  const live = isFocused && appActive;
 
   const query = useQuery({
     queryKey: queryKeys.products.detail(id),
     queryFn: () => apiClient.getProduct(id),
+    refetchInterval: live ? DETAIL_POLL_MS : false,
   });
+
+  // Targeted refresh on refocus/foreground (MOB-004): one GET /products/{id},
+  // never a list refetch. Skips the initial mount — the query fetches anyway.
+  const wasLiveRef = useRef(live);
+  useEffect(() => {
+    if (live && !wasLiveRef.current) {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.products.detail(id) });
+    }
+    wasLiveRef.current = live;
+  }, [live, id, queryClient]);
 
   useLayoutEffect(() => {
     navigation.setOptions({ title: query.data?.name ?? t('productDetailTitle') });

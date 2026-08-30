@@ -14,14 +14,16 @@ import { PrimaryButton } from '../components/ui';
 import { useI18n } from '../i18n';
 import { describeFailure } from '../lib/errors';
 import { colors, radius } from '../lib/theme';
+import { applyProductToCaches } from './product-cache';
 
 /**
  * UX-005 stock editor — the primary mobile workflow. The draft is a local
  * string; nothing touches the backend until "Save Stock". Saves go through the
  * dedicated PATCH /products/{id}/stock with a validated numeric value, so the
- * contract's empty-body-sets-zero trap is unreachable. After success the
- * persisted server value (from the PATCH response) is displayed and the detail
- * query is refetched.
+ * contract's empty-body-sets-zero trap is unreachable. The PATCH response is
+ * canonical server state and is applied to the detail + list caches directly
+ * (MOB-003) — no page-by-page refetch. Discontinued products are stock-locked
+ * (DOMAIN/API-003): controls disabled here, rule enforced by the backend.
  */
 export function StockEditor({
   product,
@@ -34,14 +36,22 @@ export function StockEditor({
   const { show } = useSnackbar();
   const queryClient = useQueryClient();
 
+  const discontinued = product.status === 3;
+
   const [draft, setDraft] = useState(String(product.stock));
   const prevStock = useRef(product.stock);
+  const [externalChange, setExternalChange] = useState(false);
 
-  // Follow background refetches only while the draft is clean; an in-progress
-  // edit is never clobbered (UX-005 input stability).
+  // Server stock moved underneath us (detail poll/refocus or another client):
+  // a clean draft follows the server automatically; a dirty draft is never
+  // silently overwritten — the change is surfaced instead (MOB-004).
   useEffect(() => {
     if (product.stock !== prevStock.current) {
-      if (normalizeStockInput(draft) === prevStock.current) setDraft(String(product.stock));
+      if (normalizeStockInput(draft) === prevStock.current) {
+        setDraft(String(product.stock));
+      } else {
+        setExternalChange(true);
+      }
       prevStock.current = product.stock;
     }
   }, [product.stock, draft]);
@@ -49,7 +59,7 @@ export function StockEditor({
   const normalized = normalizeStockInput(draft);
   const invalid = normalized === null;
   const changed = normalized !== product.stock;
-  const dirty = invalid || changed;
+  const dirty = !discontinued && (invalid || changed);
 
   useEffect(() => {
     onDirtyChange(dirty);
@@ -58,21 +68,25 @@ export function StockEditor({
   const mutation = useMutation({
     mutationFn: (stock: number) => apiClient.updateStock(product.id, stock),
     onSuccess: (updated: Product) => {
-      // The PATCH response is the persisted server state: show it immediately,
-      // then refetch detail in the background and refresh any list caches.
-      queryClient.setQueryData<ProductDetail>(
-        queryKeys.products.detail(product.id),
-        (old) => (old ? { ...old, ...updated } : old),
-      );
-      void queryClient.invalidateQueries({ queryKey: queryKeys.products.detail(product.id) });
-      void queryClient.invalidateQueries({ queryKey: queryKeys.products.lists() });
-      setDraft(String(updated.stock));
+      // Canonical persisted state → patch detail + every cached list dataset
+      // in place. No invalidation, no page refetch storm (MOB-003).
       prevStock.current = updated.stock;
+      applyProductToCaches(queryClient, updated);
+      setDraft(String(updated.stock));
+      setExternalChange(false);
       show(t('stockSaved'), 'success');
     },
     onError: (error: unknown) => {
-      // Failure: draft is preserved untouched; user corrects or retries (UX-005).
       const failure = describeFailure(error, 'stockUpdate');
+      if (failure.key === 'stockDiscontinuedConflict') {
+        // Stale client raced a discontinue from elsewhere: domain-specific
+        // feedback, then one targeted detail refetch — the fresh server state
+        // flips this editor into the disabled Discontinued presentation.
+        show(t('stockDiscontinuedConflict'), 'error');
+        void queryClient.invalidateQueries({ queryKey: queryKeys.products.detail(product.id) });
+        return;
+      }
+      // Other failures: draft preserved untouched; user corrects or retries.
       show(
         t('stockSaveFailed'),
         'error',
@@ -82,7 +96,9 @@ export function StockEditor({
   });
 
   const saving = mutation.isPending;
-  const canSave = !invalid && changed && !saving;
+  const canSave = !invalid && changed && !saving && !discontinued;
+  const stepDisabledDown = saving || discontinued || (normalized ?? product.stock) <= 0;
+  const stepDisabledUp = saving || discontinued;
 
   function step(delta: 1 | -1) {
     // Steppers act on the parsed draft (or the persisted value when the draft
@@ -104,27 +120,42 @@ export function StockEditor({
         {t('currentStockLabel')}: <Text style={styles.currentValue}>{product.stock}</Text>
       </Text>
 
+      {discontinued ? (
+        <Text style={styles.discontinuedNotice}>{t('stockDiscontinuedNotice')}</Text>
+      ) : null}
+      {!discontinued && externalChange && changed ? (
+        <Text style={styles.externalChangeNotice}>
+          {t('externalStockChange', { stock: product.stock })}
+        </Text>
+      ) : null}
+
       <View style={styles.editorRow}>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={t('decreaseStock')}
           onPress={() => step(-1)}
-          disabled={saving || (normalized ?? product.stock) <= 0}
+          disabled={stepDisabledDown}
           style={({ pressed }) => [
             styles.stepButton,
             pressed && styles.stepButtonPressed,
-            (saving || (normalized ?? product.stock) <= 0) && styles.stepButtonDisabled,
+            stepDisabledDown && styles.stepButtonDisabled,
           ]}
         >
           <Text style={styles.stepButtonText}>−</Text>
         </Pressable>
 
         <TextInput
-          style={[styles.input, invalid && styles.inputInvalid]}
-          value={draft}
+          style={[
+            styles.input,
+            invalid && !discontinued && styles.inputInvalid,
+            discontinued && styles.inputDisabled,
+          ]}
+          // Discontinued is not editable: the field mirrors the server value
+          // (the local draft is preserved in case the status is reverted).
+          value={discontinued ? String(product.stock) : draft}
           onChangeText={setDraft}
           keyboardType="number-pad"
-          editable={!saving}
+          editable={!saving && !discontinued}
           selectTextOnFocus
           accessibilityLabel={t('stockEditorTitle')}
           testID="stock-input"
@@ -134,18 +165,20 @@ export function StockEditor({
           accessibilityRole="button"
           accessibilityLabel={t('increaseStock')}
           onPress={() => step(1)}
-          disabled={saving}
+          disabled={stepDisabledUp}
           style={({ pressed }) => [
             styles.stepButton,
             pressed && styles.stepButtonPressed,
-            saving && styles.stepButtonDisabled,
+            stepDisabledUp && styles.stepButtonDisabled,
           ]}
         >
           <Text style={styles.stepButtonText}>+</Text>
         </Pressable>
       </View>
 
-      {invalid ? <Text style={styles.validationError}>{t('stockInvalid')}</Text> : null}
+      {invalid && !discontinued ? (
+        <Text style={styles.validationError}>{t('stockInvalid')}</Text>
+      ) : null}
 
       <PrimaryButton
         label={saving ? t('savingStock') : t('saveStock')}
@@ -169,6 +202,9 @@ const styles = StyleSheet.create({
   title: { fontSize: 16, fontWeight: '700', color: colors.text },
   current: { fontSize: 14, color: colors.textSecondary },
   currentValue: { fontWeight: '700', color: colors.text },
+
+  discontinuedNotice: { fontSize: 13, color: colors.danger },
+  externalChangeNotice: { fontSize: 13, color: colors.warning },
 
   editorRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   stepButton: {
@@ -197,5 +233,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
   inputInvalid: { borderColor: colors.danger },
+  inputDisabled: { color: colors.disabledText, backgroundColor: colors.disabledSurface },
   validationError: { color: colors.danger, fontSize: 13 },
 });

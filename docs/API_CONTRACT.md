@@ -202,6 +202,7 @@ Dedicated endpoint; stock is updatable fully independently (primary mobile workf
 - Request `{"stock": <int ≥ 0>}` — an **absolute replacement**, not a delta. `0` is valid.
 - Response `200` with the **full updated `ProductDto`**; `updatedAt` refreshed.
 - Errors: negative → `400` `Stok negatif olamaz.`; unknown id → `404` `<id> numaralı ürün bulunamadı.`; `null`/decimal/overflow → generic `400`.
+- **Discontinued rule — assignment decision (added 2026-08-30, not part of the original provided backend; see `docs/DECISIONS.md` §12).** When the product's `status` is `3` (Üretim Durduruldu), the stock update is **rejected**: `409 text/plain` `Üretimi durdurulmuş ürünün stoğu güncellenemez.`, stock unchanged, `updatedAt` unchanged. Statuses `1` (Aktif) and `2` (Pasif) accept stock updates exactly as before. `PUT /products/{id}` is deliberately **not** restricted — `status` itself stays editable, so Discontinued is reversible through product edit, after which stock updates work again. Runtime-verified 2026-08-30 (curl battery + `npm run test:live --workspace shared`): Active → 200; Passive → 200; Discontinued → 409 with stock unchanged; unknown id → 404 and auth behavior unchanged.
 - **Trap — client obligation:** an empty body `{}` is accepted and **silently sets stock to 0** (field binds to default). Clients must guarantee the `stock` field is always present and numeric before sending. Never generate this request.
 - Missing `Content-Type: application/json` → `415` with a **JSON ProblemDetails** body — the only known non-plain-text error.
 
@@ -233,6 +234,7 @@ All require Bearer auth; all return bare arrays (no paging envelope).
 | Unknown route / non-int id segment | 404 | **Empty body** |
 | Wrong method on existing route | 405 | **Empty body**, `Allow` header |
 | SKU conflict | 409 | `'<sku>' stok kodu başka bir üründe kullanılıyor.` |
+| Stock update on a Discontinued product (**assignment addition**, §8) | 409 | `Üretimi durdurulmuş ürünün stoğu güncellenemez.` |
 | Missing `Content-Type` on body request | 415 | **JSON** ProblemDetails (only non-plain-text case) |
 | Unexpected server error | 500 | `Beklenmeyen bir hata oluştu.` **[source]** (§12) |
 
@@ -246,7 +248,7 @@ Client obligations: centralize text-body error reading; expect empty bodies on 4
 
 - No version/rowversion/concurrency-token fields in entities or DTOs; no ETag/Last-Modified; `If-Match` is ignored (stale value → `200`); no 412 path; no `updatedAt` precondition.
 - **Lost updates confirmed at runtime:** two PUTs from the same stale read both return 200 — last write wins. Same for PATCH stock. A full-form PUT silently clobbers a stock PATCH that landed in between (stock is inside the PUT body).
-- `409` exists only for SKU uniqueness — it is *not* a stale-write signal.
+- `409` exists for SKU uniqueness and (assignment addition, §8) for stock updates on Discontinued products. The Discontinued rule is a **domain-state** rejection that does protect stale clients from writing stock to a product discontinued elsewhere; neither 409 is a general stale-write/version signal. Writes otherwise remain last-write-wins.
 - `updatedAt` is **observable state only** — returned and refreshed on every write, never checked. It is the only change-detection primitive (poll/refetch); it can reduce staleness windows, not prevent lost updates.
 - **Client obligation:** do not invent a client-side concurrency protocol. Mitigate at UX level only (edit from a fresh read, refetch after writes, document the limitation).
 

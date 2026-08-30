@@ -1,6 +1,14 @@
-import { formatKurus, type ProductListParams } from '@stokmate/shared';
-import { ChevronRightIcon, Loader2Icon, PackageOpenIcon, SearchIcon, SearchXIcon, TriangleAlertIcon, XIcon } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import {
+  formatKurus,
+  statusLabel,
+  type Locale,
+  type ProductListParams,
+  type ProductSortField,
+  type ProductStatus,
+  type SortDirection,
+} from '@stokmate/shared';
+import { ArrowDownIcon, ArrowUpIcon, ChevronRightIcon, ChevronsUpDownIcon, Loader2Icon, PackageOpenIcon, SearchIcon, SearchXIcon, TriangleAlertIcon, XIcon } from 'lucide-react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -33,6 +41,27 @@ function intParam(value: string | null): number | undefined {
   return Number.isInteger(n) && n > 0 ? n : undefined;
 }
 
+/** WEB-001: status filter values mirror the wire contract (1|2|3); anything else = All. */
+const STATUS_VALUES: ProductStatus[] = [1, 2, 3];
+
+function statusParam(value: string | null): ProductStatus | undefined {
+  const n = intParam(value);
+  return n !== undefined && STATUS_VALUES.includes(n as ProductStatus)
+    ? (n as ProductStatus)
+    : undefined;
+}
+
+/** WEB-002: server-side sortable columns per the verified contract. */
+const SORT_FIELDS: ProductSortField[] = ['name', 'price', 'stock', 'updatedAt'];
+const DEFAULT_SORT: ProductSortField = 'name';
+const DEFAULT_DIR: SortDirection = 'asc';
+
+function sortParam(value: string | null): ProductSortField {
+  return SORT_FIELDS.includes(value as ProductSortField)
+    ? (value as ProductSortField)
+    : DEFAULT_SORT;
+}
+
 export function ProductListPage() {
   const { t, locale } = useI18n();
   const navigate = useNavigate();
@@ -44,8 +73,12 @@ export function ProductListPage() {
   const q = searchParams.get('q') ?? '';
   const categoryId = intParam(searchParams.get('category'));
   const brandId = intParam(searchParams.get('brand'));
+  const status = statusParam(searchParams.get('status'));
+  const sort = sortParam(searchParams.get('sort'));
+  const dir: SortDirection = searchParams.get('dir') === 'desc' ? 'desc' : DEFAULT_DIR;
   const page = intParam(searchParams.get('page')) ?? 1;
-  const filtersActive = q !== '' || categoryId !== undefined || brandId !== undefined;
+  const filtersActive =
+    q !== '' || categoryId !== undefined || brandId !== undefined || status !== undefined;
 
   const updateParams = (mutate: (next: URLSearchParams) => void) => {
     setSearchParams(
@@ -79,8 +112,28 @@ export function ProductListPage() {
     q: q || undefined,
     categoryId,
     brandId,
+    status,
+    // Server defaults (name asc) are omitted so the default dataset keeps its key shape.
+    sort: sort === DEFAULT_SORT && dir === DEFAULT_DIR ? undefined : sort,
+    dir: sort === DEFAULT_SORT && dir === DEFAULT_DIR ? undefined : dir,
     page,
     pageSize: PAGE_SIZE,
+  };
+
+  // WEB-002: header-click sorting, server-side only. Same field toggles
+  // asc→desc; a new field starts asc. Any sort change restarts at page 1.
+  const applySort = (field: ProductSortField) => {
+    const nextDir: SortDirection = sort === field && dir === 'asc' ? 'desc' : 'asc';
+    updateParams((next) => {
+      if (field === DEFAULT_SORT && nextDir === DEFAULT_DIR) {
+        next.delete('sort');
+        next.delete('dir');
+      } else {
+        next.set('sort', field);
+        next.set('dir', nextDir);
+      }
+      next.delete('page');
+    });
   };
   const listQuery = useProductList(params);
   const categoriesQuery = useCategories();
@@ -127,6 +180,7 @@ export function ProductListPage() {
       next.delete('q');
       next.delete('category');
       next.delete('brand');
+      next.delete('status'); // back to the web default: All
       next.delete('page');
     });
   };
@@ -218,6 +272,29 @@ export function ProductListPage() {
           </SelectContent>
         </Select>
 
+        <Select
+          value={status !== undefined ? String(status) : 'all'}
+          onValueChange={(value) =>
+            updateParams((next) => {
+              if (value === 'all') next.delete('status');
+              else next.set('status', value);
+              next.delete('page');
+            })
+          }
+        >
+          <SelectTrigger className="w-40" aria-label={t('colStatus')}>
+            <SelectValue placeholder={t('allStatuses')} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{t('allStatuses')}</SelectItem>
+            {STATUS_VALUES.map((value) => (
+              <SelectItem key={value} value={String(value)}>
+                {statusLabel(value, locale)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
         {filtersActive && (
           <Button variant="ghost" size="sm" onClick={clearFilters}>
             <XIcon className="size-4" aria-hidden />
@@ -263,12 +340,21 @@ export function ProductListPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{t('colName')}</TableHead>
+                  <SortableHead field="name" sort={sort} dir={dir} onSort={applySort}>
+                    {t('colName')}
+                  </SortableHead>
                   <TableHead>{t('colCategory')}</TableHead>
                   <TableHead>{t('colBrand')}</TableHead>
-                  <TableHead className="text-right">{t('colPrice')}</TableHead>
-                  <TableHead className="text-right">{t('colStock')}</TableHead>
+                  <SortableHead field="price" sort={sort} dir={dir} onSort={applySort} align="right">
+                    {t('colPrice')}
+                  </SortableHead>
+                  <SortableHead field="stock" sort={sort} dir={dir} onSort={applySort} align="right">
+                    {t('colStock')}
+                  </SortableHead>
                   <TableHead>{t('colStatus')}</TableHead>
+                  <SortableHead field="updatedAt" sort={sort} dir={dir} onSort={applySort}>
+                    {t('colUpdated')}
+                  </SortableHead>
                   <TableHead className="w-8" />
                 </TableRow>
               </TableHeader>
@@ -301,6 +387,9 @@ export function ProductListPage() {
                     </TableCell>
                     <TableCell>
                       <StatusBadge status={product.status} />
+                    </TableCell>
+                    <TableCell className="text-xs whitespace-nowrap text-muted-foreground">
+                      {formatUpdatedAt(product.updatedAt, locale)}
                     </TableCell>
                     <TableCell>
                       <ChevronRightIcon className="size-4 text-muted-foreground" aria-hidden />
@@ -343,6 +432,60 @@ export function ProductListPage() {
       ) : null}
     </div>
   );
+}
+
+/**
+ * WEB-002 sortable column header. The whole head is a button; active state is
+ * shown with a direction arrow and exposed via aria-sort on the header cell.
+ */
+function SortableHead({
+  field,
+  sort,
+  dir,
+  onSort,
+  align,
+  children,
+}: {
+  field: ProductSortField;
+  sort: ProductSortField;
+  dir: SortDirection;
+  onSort: (field: ProductSortField) => void;
+  align?: 'right';
+  children: ReactNode;
+}) {
+  const active = sort === field;
+  return (
+    <TableHead
+      aria-sort={active ? (dir === 'asc' ? 'ascending' : 'descending') : 'none'}
+      className={align === 'right' ? 'text-right' : undefined}
+    >
+      <button
+        type="button"
+        onClick={() => onSort(field)}
+        className={`inline-flex items-center gap-1 rounded hover:text-foreground focus-visible:outline-2 ${
+          active ? 'font-semibold text-foreground' : ''
+        }`}
+      >
+        {children}
+        {active ? (
+          dir === 'asc' ? (
+            <ArrowUpIcon className="size-3.5" aria-hidden />
+          ) : (
+            <ArrowDownIcon className="size-3.5" aria-hidden />
+          )
+        ) : (
+          <ChevronsUpDownIcon className="size-3.5 text-muted-foreground/60" aria-hidden />
+        )}
+      </button>
+    </TableHead>
+  );
+}
+
+function formatUpdatedAt(iso: string, locale: Locale): string {
+  return new Intl.DateTimeFormat(locale === 'tr' ? 'tr-TR' : 'en-US', {
+    dateStyle: 'short',
+    timeStyle: 'short',
+  }).format(new Date(iso));
 }
 
 function ListSkeleton() {
