@@ -3,9 +3,11 @@ import { ArrowLeftIcon, ImageOffIcon, Loader2Icon, PencilIcon, TriangleAlertIcon
 import { useState, type ReactNode } from 'react';
 import { Link, useLocation, useParams } from 'react-router';
 import { toast } from 'sonner';
+import { FreshnessControl } from '@/components/FreshnessControl';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useI18n } from '@/i18n';
+import { useManualRefresh } from '@/lib/refresh';
 import { ProductEditForm } from '@/products/ProductEditForm';
 import { StatusBadge, StockIndicator } from '@/products/product-display';
 import { useProductDetail } from '@/products/queries';
@@ -25,6 +27,7 @@ export function ProductDetailPage() {
   const id = Number(params.id);
   const idValid = Number.isInteger(id) && id > 0;
   const detailQuery = useProductDetail(id);
+  const { refresh, refreshDisabled } = useManualRefresh(detailQuery);
 
   // Editing works on a frozen snapshot taken by an explicit fresh read when
   // Edit is pressed — the PUT body must derive from up-to-date server state.
@@ -88,7 +91,8 @@ export function ProductDetailPage() {
         <div className="flex flex-col items-center gap-3 rounded-lg border border-border py-16 text-center">
           <TriangleAlertIcon className="size-8 text-destructive" aria-hidden />
           <p className="font-medium">{t('detailErrorTitle')}</p>
-          <Button variant="outline" onClick={() => void detailQuery.refetch()}>
+          {/* Protected pipeline: spam-clicking Retry joins the in-flight request. */}
+          <Button variant="outline" onClick={refresh}>
             {t('retry')}
           </Button>
         </div>
@@ -102,7 +106,20 @@ export function ProductDetailPage() {
 
   return (
     <div className="flex flex-col gap-6 py-8">
-      {backLink}
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        {backLink}
+        {/* Hidden while editing: the form works on a frozen snapshot taken by
+            an explicit fresh read, and must never be refreshed underneath. */}
+        {!editing && (
+          <FreshnessControl
+            dataUpdatedAt={detailQuery.dataUpdatedAt}
+            errorUpdatedAt={detailQuery.errorUpdatedAt}
+            isFetching={detailQuery.isFetching}
+            onRefresh={refresh}
+            refreshDisabled={refreshDisabled}
+          />
+        )}
+      </div>
 
       <div className="rounded-lg border border-border p-6">
         <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
@@ -113,9 +130,6 @@ export function ProductDetailPage() {
               <p className="mt-1 text-sm text-muted-foreground">{detail.sku}</p>
               <div className="mt-2 flex items-center gap-2">
                 <StatusBadge status={detail.status} />
-                {detailQuery.isFetching && (
-                  <Loader2Icon className="size-4 animate-spin text-muted-foreground" aria-hidden />
-                )}
               </div>
             </div>
           </div>

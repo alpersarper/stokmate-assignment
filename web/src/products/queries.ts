@@ -6,21 +6,26 @@ import {
 } from '@stokmate/shared';
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/api/client';
+import { useAnchoredRefetch } from '@/lib/refresh';
 
 /**
  * Cross-client refresh (optional bonus): while a product list is mounted it
  * re-polls the active query so edits from other clients appear without a
- * reload. keepPreviousData keeps the refresh visually calm.
+ * reload. keepPreviousData keeps the refresh visually calm. The poll is
+ * anchored to the last fetch settle (not a free-running interval) so it
+ * coordinates with manual refresh, focus/reconnect revalidation, and
+ * mutation invalidation instead of stacking on top of them.
  */
-const LIST_REFETCH_INTERVAL_MS = 15_000;
+const LIST_POLL_MS = 15_000;
 
 export function useProductList(params: ProductListParams) {
-  return useQuery({
+  const query = useQuery({
     queryKey: queryKeys.products.list(params),
     queryFn: () => apiClient.getProducts(params),
     placeholderData: keepPreviousData,
-    refetchInterval: LIST_REFETCH_INTERVAL_MS,
   });
+  useAnchoredRefetch(query, LIST_POLL_MS);
+  return query;
 }
 
 export function useProductDetail(id: number) {
