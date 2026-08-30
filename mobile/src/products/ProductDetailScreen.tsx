@@ -13,9 +13,11 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import { Alert, AppState, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { apiClient } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
+import { FreshnessControl } from '../components/FreshnessControl';
 import { ErrorState, LoadingState } from '../components/ui';
 import { useI18n } from '../i18n';
 import { describeFailure } from '../lib/errors';
+import { useAnchoredRefetch, useManualRefresh } from '../lib/refresh';
 import { colors, radius } from '../lib/theme';
 import type { RootStackParamList } from '../navigation-shared';
 import { StockEditor } from './StockEditor';
@@ -25,7 +27,9 @@ type Props = NativeStackScreenProps<RootStackParamList, 'ProductDetail'>;
 const LOCALE_TAGS: Record<Locale, string> = { en: 'en-US', tr: 'tr-TR' };
 
 /** MOB-004: conservative freshness poll — this product only, only while the
- * detail screen is focused AND the app is foregrounded. */
+ * detail screen is focused AND the app is foregrounded. Anchored to the last
+ * fetch settle (useAnchoredRefetch) so it coordinates with manual refreshes
+ * and refocus invalidation instead of stacking on them. */
 const DETAIL_POLL_MS = 10_000;
 
 export function ProductDetailScreen({ navigation, route }: Props) {
@@ -47,8 +51,9 @@ export function ProductDetailScreen({ navigation, route }: Props) {
   const query = useQuery({
     queryKey: queryKeys.products.detail(id),
     queryFn: () => apiClient.getProduct(id),
-    refetchInterval: live ? DETAIL_POLL_MS : false,
   });
+  useAnchoredRefetch(query, DETAIL_POLL_MS, live);
+  const { refresh, refreshDisabled } = useManualRefresh(query);
 
   // Targeted refresh on refocus/foreground (MOB-004): one GET /products/{id},
   // never a list refetch. Skips the initial mount — the query fetches anyway.
@@ -101,12 +106,26 @@ export function ProductDetailScreen({ navigation, route }: Props) {
         title={t('detailErrorTitle')}
         detail={failure.key === 'errorGeneric' && failure.detail ? failure.detail : t(failure.key)}
         retryLabel={t('retry')}
-        onRetry={() => void query.refetch()}
+        // Protected pipeline: hammering Retry joins the in-flight request.
+        onRetry={refresh}
       />
     );
   }
 
-  return <DetailContent product={query.data} locale={locale} onDirtyChange={onDirtyChange} />;
+  return (
+    <View style={styles.screen}>
+      <View style={styles.freshnessRow}>
+        <FreshnessControl
+          dataUpdatedAt={query.dataUpdatedAt}
+          errorUpdatedAt={query.errorUpdatedAt}
+          isFetching={query.isFetching}
+          onRefresh={refresh}
+          refreshDisabled={refreshDisabled}
+        />
+      </View>
+      <DetailContent product={query.data} locale={locale} onDirtyChange={onDirtyChange} />
+    </View>
+  );
 }
 
 function DetailContent({
@@ -209,6 +228,8 @@ const badgeTones = {
 } as const;
 
 const styles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: colors.background },
+  freshnessRow: { marginHorizontal: 12, marginTop: 8 },
   container: { flex: 1, backgroundColor: colors.background },
   content: { padding: 12, gap: 12, paddingBottom: 32 },
 
