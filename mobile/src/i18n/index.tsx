@@ -15,10 +15,19 @@ import { messages, type MessageKey } from './messages';
 // preference avoids pulling in AsyncStorage just for the locale string.
 const LOCALE_KEY = 'stokmate.locale';
 
+type MessageParams = Record<string, string | number>;
+
 interface LocaleContextValue {
   locale: Locale;
   setLocale: (locale: Locale) => void;
-  t: (key: MessageKey) => string;
+  t: (key: MessageKey, params?: MessageParams) => string;
+}
+
+function interpolate(template: string, params?: MessageParams): string {
+  if (!params) return template;
+  return template.replace(/\{(\w+)\}/g, (match, name: string) =>
+    name in params ? String(params[name]) : match,
+  );
 }
 
 const LocaleContext = createContext<LocaleContextValue | null>(null);
@@ -50,7 +59,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<LocaleContextValue>(
-    () => ({ locale, setLocale, t: (key) => messages[locale][key] }),
+    () => ({ locale, setLocale, t: (key, params) => interpolate(messages[locale][key], params) }),
     [locale, setLocale],
   );
 

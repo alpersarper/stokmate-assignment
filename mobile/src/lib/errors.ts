@@ -25,6 +25,11 @@ export function describeFailure(
   if (error.status === 404 && (context === 'productDetail' || context === 'stockUpdate')) {
     return { key: 'errorNotFound' };
   }
+  if (context === 'stockUpdate' && error.status === 409) {
+    // The stock PATCH has exactly one 409 cause (docs/API_CONTRACT.md §8):
+    // the product was discontinued — reliably identifiable by status + context.
+    return { key: 'stockDiscontinuedConflict' };
+  }
   if (context === 'stockUpdate' && error.status === 400) {
     // Local validation should prevent this; the backend rule set for the stock
     // PATCH is exactly "non-negative integer", so the localized rule text applies.

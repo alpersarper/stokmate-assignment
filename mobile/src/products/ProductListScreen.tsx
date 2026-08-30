@@ -1,7 +1,14 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { formatKurus, queryKeys, statusLabel, type Product } from '@stokmate/shared';
+import {
+  formatKurus,
+  normalizeListParams,
+  queryKeys,
+  statusLabel,
+  type Product,
+  type ProductListParams,
+} from '@stokmate/shared';
 import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -18,26 +25,63 @@ import { useI18n } from '../i18n';
 import { describeFailure } from '../lib/errors';
 import { colors, radius } from '../lib/theme';
 import type { RootStackParamList } from '../navigation-shared';
+import {
+  DEFAULT_FILTERS,
+  DEFAULT_SORT,
+  FilterSheet,
+  SORT_OPTIONS,
+  SortSheet,
+  type ListFilters,
+  type SortOptionKey,
+} from './ListControls';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ProductList'>;
 
 const PAGE_SIZE = 20;
 const SEARCH_DEBOUNCE_MS = 300;
 
+/**
+ * Product list — one dataset identity (search + category + brand + status +
+ * sort + direction) mapped to one TanStack infinite query. The page number
+ * lives inside the infinite-query progression; changing any dataset-defining
+ * input starts a fresh page-1 result set under a new query key. Pagination
+ * appends only; refresh happens only via pull-to-refresh (never from
+ * scrolling); mutations patch these caches directly (see product-cache.ts).
+ */
 export function ProductListScreen({ navigation }: Props) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
 
   const [searchInput, setSearchInput] = useState('');
   const [search, setSearch] = useState('');
+  const [filters, setFilters] = useState<ListFilters>(DEFAULT_FILTERS);
+  const [sortKey, setSortKey] = useState<SortOptionKey>(DEFAULT_SORT);
   const [refreshing, setRefreshing] = useState(false);
+  const [filterSheetVisible, setFilterSheetVisible] = useState(false);
+  const [sortSheetVisible, setSortSheetVisible] = useState(false);
 
-  // UX-001: 300 ms debounce, whitespace ignored, clearing restores the default list.
+  // UX-001 / MOB-006: 300 ms debounce → exactly one request per settled input,
+  // whitespace ignored, clearing restores the current filtered dataset.
   useEffect(() => {
     const timer = setTimeout(() => setSearch(searchInput.trim()), SEARCH_DEBOUNCE_MS);
     return () => clearTimeout(timer);
   }, [searchInput]);
 
-  const listParams = useMemo(() => (search ? { q: search } : {}), [search]);
+  // Dataset identity (MOB-006..010): all server-side, combined in one query.
+  // Server defaults (sort=name, dir=asc) are omitted; `status` is sent for any
+  // concrete selection — the default is Active (MOB-010) — and omitted for All.
+  const listParams = useMemo<ProductListParams>(() => {
+    const params: ProductListParams = {};
+    if (search) params.q = search;
+    if (filters.category) params.categoryId = filters.category.id;
+    if (filters.brand) params.brandId = filters.brand.id;
+    if (filters.status !== 'all') params.status = filters.status;
+    const sort = SORT_OPTIONS[sortKey];
+    if (sortKey !== DEFAULT_SORT) {
+      params.sort = sort.sort;
+      params.dir = sort.dir;
+    }
+    return params;
+  }, [search, filters, sortKey]);
 
   const query = useInfiniteQuery({
     queryKey: queryKeys.products.list(listParams),
@@ -46,7 +90,8 @@ export function ProductListScreen({ navigation }: Props) {
     initialPageParam: 1,
     getNextPageParam: (last) =>
       last.page * last.pageSize >= last.total ? undefined : last.page + 1,
-    // Keep the previous result set visible while a new search loads (UX-001).
+    // Keep the previous result set visible while a new dataset loads — no
+    // blanking during search/filter/sort changes (MOB-006).
     placeholderData: keepPreviousData,
   });
 
@@ -54,6 +99,50 @@ export function ProductListScreen({ navigation }: Props) {
     () => query.data?.pages.flatMap((page) => page.items) ?? [],
     [query.data],
   );
+  const pages = query.data?.pages;
+  // Backend-filtered total (MOB-009) — from the newest loaded page, never the
+  // loaded-row count.
+  const total = pages?.length ? pages[pages.length - 1]!.total : undefined;
+
+  const listRef = useRef<FlatList<Product>>(null);
+
+  /**
+   * MOB-002: one fetchNextPage per genuine user gesture. Armed when the user
+   * starts a drag or a fling; consumed by the first onEndReached it produces.
+   * A page appended mid-momentum can re-trigger onEndReached, but the arm is
+   * already consumed, so page N+2 never starts from the same gesture — the
+   * user must scroll again. Query-level guards keep at most one request in
+   * flight and stop at the backend-reported end.
+   */
+  const scrollArmedRef = useRef(false);
+  const armScroll = () => {
+    scrollArmedRef.current = true;
+  };
+
+  function onEndReached() {
+    if (!scrollArmedRef.current) return;
+    scrollArmedRef.current = false;
+    if (
+      query.isPlaceholderData || // dataset switching: never paginate the outgoing dataset
+      !query.hasNextPage ||
+      query.isFetchingNextPage ||
+      query.isFetchNextPageError // failures pause pagination until the explicit footer Retry
+    ) {
+      return;
+    }
+    void query.fetchNextPage();
+  }
+
+  // Dataset change → page 1 of a fresh result set, scrolled to the top
+  // (MOB-006/007/008). Appending page N+1 leaves this untouched (MOB-001).
+  const datasetKey = useMemo(() => JSON.stringify(normalizeListParams(listParams)), [listParams]);
+  const prevDatasetKey = useRef(datasetKey);
+  useEffect(() => {
+    if (prevDatasetKey.current === datasetKey) return;
+    prevDatasetKey.current = datasetKey;
+    scrollArmedRef.current = false;
+    listRef.current?.scrollToOffset({ offset: 0, animated: false });
+  }, [datasetKey]);
 
   async function onRefresh() {
     setRefreshing(true);
@@ -64,12 +153,18 @@ export function ProductListScreen({ navigation }: Props) {
     }
   }
 
-  function onEndReached() {
-    // Guard prevents duplicate concurrent page requests and requests past the last page.
-    if (query.hasNextPage && !query.isFetchingNextPage && !query.isFetchNextPageError) {
-      void query.fetchNextPage();
-    }
-  }
+  const filtersRestricting =
+    filters.status !== 'all' || filters.category !== undefined || filters.brand !== undefined;
+  const filterCount =
+    (filters.status !== 'all' ? 1 : 0) +
+    (filters.category ? 1 : 0) +
+    (filters.brand ? 1 : 0);
+  const nonDefaultFilters =
+    filters.status !== DEFAULT_FILTERS.status ||
+    filters.category !== undefined ||
+    filters.brand !== undefined;
+
+  const clearFilters = () => setFilters(DEFAULT_FILTERS);
 
   const showBackgroundFetch =
     query.isFetching && !query.isLoading && !query.isFetchingNextPage && !refreshing;
@@ -90,6 +185,7 @@ export function ProductListScreen({ navigation }: Props) {
   } else {
     content = (
       <FlatList
+        ref={listRef}
         data={products}
         keyExtractor={(item) => String(item.id)}
         renderItem={({ item }) => (
@@ -109,6 +205,8 @@ export function ProductListScreen({ navigation }: Props) {
             tintColor={colors.primary}
           />
         }
+        onScrollBeginDrag={armScroll}
+        onMomentumScrollBegin={armScroll}
         onEndReached={onEndReached}
         onEndReachedThreshold={0.4}
         ListEmptyComponent={
@@ -126,6 +224,20 @@ export function ProductListScreen({ navigation }: Props) {
                 </Pressable>
               }
             />
+          ) : filtersRestricting ? (
+            <EmptyState
+              title={t('noFilterResultsTitle')}
+              body={t('noFilterResultsBody')}
+              action={
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() => setFilters({ status: 'all' })}
+                  style={({ pressed }) => [styles.clearAction, pressed && styles.pressed]}
+                >
+                  <Text style={styles.clearActionText}>{t('clearFilters')}</Text>
+                </Pressable>
+              }
+            />
           ) : (
             <EmptyState title={t('emptyCatalogTitle')} body={t('emptyCatalogBody')} />
           )
@@ -134,6 +246,7 @@ export function ProductListScreen({ navigation }: Props) {
           query.isFetchingNextPage ? (
             <View style={styles.footer}>
               <ActivityIndicator size="small" color={colors.primary} />
+              <Text style={styles.footerText}>{t('loadingMore')}</Text>
             </View>
           ) : query.isFetchNextPageError ? (
             <View style={styles.footer}>
@@ -145,6 +258,10 @@ export function ProductListScreen({ navigation }: Props) {
               >
                 <Text style={styles.clearActionText}>{t('retry')}</Text>
               </Pressable>
+            </View>
+          ) : !query.hasNextPage && !query.isPlaceholderData && products.length > 0 ? (
+            <View style={styles.footer}>
+              <Text style={styles.footerText}>{t('endOfList')}</Text>
             </View>
           ) : null
         }
@@ -179,7 +296,80 @@ export function ProductListScreen({ navigation }: Props) {
           </Pressable>
         ) : null}
       </View>
+
+      <View style={styles.controlsRow}>
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => setFilterSheetVisible(true)}
+          style={({ pressed }) => [styles.controlButton, pressed && styles.pressed]}
+          testID="filters-button"
+        >
+          <Text style={styles.controlButtonText}>
+            {t('filtersButton')}
+            {filterCount > 0 ? ` (${filterCount})` : ''}
+          </Text>
+        </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => setSortSheetVisible(true)}
+          style={({ pressed }) => [styles.controlButton, styles.sortControl, pressed && styles.pressed]}
+          testID="sort-button"
+        >
+          <Text style={styles.controlButtonText} numberOfLines={1}>
+            {t('sortButton')}: {t(SORT_OPTIONS[sortKey].labelKey)}
+          </Text>
+        </Pressable>
+      </View>
+
+      <View style={styles.summaryRow}>
+        {typeof total === 'number' ? (
+          <Text style={styles.countText} testID="product-count">
+            {total === 1 ? t('productCountOne', { count: total }) : t('productCount', { count: total })}
+          </Text>
+        ) : null}
+        <ActiveFilterChip
+          label={`${t('statusFilterLabel')}: ${
+            filters.status === 'all' ? t('allOption') : statusLabel(filters.status, locale)
+          }`}
+        />
+        {filters.category ? <ActiveFilterChip label={filters.category.name} /> : null}
+        {filters.brand ? <ActiveFilterChip label={filters.brand.name} /> : null}
+        {nonDefaultFilters ? (
+          <Pressable
+            accessibilityRole="button"
+            onPress={clearFilters}
+            style={({ pressed }) => pressed && styles.pressed}
+          >
+            <Text style={styles.clearFiltersText}>{t('clearFilters')}</Text>
+          </Pressable>
+        ) : null}
+      </View>
+
       {content}
+
+      <FilterSheet
+        visible={filterSheetVisible}
+        filters={filters}
+        onChange={setFilters}
+        onClear={clearFilters}
+        onClose={() => setFilterSheetVisible(false)}
+      />
+      <SortSheet
+        visible={sortSheetVisible}
+        selected={sortKey}
+        onSelect={setSortKey}
+        onClose={() => setSortSheetVisible(false)}
+      />
+    </View>
+  );
+}
+
+function ActiveFilterChip({ label }: { label: string }) {
+  return (
+    <View style={styles.activeChip}>
+      <Text style={styles.activeChipText} numberOfLines={1}>
+        {label}
+      </Text>
     </View>
   );
 }
@@ -229,7 +419,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     margin: 12,
-    marginBottom: 4,
+    marginBottom: 8,
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.borderStrong,
@@ -245,6 +435,44 @@ const styles = StyleSheet.create({
   searchSpinner: { marginRight: 12 },
   searchClear: { paddingHorizontal: 12, paddingVertical: 8 },
   searchClearText: { color: colors.textMuted, fontSize: 15 },
+
+  controlsRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginHorizontal: 12,
+    marginBottom: 8,
+  },
+  controlButton: {
+    borderWidth: 1,
+    borderColor: colors.borderStrong,
+    borderRadius: radius.md,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: colors.surface,
+  },
+  sortControl: { flexShrink: 1 },
+  controlButtonText: { fontSize: 13, fontWeight: '600', color: colors.text },
+
+  summaryRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: 6,
+    marginHorizontal: 12,
+    marginBottom: 4,
+  },
+  countText: { fontSize: 12, fontWeight: '600', color: colors.textSecondary },
+  activeChip: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 999,
+    paddingVertical: 2,
+    paddingHorizontal: 8,
+    backgroundColor: colors.surface,
+    maxWidth: 160,
+  },
+  activeChipText: { fontSize: 11, color: colors.textMuted },
+  clearFiltersText: { fontSize: 12, fontWeight: '600', color: colors.primary },
 
   listContent: { padding: 12, gap: 8, paddingBottom: 24 },
   emptyListContent: { flexGrow: 1 },
@@ -273,6 +501,7 @@ const styles = StyleSheet.create({
   chevron: { fontSize: 22, color: colors.borderStrong, paddingHorizontal: 4 },
 
   footer: { paddingVertical: 16, alignItems: 'center', gap: 8 },
+  footerText: { color: colors.textMuted, fontSize: 13 },
   footerErrorText: { color: colors.danger, fontSize: 13 },
 
   clearAction: {
