@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using StokMate.Api.Auth;
+using StokMate.Api.Common;
 using StokMate.Api.Models;
 using StokMate.Api.Services;
 
@@ -19,16 +21,19 @@ public class ProductsController : ControllerBase
 
     /// <summary>Filtrelenebilir, sıralanabilir ve sayfalanabilir ürün listesi.</summary>
     [HttpGet]
+    [EnableRateLimiting(RateLimitPolicies.ProductReads)]
     public async Task<ActionResult<PagedResult<ProductDto>>> GetList([FromQuery] ProductQuery query)
         => await _productService.GetListAsync(query);
 
     /// <summary>Tek ürünün detayını döner. Tam güncelleme (PUT) için gereken alanları da içerir.</summary>
     [HttpGet("{id:int}")]
+    [EnableRateLimiting(RateLimitPolicies.ProductReads)]
     public async Task<ActionResult<ProductDetailDto>> GetById(int id)
         => await _productService.GetByIdAsync(id);
 
     /// <summary>Stok durumu özeti.</summary>
     [HttpGet("stats")]
+    [EnableRateLimiting(RateLimitPolicies.ProductReads)]
     public async Task<ActionResult<ProductStatsDto>> GetStats()
         => await _productService.GetStatsAsync();
 

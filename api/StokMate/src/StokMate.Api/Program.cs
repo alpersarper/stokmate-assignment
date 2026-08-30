@@ -1,5 +1,7 @@
 using System.Reflection;
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using StokMate.Api.Auth;
@@ -38,6 +40,44 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
         ContentType = "text/plain; charset=utf-8",
         Content = "İstek geçersiz veya eksik alan içeriyor."
     };
+});
+
+// Ürün okuma uçları için oturum başına hız sınırı (assignment kararı, docs/DECISIONS.md).
+// İstemci tarafındaki yenileme korumaları güvenlik sınırı değildir; olağandışı sıklıkta
+// tekrarlanan yenileme istekleri sunucu tarafında da bağımsız olarak sınırlanır.
+// Sınır bilinçli olarak cömerttir: 10 saniyede 60 istek — normal kullanım (15 sn liste
+// yoklaması, 10 sn detay yoklaması, bekleme süreli manuel yenilemeler, sayfalama) buna
+// asla yaklaşmaz; yalnızca kötüye kullanım niteliğindeki istek döngüleri yakalanır.
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.OnRejected = async (context, cancellationToken) =>
+    {
+        var response = context.HttpContext.Response;
+        if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
+        {
+            response.Headers.RetryAfter = Math.Ceiling(retryAfter.TotalSeconds)
+                .ToString(System.Globalization.CultureInfo.InvariantCulture);
+        }
+        // Hata gövdeleri projedeki diğer hatalarla aynı biçimde: Türkçe düz metin.
+        response.ContentType = "text/plain; charset=utf-8";
+        await response.WriteAsync("Çok fazla istek gönderildi. Lütfen kısa bir süre sonra tekrar deneyin.", cancellationToken);
+    };
+    options.AddPolicy(RateLimitPolicies.ProductReads, httpContext =>
+    {
+        // Bölümleme anahtarı erişim anahtarıdır (yoksa IP): bir istemcinin
+        // taşkını diğer oturumların limitini tüketmez.
+        var authorization = httpContext.Request.Headers.Authorization.ToString();
+        var partitionKey = string.IsNullOrEmpty(authorization)
+            ? $"ip:{httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown"}"
+            : $"token:{authorization}";
+        return RateLimitPartition.GetFixedWindowLimiter(partitionKey, _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 60,
+            Window = TimeSpan.FromSeconds(10),
+            QueueLimit = 0,
+        });
+    });
 });
 
 // Web ve mobil istemcilerin sorunsuz bağlanabilmesi için CORS tamamen serbest.
@@ -104,6 +144,8 @@ app.UseSwaggerUI();
 
 app.UseRouting();
 app.UseCors(corsPolicyName);
+// UseRouting'den SONRA gelmeli: politika uç noktaya (endpoint) göre seçilir.
+app.UseRateLimiter();
 app.MapControllers();
 
 app.Run();
