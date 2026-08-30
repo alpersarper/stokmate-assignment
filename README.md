@@ -13,7 +13,7 @@ Project documentation lives in `docs/`: engineering decisions and rationale in `
 
 - **Node.js ≥ 20** and npm (npm workspaces are used; no other package manager needed).
 - **.NET SDK 8.0+** for the backend (the project targets `net8.0` and rolls forward to newer SDKs).
-- For the Android APK only: **JDK 17** and the **Android SDK** (platform 36, build-tools; standard Android Studio install). Not needed to run web, or mobile via Expo Go.
+- For Android (mobile development and the APK): **JDK 17** and the **Android SDK** (platform 36, build-tools; standard Android Studio install). Not needed to run web.
 
 Install all workspaces from the repo root:
 
@@ -47,9 +47,17 @@ npm run dev:web        # from the repo root → http://localhost:5173
 
 ## Mobile (development)
 
+Mobile development runs as a **native Android debug build** with interactive Metro. Expo remains the framework; Expo Go is no longer the primary development runtime.
+
 ```bash
-npm run dev:mobile     # from the repo root (expo start; press "a" for Android)
+cd mobile
+JAVA_HOME=<path-to-jdk-17> npx expo run:android    # prebuild + Gradle debug build + install + Metro
 ```
+
+- The first run generates `mobile/android/` (intentionally not committed) and compiles the debug app; later runs are incremental. `npx expo run:android` is only needed again when native configuration or native dependencies change.
+- For JS-only iteration once the debug app is installed: start Metro with `npm run dev:mobile` (repo root) and open the installed **StokMate** app — it connects to Metro and supports Fast Refresh.
+- Metro is interactive: `r` reloads, `j` opens **React Native DevTools** (Console, Sources/breakpoints, React Components/Profiler). Known limitation: the DevTools **Network panel does not capture app traffic** in this build — the native network-event bridge ships with `expo-dev-client`/Expo Go, which this lean setup does not include.
+- If port 8081 is busy, pass `--port 8082` to `expo run:android` — the port is baked into the debug build, so restart Metro with the same `--port` value afterwards.
 
 API base URL comes from `EXPO_PUBLIC_API_URL`. When unset, sensible defaults apply:
 
@@ -61,9 +69,9 @@ API base URL comes from `EXPO_PUBLIC_API_URL`. When unset, sensible defaults app
   EXPO_PUBLIC_API_URL=http://<your-lan-ip>:5080 npm run dev:mobile
   ```
 
-## Android APK
+## Android APK (final delivery)
 
-The release APK is built locally (no cloud build service) via Expo prebuild + Gradle. Exact commands used to produce the delivered artifact:
+The delivered artifact is a **standalone release APK** — JS bundle embedded, no Metro, no development tooling. It is built locally (no cloud build service) via Expo prebuild + Gradle. Exact commands used to produce the delivered artifact:
 
 ```bash
 cd mobile
