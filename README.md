@@ -56,7 +56,7 @@ JAVA_HOME=<path-to-jdk-17> npx expo run:android    # prebuild + Gradle debug bui
 
 - The first run generates `mobile/android/` (intentionally not committed) and compiles the debug app; later runs are incremental. `npx expo run:android` is only needed again when native configuration or native dependencies change.
 - For JS-only iteration once the debug app is installed: start Metro with `npm run dev:mobile` (repo root) and open the installed **StokMate** app — it connects to Metro and supports Fast Refresh.
-- Metro is interactive: `r` reloads, `j` opens **React Native DevTools** (Console, Sources/breakpoints, React Components/Profiler). Known limitation: the DevTools **Network panel does not capture app traffic** in this build — the native network-event bridge ships with `expo-dev-client`/Expo Go, which this lean setup does not include.
+- Metro is interactive: `r` reloads, `j` opens **React Native DevTools** (Console, Sources/breakpoints, React Components/Profiler). `expo-dev-client` is included as a dev-build-only dependency (it is inert in release builds), so the DevTools **Network panel captures the app's API traffic** in debug builds.
 - If port 8081 is busy, pass `--port 8082` to `expo run:android` — the port is baked into the debug build, so restart Metro with the same `--port` value afterwards.
 
 API base URL comes from `EXPO_PUBLIC_API_URL`. When unset, sensible defaults apply:
@@ -75,10 +75,12 @@ The delivered artifact is a **standalone release APK** — JS bundle embedded, n
 
 ```bash
 cd mobile
-npx expo prebuild --platform android
+CI=1 npx expo prebuild --platform android --clean
 cd android
 JAVA_HOME=/opt/homebrew/opt/openjdk@17 EXPO_PUBLIC_API_URL=http://10.0.2.2:5080 ./gradlew assembleRelease
 ```
+
+(`--clean` regenerates `android/` from scratch so a previous debug build can't leak configuration; on a fresh clone plain `npx expo prebuild --platform android` is equivalent.)
 
 - **Artifact**: `mobile/android/app/build/outputs/apk/release/app-release.apk` (build variant: `release`; the generated `android/` directory and APKs are intentionally not committed — see `.gitignore`).
 - Set `JAVA_HOME` to your JDK 17 (the path above is the macOS Homebrew location).
