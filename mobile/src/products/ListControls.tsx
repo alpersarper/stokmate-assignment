@@ -17,7 +17,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useI18n } from '../i18n';
 import type { MessageKey } from '../i18n/messages';
-import { colors, radius } from '../lib/theme';
+import { colors, radius, spacing, type } from '../lib/theme';
 import { useBrands, useCategories } from './queries';
 
 /** 'all' = no status restriction (omit the param). Mobile default is Active (MOB-010). */
@@ -224,6 +224,7 @@ function SheetModal({
       <View style={styles.backdropContainer}>
         <Pressable style={styles.backdrop} onPress={onClose} accessibilityRole="button" />
         <View style={[styles.sheet, { paddingBottom: 24 + insets.bottom }]}>
+          <View style={styles.grabber} />
           <Text style={styles.sheetTitle}>{title}</Text>
           {children}
         </View>
@@ -281,38 +282,42 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.35)',
+    backgroundColor: 'rgba(28,25,23,0.4)',
   },
   sheet: {
     backgroundColor: colors.surface,
-    borderTopLeftRadius: radius.lg,
-    borderTopRightRadius: radius.lg,
-    paddingTop: 16,
-    paddingHorizontal: 16,
+    borderTopLeftRadius: radius.lg + 4,
+    borderTopRightRadius: radius.lg + 4,
+    paddingTop: spacing.sm,
+    paddingHorizontal: spacing.lg,
     maxHeight: '80%',
   },
-  sheetTitle: { fontSize: 17, fontWeight: '700', color: colors.text, marginBottom: 4 },
+  grabber: {
+    alignSelf: 'center',
+    width: 36,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: colors.borderStrong,
+    marginBottom: spacing.md,
+  },
+  sheetTitle: { fontSize: 18, fontWeight: '700', letterSpacing: -0.2, color: colors.text, marginBottom: 4 },
   sheetScroll: { flexGrow: 0 },
 
   sectionTitle: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: colors.textMuted,
-    marginTop: 14,
-    marginBottom: 8,
+    ...type.sectionLabel,
+    marginTop: spacing.lg,
+    marginBottom: spacing.sm,
   },
-  sectionSpinner: { alignSelf: 'flex-start', marginVertical: 8 },
-  chipWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  sectionSpinner: { alignSelf: 'flex-start', marginVertical: spacing.sm },
+  chipWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
 
   chip: {
-    borderWidth: 1,
-    borderColor: colors.borderStrong,
-    borderRadius: 999,
-    paddingVertical: 7,
+    borderRadius: radius.pill,
+    paddingVertical: 8,
     paddingHorizontal: 14,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceMuted,
   },
-  chipSelected: { backgroundColor: colors.primary, borderColor: colors.primary },
+  chipSelected: { backgroundColor: colors.primary },
   chipText: { fontSize: 13, fontWeight: '500', color: colors.text },
   chipTextSelected: { color: colors.onPrimary, fontWeight: '600' },
 
@@ -320,16 +325,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 18,
-    gap: 12,
+    marginTop: spacing.xl,
+    gap: spacing.md,
   },
   ghostButton: {
-    borderWidth: 1,
-    borderColor: colors.borderStrong,
     borderRadius: radius.md,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    backgroundColor: colors.surface,
+    paddingVertical: 11,
+    paddingHorizontal: spacing.lg,
+    backgroundColor: colors.surfaceMuted,
   },
   ghostButtonText: { color: colors.text, fontWeight: '600', fontSize: 14 },
   doneButton: {
@@ -337,8 +340,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.primary,
     borderRadius: radius.md,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
+    paddingVertical: 11,
+    paddingHorizontal: spacing.lg,
   },
   doneButtonText: { color: colors.onPrimary, fontWeight: '600', fontSize: 14 },
 
@@ -347,15 +350,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 13,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    paddingVertical: 14,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.borderStrong,
   },
   sortRowText: { fontSize: 15, color: colors.text },
   sortRowTextActive: { fontWeight: '700', color: colors.primary },
   sortCheck: { fontSize: 16, fontWeight: '700', color: colors.primary },
 
-  lookupError: { gap: 8, alignItems: 'flex-start', marginVertical: 4 },
+  lookupError: { gap: spacing.sm, alignItems: 'flex-start', marginVertical: spacing.xs },
   lookupErrorText: { fontSize: 13, color: colors.danger },
 
   pressed: { opacity: 0.7 },

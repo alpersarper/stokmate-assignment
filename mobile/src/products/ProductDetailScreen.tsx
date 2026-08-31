@@ -20,7 +20,7 @@ import { ErrorState, LoadingState } from '../components/ui';
 import { useI18n } from '../i18n';
 import { describeFailure } from '../lib/errors';
 import { useAnchoredRefetch, useManualRefresh } from '../lib/refresh';
-import { colors, radius } from '../lib/theme';
+import { colors, elevation, radius, spacing, type } from '../lib/theme';
 import type { RootStackParamList } from '../navigation-shared';
 import { StockEditor } from './StockEditor';
 
@@ -191,6 +191,7 @@ function DetailContent({
 
       <StockEditor product={product} onDirtyChange={onDirtyChange} />
 
+      <Text style={styles.sectionLabel}>{t('productInfoSection')}</Text>
       <View style={styles.infoCard}>
         <InfoRow label={t('skuLabel')} value={product.sku} />
         {product.barcode ? <InfoRow label={t('barcodeLabel')} value={product.barcode} /> : null}
@@ -237,7 +238,7 @@ function InfoRow({ label, value, last }: { label: string; value: string; last?: 
 
 const badgeTones = {
   neutral: {
-    box: { backgroundColor: '#f5f5f4', borderColor: colors.borderStrong },
+    box: { backgroundColor: colors.surfaceMuted, borderColor: colors.borderStrong },
     text: { color: colors.textSecondary },
   },
   danger: {
@@ -256,52 +257,57 @@ const badgeTones = {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
-  freshnessRow: { marginHorizontal: 12, marginTop: 8 },
+  freshnessRow: { marginHorizontal: spacing.lg, marginTop: spacing.sm },
   container: { flex: 1, backgroundColor: colors.background },
-  content: { padding: 12, gap: 12, paddingBottom: 32 },
+  content: { padding: spacing.lg, gap: spacing.md, paddingBottom: 32 },
 
   headerCard: {
     flexDirection: 'row',
-    gap: 14,
+    gap: spacing.lg,
     backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: radius.lg,
-    padding: 14,
+    padding: spacing.lg,
+    ...elevation.card,
   },
-  image: { width: 84, height: 84, borderRadius: radius.md, backgroundColor: colors.skeleton },
+  image: { width: 92, height: 92, borderRadius: radius.md, backgroundColor: colors.surfaceMuted },
   imageFallback: { alignItems: 'center', justifyContent: 'center' },
-  imageFallbackText: { fontSize: 32, fontWeight: '700', color: colors.textMuted },
-  headerMain: { flex: 1, gap: 6 },
-  name: { fontSize: 18, fontWeight: '700', color: colors.text },
-  price: { fontSize: 16, fontWeight: '600', color: colors.textSecondary },
-  badgeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  imageFallbackText: { fontSize: 34, fontWeight: '700', color: colors.textMuted },
+  headerMain: { flex: 1, gap: spacing.xs, justifyContent: 'center' },
+  name: { ...type.headline, lineHeight: 26 },
+  price: { fontSize: 17, fontWeight: '600', color: colors.text, marginTop: 2 },
+  badgeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: spacing.xs },
 
   badge: {
     borderWidth: 1,
-    borderRadius: 999,
+    borderRadius: radius.pill,
     paddingVertical: 3,
     paddingHorizontal: 10,
   },
   badgeText: { fontSize: 12, fontWeight: '600' },
 
+  sectionLabel: { ...type.sectionLabel, marginTop: spacing.xs, marginLeft: spacing.xs },
   infoCard: {
     backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: radius.lg,
-    paddingHorizontal: 14,
+    paddingHorizontal: spacing.lg,
+    ...elevation.card,
   },
   infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    gap: 12,
-    paddingVertical: 12,
+    gap: spacing.md,
+    paddingVertical: 13,
   },
-  infoRowBorder: { borderBottomWidth: 1, borderBottomColor: colors.border },
+  infoRowBorder: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.borderStrong },
   infoLabel: { fontSize: 13, color: colors.textMuted },
-  infoValue: { fontSize: 14, color: colors.text, fontWeight: '500', flexShrink: 1, textAlign: 'right' },
-  descriptionBlock: { paddingVertical: 12, gap: 6 },
-  descriptionText: { fontSize: 14, color: colors.textSecondary, lineHeight: 20 },
+  infoValue: {
+    fontSize: 15,
+    color: colors.text,
+    fontWeight: '500',
+    flexShrink: 1,
+    textAlign: 'right',
+  },
+  descriptionBlock: { paddingVertical: 13, gap: spacing.xs },
+  descriptionText: { fontSize: 14, color: colors.textSecondary, lineHeight: 21 },
 });

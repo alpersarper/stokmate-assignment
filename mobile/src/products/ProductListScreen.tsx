@@ -22,11 +22,11 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { apiClient } from '../api/client';
 import { FreshnessControl } from '../components/FreshnessControl';
-import { EmptyState, ErrorState, LoadingState } from '../components/ui';
+import { EmptyState, ErrorState, SkeletonList, TonalButton } from '../components/ui';
 import { useI18n } from '../i18n';
 import { describeFailure } from '../lib/errors';
 import { useManualRefresh } from '../lib/refresh';
-import { colors, radius } from '../lib/theme';
+import { colors, elevation, numeral, radius, spacing, type } from '../lib/theme';
 import type { RootStackParamList } from '../navigation-shared';
 import {
   DEFAULT_FILTERS,
@@ -179,7 +179,7 @@ export function ProductListScreen({ navigation }: Props) {
 
   let content: React.ReactElement;
   if (query.isLoading) {
-    content = <LoadingState label={t('loadingProducts')} />;
+    content = <SkeletonList />;
   } else if (query.isError && products.length === 0) {
     const failure = describeFailure(query.error, 'productList');
     content = (
@@ -216,6 +216,7 @@ export function ProductListScreen({ navigation }: Props) {
             onRefresh={onPullRefresh}
             colors={[colors.primary]}
             tintColor={colors.primary}
+            progressBackgroundColor={colors.surface}
           />
         }
         onScrollBeginDrag={armScroll}
@@ -227,28 +228,17 @@ export function ProductListScreen({ navigation }: Props) {
             <EmptyState
               title={t('noResultsTitle')}
               body={t('noResultsBody')}
-              action={
-                <Pressable
-                  accessibilityRole="button"
-                  onPress={() => setSearchInput('')}
-                  style={({ pressed }) => [styles.clearAction, pressed && styles.pressed]}
-                >
-                  <Text style={styles.clearActionText}>{t('clearSearch')}</Text>
-                </Pressable>
-              }
+              action={<TonalButton label={t('clearSearch')} onPress={() => setSearchInput('')} />}
             />
           ) : filtersRestricting ? (
             <EmptyState
               title={t('noFilterResultsTitle')}
               body={t('noFilterResultsBody')}
               action={
-                <Pressable
-                  accessibilityRole="button"
+                <TonalButton
+                  label={t('clearFilters')}
                   onPress={() => setFilters({ status: 'all' })}
-                  style={({ pressed }) => [styles.clearAction, pressed && styles.pressed]}
-                >
-                  <Text style={styles.clearActionText}>{t('clearFilters')}</Text>
-                </Pressable>
+                />
               }
             />
           ) : (
@@ -264,13 +254,7 @@ export function ProductListScreen({ navigation }: Props) {
           ) : query.isFetchNextPageError ? (
             <View style={styles.footer}>
               <Text style={styles.footerErrorText}>{t('loadMoreFailed')}</Text>
-              <Pressable
-                accessibilityRole="button"
-                onPress={() => void query.fetchNextPage()}
-                style={({ pressed }) => [styles.clearAction, pressed && styles.pressed]}
-              >
-                <Text style={styles.clearActionText}>{t('retry')}</Text>
-              </Pressable>
+              <TonalButton label={t('retry')} onPress={() => void query.fetchNextPage()} />
             </View>
           ) : !query.hasNextPage && !query.isPlaceholderData && products.length > 0 ? (
             <View style={styles.footer}>
@@ -284,81 +268,95 @@ export function ProductListScreen({ navigation }: Props) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.searchRow}>
-        <TextInput
-          style={styles.searchInput}
-          value={searchInput}
-          onChangeText={setSearchInput}
-          placeholder={t('searchPlaceholder')}
-          placeholderTextColor={colors.textMuted}
-          autoCapitalize="none"
-          autoCorrect={false}
-          returnKeyType="search"
-          testID="product-search"
-        />
-        {showBackgroundFetch ? (
-          <ActivityIndicator size="small" color={colors.primary} style={styles.searchSpinner} />
-        ) : searchInput ? (
+      <View style={styles.chrome}>
+        <View style={styles.searchRow}>
+          <TextInput
+            style={styles.searchInput}
+            value={searchInput}
+            onChangeText={setSearchInput}
+            placeholder={t('searchPlaceholder')}
+            placeholderTextColor={colors.textMuted}
+            autoCapitalize="none"
+            autoCorrect={false}
+            returnKeyType="search"
+            testID="product-search"
+          />
+          {showBackgroundFetch ? (
+            <ActivityIndicator size="small" color={colors.primary} style={styles.searchSpinner} />
+          ) : searchInput ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('clearSearch')}
+              onPress={() => setSearchInput('')}
+              style={({ pressed }) => [styles.searchClear, pressed && styles.pressed]}
+            >
+              <Text style={styles.searchClearText}>✕</Text>
+            </Pressable>
+          ) : null}
+        </View>
+
+        <View style={styles.controlsRow}>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={t('clearSearch')}
-            onPress={() => setSearchInput('')}
-            style={({ pressed }) => [styles.searchClear, pressed && styles.pressed]}
+            onPress={() => setFilterSheetVisible(true)}
+            android_ripple={{ color: colors.ripple }}
+            style={({ pressed }) => [
+              styles.controlButton,
+              filterCount > 0 && styles.controlButtonActive,
+              pressed && styles.controlPressed,
+            ]}
+            testID="filters-button"
           >
-            <Text style={styles.searchClearText}>✕</Text>
+            <Text
+              style={[styles.controlButtonText, filterCount > 0 && styles.controlButtonTextActive]}
+            >
+              {t('filtersButton')}
+              {filterCount > 0 ? ` · ${filterCount}` : ''}
+            </Text>
           </Pressable>
-        ) : null}
-      </View>
-
-      <View style={styles.controlsRow}>
-        <Pressable
-          accessibilityRole="button"
-          onPress={() => setFilterSheetVisible(true)}
-          style={({ pressed }) => [styles.controlButton, pressed && styles.pressed]}
-          testID="filters-button"
-        >
-          <Text style={styles.controlButtonText}>
-            {t('filtersButton')}
-            {filterCount > 0 ? ` (${filterCount})` : ''}
-          </Text>
-        </Pressable>
-        <Pressable
-          accessibilityRole="button"
-          onPress={() => setSortSheetVisible(true)}
-          style={({ pressed }) => [styles.controlButton, styles.sortControl, pressed && styles.pressed]}
-          testID="sort-button"
-        >
-          <Text style={styles.controlButtonText} numberOfLines={1}>
-            {t('sortButton')}: {t(SORT_OPTIONS[sortKey].labelKey)}
-          </Text>
-        </Pressable>
-      </View>
-
-      <View style={styles.summaryRow}>
-        {typeof total === 'number' ? (
-          <Text style={styles.countText} testID="product-count">
-            {total === 1 ? t('productCountOne', { count: total }) : t('productCount', { count: total })}
-          </Text>
-        ) : null}
-        <ActiveFilterChip
-          label={`${t('statusFilterLabel')}: ${
-            filters.status === 'all' ? t('allOption') : statusLabel(filters.status, locale)
-          }`}
-        />
-        {filters.category ? <ActiveFilterChip label={filters.category.name} /> : null}
-        {filters.brand ? <ActiveFilterChip label={filters.brand.name} /> : null}
-        {nonDefaultFilters ? (
           <Pressable
             accessibilityRole="button"
-            onPress={clearFilters}
-            style={({ pressed }) => pressed && styles.pressed}
+            onPress={() => setSortSheetVisible(true)}
+            android_ripple={{ color: colors.ripple }}
+            style={({ pressed }) => [
+              styles.controlButton,
+              styles.sortControl,
+              pressed && styles.controlPressed,
+            ]}
+            testID="sort-button"
           >
-            <Text style={styles.clearFiltersText}>{t('clearFilters')}</Text>
+            <Text style={styles.controlButtonText} numberOfLines={1}>
+              {t('sortButton')}: {t(SORT_OPTIONS[sortKey].labelKey)}
+            </Text>
           </Pressable>
-        ) : null}
-      </View>
+        </View>
 
-      <View style={styles.freshnessRow}>
+        <View style={styles.summaryRow}>
+          {typeof total === 'number' ? (
+            <Text style={styles.countText} testID="product-count">
+              {total === 1
+                ? t('productCountOne', { count: total })
+                : t('productCount', { count: total })}
+            </Text>
+          ) : null}
+          <ActiveFilterChip
+            label={`${t('statusFilterLabel')}: ${
+              filters.status === 'all' ? t('allOption') : statusLabel(filters.status, locale)
+            }`}
+          />
+          {filters.category ? <ActiveFilterChip label={filters.category.name} /> : null}
+          {filters.brand ? <ActiveFilterChip label={filters.brand.name} /> : null}
+          {nonDefaultFilters ? (
+            <Pressable
+              accessibilityRole="button"
+              onPress={clearFilters}
+              style={({ pressed }) => pressed && styles.pressed}
+            >
+              <Text style={styles.clearFiltersText}>{t('clearFilters')}</Text>
+            </Pressable>
+          ) : null}
+        </View>
+
         <FreshnessControl
           dataUpdatedAt={query.dataUpdatedAt}
           errorUpdatedAt={query.errorUpdatedAt}
@@ -397,7 +395,12 @@ function ActiveFilterChip({ label }: { label: string }) {
   );
 }
 
-/** Compact row (UX-006 mobile): name + stock prioritized, secondary info muted, chevron. */
+/**
+ * Compact row (UX-006 mobile): name + stock prioritized, secondary info
+ * muted. The right rail is a stat block — stock numeral with a caption
+ * beneath (the semantic low/out label when it applies, per UX-008; the plain
+ * localized "Stock" caption otherwise) and the price under it.
+ */
 function ProductRow({ product, onPress }: { product: Product; onPress: () => void }) {
   const { t, locale } = useI18n();
   const outOfStock = product.stock === 0;
@@ -409,6 +412,7 @@ function ProductRow({ product, onPress }: { product: Product; onPress: () => voi
     <Pressable
       accessibilityRole="button"
       onPress={onPress}
+      android_ripple={{ color: colors.ripple }}
       style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
     >
       <View style={styles.rowMain}>
@@ -418,6 +422,7 @@ function ProductRow({ product, onPress }: { product: Product; onPress: () => voi
         <Text style={styles.rowSecondary} numberOfLines={1}>
           {secondary.join(' · ')}
         </Text>
+        <Text style={styles.rowPrice}>{formatKurus(product.price, locale)}</Text>
       </View>
       <View style={styles.rowSide}>
         <Text
@@ -427,15 +432,16 @@ function ProductRow({ product, onPress }: { product: Product; onPress: () => voi
             lowStock && styles.rowStockLow,
           ]}
         >
-          {t('stockLabel')}: {product.stock}
+          {product.stock}
         </Text>
         {/* UX-008: the low/zero-stock signal must not rely on color alone. */}
         {outOfStock ? (
           <Text style={[styles.rowStockFlag, styles.rowStockOut]}>{t('outOfStockBadge')}</Text>
         ) : lowStock ? (
           <Text style={[styles.rowStockFlag, styles.rowStockLow]}>{t('lowStockBadge')}</Text>
-        ) : null}
-        <Text style={styles.rowPrice}>{formatKurus(product.price, locale)}</Text>
+        ) : (
+          <Text style={styles.rowStockCaption}>{t('stockLabel')}</Text>
+        )}
       </View>
       <Text style={styles.chevron}>›</Text>
     </Pressable>
@@ -444,106 +450,104 @@ function ProductRow({ product, onPress }: { product: Product; onPress: () => voi
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
+
+  // Search + controls + summary form one white chrome sheet under the
+  // header; the result list scrolls on the stone ground beneath it.
+  chrome: {
+    backgroundColor: colors.surface,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.md,
+    gap: 10,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.borderStrong,
+  },
   searchRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    margin: 12,
-    marginBottom: 8,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.borderStrong,
-    borderRadius: radius.md,
+    backgroundColor: colors.surfaceMuted,
+    borderRadius: radius.pill,
   },
   searchInput: {
     flex: 1,
-    paddingHorizontal: 12,
+    paddingHorizontal: spacing.lg,
     paddingVertical: 10,
     fontSize: 15,
     color: colors.text,
   },
-  searchSpinner: { marginRight: 12 },
-  searchClear: { paddingHorizontal: 12, paddingVertical: 8 },
+  searchSpinner: { marginRight: spacing.lg },
+  searchClear: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    borderTopRightRadius: radius.pill,
+    borderBottomRightRadius: radius.pill,
+  },
   searchClearText: { color: colors.textMuted, fontSize: 15 },
 
   controlsRow: {
     flexDirection: 'row',
-    gap: 8,
-    marginHorizontal: 12,
-    marginBottom: 8,
+    gap: spacing.sm,
   },
   controlButton: {
-    borderWidth: 1,
-    borderColor: colors.borderStrong,
-    borderRadius: radius.md,
+    borderRadius: radius.pill,
     paddingVertical: 8,
-    paddingHorizontal: 12,
-    backgroundColor: colors.surface,
+    paddingHorizontal: 14,
+    backgroundColor: colors.surfaceMuted,
+    overflow: 'hidden',
   },
+  controlButtonActive: { backgroundColor: colors.primarySurface },
+  controlPressed: { backgroundColor: colors.surfacePressed },
   sortControl: { flexShrink: 1 },
   controlButtonText: { fontSize: 13, fontWeight: '600', color: colors.text },
+  controlButtonTextActive: { color: colors.primary },
 
   summaryRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'center',
     gap: 6,
-    marginHorizontal: 12,
-    marginBottom: 4,
   },
-  countText: { fontSize: 12, fontWeight: '600', color: colors.textSecondary },
-  freshnessRow: { marginHorizontal: 12, marginBottom: 4 },
+  countText: { fontSize: 13, fontWeight: '600', color: colors.textSecondary },
   activeChip: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 999,
-    paddingVertical: 2,
-    paddingHorizontal: 8,
-    backgroundColor: colors.surface,
+    borderRadius: radius.pill,
+    paddingVertical: 3,
+    paddingHorizontal: 10,
+    backgroundColor: colors.surfaceMuted,
     maxWidth: 160,
   },
-  activeChipText: { fontSize: 11, color: colors.textMuted },
+  activeChipText: { fontSize: 11, fontWeight: '500', color: colors.textSecondary },
   clearFiltersText: { fontSize: 12, fontWeight: '600', color: colors.primary },
 
-  listContent: { padding: 12, gap: 8, paddingBottom: 24 },
+  listContent: { padding: spacing.lg, gap: 10, paddingBottom: 24 },
   emptyListContent: { flexGrow: 1 },
 
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    paddingVertical: 12,
+    borderRadius: radius.md + 2,
+    paddingVertical: spacing.md,
     paddingLeft: 14,
-    paddingRight: 8,
-    gap: 8,
+    paddingRight: spacing.sm,
+    gap: spacing.md,
+    overflow: 'hidden',
+    ...elevation.card,
   },
-  rowPressed: { backgroundColor: '#f0f0ef' },
+  rowPressed: { backgroundColor: '#f7f6f4' },
   rowMain: { flex: 1, gap: 3 },
-  rowName: { fontSize: 15, fontWeight: '600', color: colors.text },
-  rowSecondary: { fontSize: 12, color: colors.textMuted },
-  rowSide: { alignItems: 'flex-end', gap: 3 },
-  rowStock: { fontSize: 14, fontWeight: '700', color: colors.text },
+  rowName: { ...type.item },
+  rowSecondary: { ...type.meta },
+  rowPrice: { fontSize: 13, fontWeight: '500', color: colors.textSecondary, marginTop: 2 },
+  rowSide: { alignItems: 'flex-end', gap: 2, minWidth: 56 },
+  rowStock: { fontSize: 18, fontWeight: '700', color: colors.text, ...numeral },
   rowStockOut: { color: colors.danger },
   rowStockLow: { color: colors.warning },
   rowStockFlag: { fontSize: 11, fontWeight: '600' },
-  rowPrice: { fontSize: 12, color: colors.textMuted },
-  chevron: { fontSize: 22, color: colors.borderStrong, paddingHorizontal: 4 },
+  rowStockCaption: { fontSize: 11, color: colors.textMuted },
+  chevron: { fontSize: 22, color: colors.borderStrong, paddingRight: 2 },
 
-  footer: { paddingVertical: 16, alignItems: 'center', gap: 8 },
+  footer: { paddingVertical: spacing.lg, alignItems: 'center', gap: spacing.sm },
   footerText: { color: colors.textMuted, fontSize: 13 },
   footerErrorText: { color: colors.danger, fontSize: 13 },
 
-  clearAction: {
-    marginTop: 4,
-    borderWidth: 1,
-    borderColor: colors.borderStrong,
-    borderRadius: radius.md,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    backgroundColor: colors.surface,
-  },
-  clearActionText: { color: colors.text, fontWeight: '600', fontSize: 13 },
   pressed: { opacity: 0.7 },
 });
