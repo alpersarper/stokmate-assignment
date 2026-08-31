@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -50,37 +50,71 @@
   .risk .m{font-size:13.5px;color:var(--text-2)}
   .note{background:var(--accent-soft);border:1px solid #bfdbfe;border-radius:10px;padding:12px 16px;margin:14px 0;font-size:14px}
   footer{margin-top:48px;border-top:1px solid var(--border);padding-top:16px;font-size:13px;color:var(--text-3)}
+  /* --- EN/TR bilingual layer --- */
+  [data-lang="en"] [lang="tr"]{display:none !important}
+  [data-lang="tr"] [lang="en"]{display:none !important}
+  .langswitch{display:inline-flex;align-items:stretch;border:1px solid var(--border-strong,#d6d3d1);
+    border-radius:999px;overflow:hidden;background:var(--surface,#fff);font-size:12px;line-height:1}
+  .langswitch button{appearance:none;background:transparent;border:0;cursor:pointer;padding:7px 13px;
+    font:inherit;font-weight:700;letter-spacing:.06em;color:var(--text-3,#78716c)}
+  .langswitch button + button{border-left:1px solid var(--border,#e7e5e4)}
+  .langswitch button[aria-pressed="true"]{background:var(--accent,#1d4ed8);color:#fff}
+  .langswitch button:focus-visible{outline:2px solid var(--accent,#1d4ed8);outline-offset:2px}
+  .langbar{display:flex;justify-content:flex-end;margin:0 0 14px}
 </style>
 </head>
 <body>
 <div class="wrap">
 
-<a class="back" href="index.html">← Reviewer overview</a>
+<div class="langbar">
+  <div class="langswitch" role="group" aria-label="Language / Dil">
+    <button type="button" data-set-lang="en" aria-pressed="true">EN</button>
+    <button type="button" data-set-lang="tr" aria-pressed="false">TR</button>
+  </div>
+</div>
+
+<a class="back" href="index.html" lang="en">← Reviewer overview</a>
+<a class="back" href="index.html" lang="tr">← Değerlendirici özeti</a>
 <header class="page">
-  <p class="kicker">StokMate · Reviewer report</p>
-  <h1>AI-assisted development workflow</h1>
-  <p class="lede">This project was built with AI agents doing the implementation under human-owned decisions. This
+  <p class="kicker" lang="en">StokMate · Reviewer report</p>
+  <p class="kicker" lang="tr">StokMate · Değerlendirici raporu</p>
+  <h1 lang="en">AI-assisted development workflow</h1>
+  <h1 lang="tr">Yapay zekâ destekli geliştirme süreci</h1>
+  <p class="lede" lang="en">This project was built with AI agents doing the implementation under human-owned decisions. This
   report describes how that actually worked — the division of responsibility, the controls that kept it honest, and the
   failure modes it was designed against. It is a transparency document, not a pitch.</p>
+  <p class="lede" lang="tr">Bu proje, insanın sahiplendiği kararlar altında uygulamayı yapay zekâ ajanlarının yazmasıyla
+  geliştirildi. Bu rapor sürecin gerçekte nasıl işlediğini anlatıyor — sorumluluk paylaşımı, süreci dürüst tutan
+  kontroller ve tasarımın karşı önlem aldığı hata biçimleri. Bu bir tanıtım değil, şeffaflık belgesidir.</p>
 </header>
 
 <section>
-  <h2 style="margin-top:0">Why AI-assisted development</h2>
-  <p>A take-home assignment is a small, well-specified problem with a wide surface: two clients, a shared core, an
+  <h2 style="margin-top:0" lang="en">Why AI-assisted development</h2>
+  <h2 style="margin-top:0" lang="tr">Neden yapay zekâ destekli geliştirme</h2>
+  <p lang="en">A take-home assignment is a small, well-specified problem with a wide surface: two clients, a shared core, an
   unfamiliar backend, an Android build, and documentation. Agents are good at the wide part — reading an entire
   backend, verifying API behavior endpoint by endpoint, implementing well-specified slices, and running verification
   repeatedly without fatigue. They are unreliable at the parts that need judgment: deciding what the product should
   do, what is in scope, and when something is actually finished.</p>
-  <p>So the workflow was organized around that split. Decisions were made and written down by a human first; agents
+  <p lang="tr">Değerlendirme projesi, küçük ve iyi tanımlanmış ama yüzeyi geniş bir problemdir: iki istemci, ortak bir
+  çekirdek, tanımadığınız bir backend, bir Android derlemesi ve dokümantasyon. Ajanlar geniş kısımda iyidir — bütün bir
+  backend'i okumak, API davranışını endpoint endpoint doğrulamak, iyi tanımlanmış dilimleri uygulamak ve doğrulamayı
+  yorulmadan tekrar tekrar çalıştırmak. Muhakeme gerektiren kısımlarda güvenilir değildirler: ürünün ne yapması
+  gerektiğine, neyin kapsamda olduğuna ve bir işin gerçekten ne zaman bittiğine karar vermek.</p>
+  <p lang="en">So the workflow was organized around that split. Decisions were made and written down by a human first; agents
   implemented against those written contracts; and nothing reached the default branch without human review.</p>
+  <p lang="tr">Süreç bu ayrım etrafında kuruldu. Kararlar önce bir insan tarafından verilip yazıya döküldü; ajanlar bu
+  yazılı sözleşmelere göre uyguladı; ve hiçbir şey insan incelemesinden geçmeden default branch'e ulaşmadı.</p>
 </section>
 
 <section>
-  <h2>Human vs. agent responsibility</h2>
+  <h2 lang="en">Human vs. agent responsibility</h2>
+  <h2 lang="tr">İnsan ve ajan sorumlulukları</h2>
   <div class="split">
     <div class="col human">
-      <h3>Human (owner)</h3>
-      <ul>
+      <h3 lang="en">Human (owner)</h3>
+      <h3 lang="tr">İnsan (sahip)</h3>
+      <ul lang="en">
         <li>Interpreting the assignment and deciding what "done" means</li>
         <li>All product and UX decisions, written into <code>docs/UX_DECISIONS.md</code> before implementation</li>
         <li>Acceptance criteria — the definition of completion agents are measured against</li>
@@ -89,10 +123,20 @@
         <li>Trade-off calls when a requirement collided with the provided API</li>
         <li><strong>Review and merge of every pull request</strong> — 8 of 8, none self-merged by an agent</li>
       </ul>
+      <ul lang="tr">
+        <li>Ödevi yorumlamak ve "bitti"nin ne anlama geldiğine karar vermek</li>
+        <li>Tüm ürün ve UX kararları — uygulamadan önce <code>docs/UX_DECISIONS.md</code> içine yazıldı</li>
+        <li>Kabul ölçütleri — ajanların karşısında ölçüldüğü tamamlanma tanımı</li>
+        <li>Teknoloji kararları, kilitlenmiş server-state tercihi dahil</li>
+        <li>Kapsam: her backend değişikliğini ve eklenen her bağımlılığı onaylamak (ya da reddetmek)</li>
+        <li>Bir gereksinim verilen API ile çakıştığında ödünleşim kararları</li>
+        <li><strong>Her pull request'in incelenmesi ve merge edilmesi</strong> — 8'de 8, hiçbiri bir ajan tarafından kendi kendine merge edilmedi</li>
+      </ul>
     </div>
     <div class="col agent">
-      <h3>Agent (executor)</h3>
-      <ul>
+      <h3 lang="en">Agent (executor)</h3>
+      <h3 lang="tr">Ajan (uygulayıcı)</h3>
+      <ul lang="en">
         <li>Reading the provided backend source and probing its runtime behavior</li>
         <li>Implementing the web, mobile, and shared slices against the written contracts</li>
         <li>Targeted research (platform behavior, library APIs, Android/Metro specifics)</li>
@@ -101,93 +145,142 @@
         <li>Code review passes and focused fixes from review findings</li>
         <li>Drafting documentation, including these reports</li>
       </ul>
+      <ul lang="tr">
+        <li>Verilen backend kaynağını okumak ve çalışma zamanı davranışını yoklamak</li>
+        <li>Web, mobil ve ortak dilimleri yazılı sözleşmelere göre uygulamak</li>
+        <li>Hedefli araştırma (platform davranışı, kütüphane API'leri, Android/Metro ayrıntıları)</li>
+        <li>Test yazmak ve çalıştırmak; typecheck, lint ve build'leri yürütmek</li>
+        <li>Gerçek bir tarayıcıda ve gerçek bir Android emulator'ünde çalışma zamanı QA'i — release APK dahil</li>
+        <li>Kod inceleme turları ve inceleme bulgularından çıkan dar kapsamlı düzeltmeler</li>
+        <li>Dokümantasyon taslakları, bu raporlar dahil</li>
+      </ul>
     </div>
   </div>
-  <p>The boundary is enforced structurally, not by good intentions: the repository's <code>AGENTS.md</code> designates
+  <p lang="en">The boundary is enforced structurally, not by good intentions: the repository's <code>AGENTS.md</code> designates
   the assignment, UX decisions, and acceptance criteria as human-owned inputs that agents must not rewrite. When an
   agent found a contradiction — for example that a mandatory requirement could not be met with the provided API — the
   rule was to escalate rather than quietly change the requirement. That escalation is exactly how the
   <code>GET /products/{id}</code> backend addition came to be a deliberate, approved decision rather than a silent
   edit.</p>
+  <p lang="tr">Sınır iyi niyetle değil, yapısal olarak korunuyor: deponun <code>AGENTS.md</code> dosyası ödevi, UX
+  kararlarını ve kabul ölçütlerini ajanların yeniden yazamayacağı, insana ait girdiler olarak tanımlıyor. Bir ajan
+  çelişki bulduğunda — örneğin zorunlu bir gereksinimin verilen API ile karşılanamayacağını — kural, gereksinimi
+  sessizce değiştirmek yerine konuyu yukarıya taşımaktı. <code>GET /products/{id}</code> backend eklemesinin sessiz bir
+  düzenleme değil, bilinçli ve onaylanmış bir karar olmasının nedeni tam olarak bu.</p>
 </section>
 
 <section>
-  <h2>How the work was actually organized</h2>
+  <h2 lang="en">How the work was actually organized</h2>
+  <h2 lang="tr">İşin gerçekte nasıl organize edildiği</h2>
   <figure class="diagram">
     <svg viewBox="0 0 900 400" role="img" aria-label="Workflow phases: human preparation of contracts, parallel discovery of API and architecture, human checkpoint, foundation, parallel web and mobile feature work, integration, QA against acceptance criteria, targeted fixes, final QA and delivery; every phase merges through human-reviewed pull requests">
       <g font-family="-apple-system,Segoe UI,Roboto,sans-serif" font-size="12.5">
         <!-- phase 0 -->
         <rect x="24" y="20" width="852" height="50" rx="8" fill="#eff6ff" stroke="#93c5fd"/>
-        <text x="44" y="42" font-weight="700" fill="#1d4ed8">0 · Human preparation</text>
-        <text x="44" y="60" fill="#44403c">assignment scope · UX decisions · acceptance criteria · agent contract (AGENTS.md) — committed before any agent ran</text>
+        <text x="44" y="42" font-weight="700" fill="#1d4ed8" lang="en">0 · Human preparation</text>
+        <text x="44" y="42" font-weight="700" fill="#1d4ed8" lang="tr">0 · İnsan hazırlığı</text>
+        <text x="44" y="60" fill="#44403c" lang="en">assignment scope · UX decisions · acceptance criteria · agent contract (AGENTS.md) — committed before any agent ran</text>
+        <text x="44" y="60" fill="#44403c" lang="tr">ödev kapsamı · UX kararları · kabul ölçütleri · ajan sözleşmesi (AGENTS.md) — ajanlar başlamadan önce commit edildi</text>
 
         <line x1="450" y1="70" x2="450" y2="86" stroke="#a8a29e" stroke-width="1.5" marker-end="url(#arrw)"/>
 
         <!-- discovery -->
         <rect x="24" y="90" width="418" height="56" rx="8" fill="#ffffff" stroke="#d6d3d1"/>
-        <text x="44" y="112" font-weight="700" fill="#1c1917">1 · API discovery (research only)</text>
-        <text x="44" y="130" fill="#57534e">full backend source read + runtime probe battery</text>
+        <text x="44" y="112" font-weight="700" fill="#1c1917" lang="en">1 · API discovery (research only)</text>
+        <text x="44" y="112" font-weight="700" fill="#1c1917" lang="tr">1 · API keşfi (yalnızca araştırma)</text>
+        <text x="44" y="130" fill="#57534e" lang="en">full backend source read + runtime probe battery</text>
+        <text x="44" y="130" fill="#57534e" lang="tr">tüm backend kaynağı okundu + çalışma zamanı yoklamaları</text>
         <rect x="458" y="90" width="418" height="56" rx="8" fill="#ffffff" stroke="#d6d3d1"/>
-        <text x="478" y="112" font-weight="700" fill="#1c1917">1 · Architecture proposal (research only)</text>
-        <text x="478" y="130" fill="#57534e">API-dependent choices marked pending until verified</text>
+        <text x="478" y="112" font-weight="700" fill="#1c1917" lang="en">1 · Architecture proposal (research only)</text>
+        <text x="478" y="112" font-weight="700" fill="#1c1917" lang="tr">1 · Mimari önerisi (yalnızca araştırma)</text>
+        <text x="478" y="130" fill="#57534e" lang="en">API-dependent choices marked pending until verified</text>
+        <text x="478" y="130" fill="#57534e" lang="tr">API'ye bağlı tercihler doğrulanana dek beklemede</text>
 
         <line x1="450" y1="146" x2="450" y2="162" stroke="#a8a29e" stroke-width="1.5" marker-end="url(#arrw)"/>
         <rect x="24" y="166" width="852" height="34" rx="8" fill="#fefce8" stroke="#fde68a"/>
-        <text x="450" y="188" font-weight="700" fill="#a16207" text-anchor="middle">Human checkpoint — reconcile findings, approve the contract and architecture, then freeze them as documents</text>
+        <text x="450" y="188" font-weight="700" fill="#a16207" text-anchor="middle" lang="en">Human checkpoint — reconcile findings, approve the contract and architecture, then freeze them as documents</text>
+        <text x="450" y="188" font-weight="700" fill="#a16207" text-anchor="middle" lang="tr">İnsan kontrol noktası — bulguları uzlaştır, sözleşmeyi ve mimariyi onayla, sonra belge olarak dondur</text>
 
         <line x1="450" y1="200" x2="450" y2="216" stroke="#a8a29e" stroke-width="1.5" marker-end="url(#arrw)"/>
         <rect x="24" y="220" width="852" height="34" rx="8" fill="#ffffff" stroke="#d6d3d1"/>
-        <text x="450" y="242" font-weight="600" fill="#44403c" text-anchor="middle">2 · Foundation — workspaces, shared core, tooling (single owner, no parallel work on shared files)</text>
+        <text x="450" y="242" font-weight="600" fill="#44403c" text-anchor="middle" lang="en">2 · Foundation — workspaces, shared core, tooling (single owner, no parallel work on shared files)</text>
+        <text x="450" y="242" font-weight="600" fill="#44403c" text-anchor="middle" lang="tr">2 · Temel — workspace'ler, ortak çekirdek, araçlar (tek sahip, ortak dosyalarda paralel çalışma yok)</text>
 
         <line x1="450" y1="254" x2="450" y2="270" stroke="#a8a29e" stroke-width="1.5" marker-end="url(#arrw)"/>
         <rect x="24" y="274" width="418" height="40" rx="8" fill="#ffffff" stroke="#d6d3d1"/>
-        <text x="233" y="299" font-weight="600" fill="#44403c" text-anchor="middle">3 · Web slice (isolated worktree)</text>
+        <text x="233" y="299" font-weight="600" fill="#44403c" text-anchor="middle" lang="en">3 · Web slice (isolated worktree)</text>
+        <text x="233" y="299" font-weight="600" fill="#44403c" text-anchor="middle" lang="tr">3 · Web dilimi (izole worktree)</text>
         <rect x="458" y="274" width="418" height="40" rx="8" fill="#ffffff" stroke="#d6d3d1"/>
-        <text x="667" y="299" font-weight="600" fill="#44403c" text-anchor="middle">3 · Mobile slice (isolated worktree)</text>
+        <text x="667" y="299" font-weight="600" fill="#44403c" text-anchor="middle" lang="en">3 · Mobile slice (isolated worktree)</text>
+        <text x="667" y="299" font-weight="600" fill="#44403c" text-anchor="middle" lang="tr">3 · Mobil dilim (izole worktree)</text>
 
         <line x1="450" y1="314" x2="450" y2="330" stroke="#a8a29e" stroke-width="1.5" marker-end="url(#arrw)"/>
         <rect x="24" y="334" width="852" height="50" rx="8" fill="#f0fdf4" stroke="#bbf7d0"/>
-        <text x="44" y="356" font-weight="700" fill="#15803d">4 · Integration → independent QA → targeted fixes → final QA</text>
-        <text x="44" y="374" fill="#44403c">QA evaluates the integrated project against the acceptance criteria and owns the implementation report; fixes are narrow, not reopened features</text>
+        <text x="44" y="356" font-weight="700" fill="#15803d" lang="en">4 · Integration → independent QA → targeted fixes → final QA</text>
+        <text x="44" y="356" font-weight="700" fill="#15803d" lang="tr">4 · Entegrasyon → bağımsız QA → hedefli düzeltmeler → son QA</text>
+        <text x="44" y="374" fill="#44403c" lang="en">QA evaluates the integrated project against the acceptance criteria and owns the implementation report; fixes are narrow, not reopened features</text>
+        <text x="44" y="374" fill="#44403c" lang="tr">QA, entegre projeyi kabul ölçütlerine göre değerlendirir ve uygulama raporunun sahibidir; düzeltmeler dardır, özellikler yeniden açılmaz</text>
       </g>
       <defs>
         <marker id="arrw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#a8a29e"/></marker>
       </defs>
     </svg>
-    <figcaption>Every stage landed on the default branch through a pull request the human reviewed and merged —
-    eight in total, visible in the repository's history.</figcaption>
+    <figcaption><span lang="en">Every stage landed on the default branch through a pull request the human reviewed and merged —
+    eight in total, visible in the repository's history.</span><span lang="tr">Her aşama, insanın incelediği ve merge
+    ettiği bir pull request üzerinden default branch'e indi — toplam sekiz tane, deponun geçmişinde
+    görülebilir.</span></figcaption>
   </figure>
-  <p>Roles were logical, not a fleet: at most two or three agents worked at once, and only where their file ownership
+  <p lang="en">Roles were logical, not a fleet: at most two or three agents worked at once, and only where their file ownership
   didn't overlap (research in parallel; web and mobile in parallel in separate worktrees; never two agents editing
   shared tooling). Research agents were explicitly forbidden from implementing features or writing the contract
   documents they fed into — the contract was produced in a separate, reviewed integration step so that "what the API
   does" could not drift into "what an agent assumed it does".</p>
-  <div class="note">Independence was also enforced at the QA boundary: the agent that verified the project was not the
+  <p lang="tr">Roller mantıksal ayrımlardı, bir ajan filosu değil: aynı anda en fazla iki üç ajan çalıştı ve yalnızca
+  dosya sahiplikleri çakışmadığı yerlerde (araştırma paralel; web ve mobil ayrı worktree'lerde paralel; ortak araçları
+  asla iki ajan birden düzenlemedi). Keşif ajanlarının özellik uygulaması ya da besledikleri sözleşme belgelerini
+  yazması açıkça yasaklandı — sözleşme ayrı ve incelenen bir entegrasyon adımında üretildi; böylece "API'nin ne yaptığı"
+  ile "bir ajanın ne yaptığını varsaydığı" birbirine karışamazdı.</p>
+  <div class="note" lang="en">Independence was also enforced at the QA boundary: the agent that verified the project was not the
   agent that built it, it evaluated the <em>integrated</em> tree rather than a feature branch, and it was prohibited
   from marking work complete on the basis of a commit message or another agent's claim.</div>
+  <div class="note" lang="tr">Bağımsızlık QA sınırında da uygulandı: projeyi doğrulayan ajan, onu yazan ajan değildi;
+  bir feature branch'i değil <em>entegre</em> ağacı değerlendirdi; ve bir commit mesajına ya da başka bir ajanın
+  iddiasına dayanarak işi tamamlandı olarak işaretlemesi yasaktı.</div>
 </section>
 
 <section>
-  <h2>Tooling actually used</h2>
+  <h2 lang="en">Tooling actually used</h2>
+  <h2 lang="tr">Gerçekte kullanılan araçlar</h2>
   <div class="tablewrap">
   <table>
-    <tr><th>Tool</th><th>Where it lives</th><th>What it did</th></tr>
-    <tr><td>Chrome DevTools MCP</td><td><code>.mcp.json</code></td><td>Drove a real browser for web verification: executing flows, reading the network log to confirm the client sent the contract's query parameters, and capturing screenshots.</td></tr>
-    <tr><td>shadcn MCP</td><td><code>.mcp.json</code></td><td>Adding UI primitives from the configured registry instead of hand-writing parallel components.</td></tr>
-    <tr><td><code>product-ui-polish</code> skill</td><td><code>.claude/skills/</code></td><td>A project-authored, explicitly-invoked workflow for polish passes: inspect the real rendered screen, critique it against the recorded design language, make the smallest coherent change, verify visually. Its reference files encode this product's rules (admin density, mobile conventions, data tables, freshness affordances) so polish extends the existing language instead of restyling by taste.</td></tr>
-    <tr><td><code>frontend-design</code> plugin</td><td><code>.claude/settings.json</code></td><td>General visual-design judgment. Where it conflicts with this product's rules, the project skill wins — this is operational software, not an identity exercise.</td></tr>
-    <tr><td>Expo plugin</td><td><code>mobile/.claude/settings.json</code></td><td>Expo/React Native tooling knowledge for the native build and dev workflow.</td></tr>
-    <tr><td>Android emulator + <code>adb</code>, <code>curl</code></td><td>local toolchain</td><td>Running the actual APK on a device image and verifying writes independently of the app under test.</td></tr>
+    <tr lang="en"><th>Tool</th><th>Where it lives</th><th>What it did</th></tr>
+    <tr lang="tr"><th>Araç</th><th>Nerede tanımlı</th><th>Ne yaptı</th></tr>
+    <tr lang="en"><td>Chrome DevTools MCP</td><td><code>.mcp.json</code></td><td>Drove a real browser for web verification: executing flows, reading the network log to confirm the client sent the contract's query parameters, and capturing screenshots.</td></tr>
+    <tr lang="tr"><td>Chrome DevTools MCP</td><td><code>.mcp.json</code></td><td>Web doğrulaması için gerçek bir tarayıcı sürdü: akışları çalıştırmak, istemcinin sözleşmedeki query parametrelerini gönderdiğini doğrulamak için network log'unu okumak ve ekran görüntüsü almak.</td></tr>
+    <tr lang="en"><td>shadcn MCP</td><td><code>.mcp.json</code></td><td>Adding UI primitives from the configured registry instead of hand-writing parallel components.</td></tr>
+    <tr lang="tr"><td>shadcn MCP</td><td><code>.mcp.json</code></td><td>Paralel bileşenleri elle yazmak yerine yapılandırılmış registry'den UI primitifleri eklemek.</td></tr>
+    <tr lang="en"><td><code>product-ui-polish</code> skill</td><td><code>.claude/skills/</code></td><td>A project-authored, explicitly-invoked workflow for polish passes: inspect the real rendered screen, critique it against the recorded design language, make the smallest coherent change, verify visually. Its reference files encode this product's rules (admin density, mobile conventions, data tables, freshness affordances) so polish extends the existing language instead of restyling by taste.</td></tr>
+    <tr lang="tr"><td><code>product-ui-polish</code> skill'i</td><td><code>.claude/skills/</code></td><td>Cila turları için proje içinde yazılmış, yalnızca açıkça çağrıldığında çalışan bir akış: gerçekte render edilen ekranı incele, kayıtlı tasarım diline göre eleştir, en küçük tutarlı değişikliği yap, görsel olarak doğrula. Referans dosyaları bu ürünün kurallarını (yönetim paneli yoğunluğu, mobil alışkanlıklar, veri tabloları, tazelik göstergeleri) kodlar; böylece cila, zevke göre yeniden biçimlendirmek yerine mevcut dili sürdürür.</td></tr>
+    <tr lang="en"><td><code>frontend-design</code> plugin</td><td><code>.claude/settings.json</code></td><td>General visual-design judgment. Where it conflicts with this product's rules, the project skill wins — this is operational software, not an identity exercise.</td></tr>
+    <tr lang="tr"><td><code>frontend-design</code> eklentisi</td><td><code>.claude/settings.json</code></td><td>Genel görsel tasarım muhakemesi. Bu ürünün kurallarıyla çeliştiği yerde proje skill'i kazanır — bu operasyonel bir yazılım, bir kimlik çalışması değil.</td></tr>
+    <tr lang="en"><td>Expo plugin</td><td><code>mobile/.claude/settings.json</code></td><td>Expo/React Native tooling knowledge for the native build and dev workflow.</td></tr>
+    <tr lang="tr"><td>Expo eklentisi</td><td><code>mobile/.claude/settings.json</code></td><td>Native build ve geliştirme akışı için Expo/React Native araç bilgisi.</td></tr>
+    <tr lang="en"><td>Android emulator + <code>adb</code>, <code>curl</code></td><td>local toolchain</td><td>Running the actual APK on a device image and verifying writes independently of the app under test.</td></tr>
+    <tr lang="tr"><td>Android emulator + <code>adb</code>, <code>curl</code></td><td>yerel araç zinciri</td><td>Gerçek APK'yı bir cihaz imajında çalıştırmak ve yazma işlemlerini test edilen uygulamadan bağımsız olarak doğrulamak.</td></tr>
   </table>
   </div>
 </section>
 
 <section>
-  <h2>Decision persistence — the main defense against context loss</h2>
-  <p>The biggest practical risk in agent-assisted work is not bad code; it is <em>drift</em>. A later session doesn't
+  <h2 lang="en">Decision persistence — the main defense against context loss</h2>
+  <h2 lang="tr">Kararların kalıcılığı — bağlam kaybına karşı ana savunma</h2>
+  <p lang="en">The biggest practical risk in agent-assisted work is not bad code; it is <em>drift</em>. A later session doesn't
   remember why something was decided, so it re-decides differently. The countermeasure here was to write decisions into
   the repository as documents with defined authority, each owning one concern:</p>
-  <ul class="tight">
+  <p lang="tr">Ajan destekli çalışmadaki en büyük pratik risk kötü kod değil, <em>kaymadır</em>. Sonraki bir oturum bir
+  şeyin neden öyle kararlaştırıldığını hatırlamaz ve farklı karar verir. Buradaki karşı önlem, kararları depoya, her
+  biri tek bir konunun sahibi olan ve yetkisi tanımlı belgeler halinde yazmaktı:</p>
+  <ul class="tight" lang="en">
     <li><strong>Acceptance criteria</strong> — the completion definition; agents cannot mark their own work complete against it.</li>
     <li><strong>UX decisions</strong> — approved product behavior; implementation agents must not substitute their own preferences.</li>
     <li><strong>API contract</strong> — verified backend behavior only, with evidence levels marking what was observed at runtime versus read in source. Speculation is not allowed in this file.</li>
@@ -196,13 +289,25 @@
     <li><strong>Implementation report</strong> — the QA-owned record of what is actually verified, kept separate from what any agent claimed.</li>
     <li><strong>Machine and tooling notes</strong> in <code>AGENTS.md</code> — hard-won environment facts (which emulator image works, which port to use, how to recover a stuck dev build) so each session doesn't rediscover them.</li>
   </ul>
-  <p>These reviewer reports are the last layer of the same idea: the reasoning is written down where it can be checked
+  <ul class="tight" lang="tr">
+    <li><strong>Kabul ölçütleri</strong> — tamamlanma tanımı; ajanlar kendi işlerini buna göre tamamlandı olarak işaretleyemez.</li>
+    <li><strong>UX kararları</strong> — onaylanmış ürün davranışı; uygulama ajanları bunların yerine kendi tercihlerini koyamaz.</li>
+    <li><strong>API sözleşmesi</strong> — yalnızca doğrulanmış backend davranışı; kanıt seviyeleri neyin çalışma zamanında gözlemlendiğini, neyin kaynak koddan okunduğunu işaretler. Bu dosyada spekülasyona izin verilmez.</li>
+    <li><strong>Mimari ve karar kayıtları</strong> — onaylanmış teknik tercihler ve reddedilen karmaşıklığın açık listesi; böylece "X'i ekleyelim mi?" sorusunun cevabı, onu cevaplayan oturumdan sonra da ayakta kalır.</li>
+    <li><strong>Tasarım dili dosyaları</strong> — teslim edilen üründen çıkarıldı; böylece sonraki görsel çalışma sistemi yeniden icat etmek yerine genişletir.</li>
+    <li><strong>Uygulama raporu</strong> — neyin gerçekten doğrulandığına dair QA'in sahiplendiği kayıt; herhangi bir ajanın iddiasından ayrı tutulur.</li>
+    <li><code>AGENTS.md</code> içindeki <strong>makine ve araç notları</strong> — zor kazanılmış ortam bilgileri (hangi emulator imajı çalışıyor, hangi port kullanılmalı, takılan bir geliştirme derlemesi nasıl kurtarılır); her oturum bunları yeniden keşfetmesin diye.</li>
+  </ul>
+  <p lang="en">These reviewer reports are the last layer of the same idea: the reasoning is written down where it can be checked
   against the code, rather than living only in a conversation.</p>
+  <p lang="tr">Bu değerlendirici raporları aynı fikrin son katmanı: gerekçeler yalnızca bir sohbette kalmak yerine,
+  kodla karşılaştırılabilecekleri bir yere yazıldı.</p>
 </section>
 
 <section>
-  <h2>Verification approach</h2>
-  <ul class="tight">
+  <h2 lang="en">Verification approach</h2>
+  <h2 lang="tr">Doğrulama yaklaşımı</h2>
+  <ul class="tight" lang="en">
     <li><strong>Automated, on every pass</strong>: TypeScript (strict, all three workspaces), ESLint, shared unit tests, live contract tests against a running backend, and the web production build.</li>
     <li><strong>Executed flows over inspection</strong>: web verification drove a real browser against the real API — including reading the network log to confirm the request the client actually sent — rather than reasoning about the code.</li>
     <li><strong>Independent read-back</strong>: after a write from a client, the result was confirmed with a separate <code>curl</code> to the API, so a convincing-looking UI could not stand in for a persisted change.</li>
@@ -210,42 +315,105 @@
     <li><strong>Documentation is testable too</strong>: the README's commands were executed as written; a stale claim found this way was recorded as a defect and fixed rather than quietly edited.</li>
     <li><strong>Evidence vocabulary</strong>: the implementation report distinguishes "verified by running it" from "verified by inspection" and never counts unchecked work as complete.</li>
   </ul>
+  <ul class="tight" lang="tr">
+    <li><strong>Her turda otomatik</strong>: TypeScript (strict, üç workspace'in tamamı), ESLint, ortak birim testleri, çalışan bir backend'e karşı canlı sözleşme testleri ve web production build'i.</li>
+    <li><strong>İnceleme yerine çalıştırılan akışlar</strong>: web doğrulaması, kod üzerinde akıl yürütmek yerine gerçek API'ye karşı gerçek bir tarayıcı sürdü — istemcinin gerçekte gönderdiği isteği doğrulamak için network log'unu okumak dahil.</li>
+    <li><strong>Bağımsız geri okuma</strong>: bir istemciden yazma yapıldıktan sonra sonuç, API'ye ayrı bir <code>curl</code> ile doğrulandı; böylece inandırıcı görünen bir UI, kalıcılaşmış bir değişikliğin yerine geçemedi.</li>
+    <li><strong>Vekil değil, teslim edilen artefakt</strong>: son mobil doğrulama, teslim edilen release APK'yı emulator üzerinde bağımsız koşullarda (Metro kapalı, geliştirme köprüleri kaldırılmış, temiz kurulum) 12 maddelik bir matris boyunca çalıştırdı; oturum kurtarmayı sınamak için kasıtlı bir backend yeniden başlatması dahil.</li>
+    <li><strong>Dokümantasyon da test edilebilir</strong>: README'deki komutlar yazıldığı gibi çalıştırıldı; bu yolla bulunan, güncelliğini yitirmiş bir ifade sessizce düzeltilmek yerine hata olarak kaydedilip giderildi.</li>
+    <li><strong>Kanıt sözlüğü</strong>: uygulama raporu "çalıştırarak doğrulandı" ile "inceleyerek doğrulandı"yı birbirinden ayırır ve denetlenmemiş işi asla tamamlanmış saymaz.</li>
+  </ul>
 </section>
 
 <section>
-  <h2>Risks of AI-assisted implementation, and the controls used</h2>
-  <div class="risk">
+  <h2 lang="en">Risks of AI-assisted implementation, and the controls used</h2>
+  <h2 lang="tr">Yapay zekâ destekli uygulamanın riskleri ve kullanılan kontroller</h2>
+  <div class="risk" lang="en">
     <div class="r">Overengineering — agents add abstraction and infrastructure to look thorough</div>
     <div class="m">Controls: an explicit scope-discipline rule ("the simplest solution that satisfies the assignment"), a maintained rejected-complexity list, dependency additions requiring justification, and human review of every PR. The result is a three-workspace repo with no state library, no codegen, no CI harness, and no shared component package.</div>
   </div>
-  <div class="risk">
+  <div class="risk" lang="tr">
+    <div class="r">Aşırı mühendislik — ajanlar kapsamlı görünmek için soyutlama ve altyapı ekler</div>
+    <div class="m">Kontroller: açık bir kapsam disiplini kuralı ("ödevi karşılayan en basit çözüm"), güncel tutulan bir reddedilen-karmaşıklık listesi, gerekçe isteyen bağımlılık eklemeleri ve her PR'ın insan tarafından incelenmesi. Sonuç: state kütüphanesi, codegen, CI düzeneği ve ortak bileşen paketi olmayan üç workspace'li bir depo.</div>
+  </div>
+  <div class="risk" lang="en">
     <div class="r">False assumptions about the API — inventing endpoints, fields, or error shapes</div>
     <div class="m">Controls: a prohibition on inventing API behavior, a discovery phase that verified the backend at runtime before any client code depended on it, and a contract document that records evidence levels and unresolved uncertainties instead of papering over them.</div>
   </div>
-  <div class="risk">
+  <div class="risk" lang="tr">
+    <div class="r">API hakkında yanlış varsayımlar — endpoint, alan ya da hata biçimi uydurmak</div>
+    <div class="m">Kontroller: API davranışı uydurma yasağı; hiçbir istemci kodu backend'e bağımlı hale gelmeden önce onu çalışma zamanında doğrulayan bir keşif aşaması; ve belirsizlikleri örtmek yerine kanıt seviyelerini ve çözülmemiş soruları kaydeden bir sözleşme belgesi.</div>
+  </div>
+  <div class="risk" lang="en">
     <div class="r">Unnecessary changes — touching the backend or unrelated code for convenience</div>
     <div class="m">Controls: the backend was frozen except for approved modifications, each requiring a documented reason; ownership boundaries kept parallel agents out of each other's files; and every diff was reviewed before merge.</div>
   </div>
-  <div class="risk">
+  <div class="risk" lang="tr">
+    <div class="r">Gereksiz değişiklikler — kolaylık olsun diye backend'e ya da ilgisiz koda dokunmak</div>
+    <div class="m">Kontroller: backend, her biri belgelenmiş bir gerekçe gerektiren onaylı değişiklikler dışında donduruldu; sahiplik sınırları paralel çalışan ajanları birbirinin dosyalarından uzak tuttu; ve her diff merge edilmeden önce incelendi.</div>
+  </div>
+  <div class="risk" lang="en">
     <div class="r">Inconsistent decisions across sessions — re-deciding what was already settled</div>
     <div class="m">Controls: the persisted decision documents above, with defined authority per concern, and a rule that material deviations must be escalated rather than silently applied. Deviations from the recorded architecture were tracked explicitly in the QA report.</div>
   </div>
-  <div class="risk">
+  <div class="risk" lang="tr">
+    <div class="r">Oturumlar arası tutarsız kararlar — çözülmüş olanı yeniden karara bağlamak</div>
+    <div class="m">Kontroller: yukarıdaki kalıcı karar belgeleri — her konu için tanımlı yetkiyle — ve esaslı sapmaların sessizce uygulanmak yerine yukarıya taşınması kuralı. Kayıtlı mimariden sapmalar QA raporunda açıkça izlendi.</div>
+  </div>
+  <div class="risk" lang="en">
     <div class="r">False confidence — declaring work complete because code exists</div>
     <div class="m">Controls: the strongest one. Completion is defined by an independent QA pass against written criteria; a commit message, a task status, or an agent's own claim is explicitly not evidence; and the report separates executed verification from inspection. Two documentation defects were caught this way and recorded before being fixed.</div>
   </div>
-  <p>None of this makes agent output automatically correct. It makes the failures <em>visible</em> — which is the
+  <div class="risk" lang="tr">
+    <div class="r">Sahte güven — kod var diye işi tamamlanmış ilan etmek</div>
+    <div class="m">Kontroller: en güçlü olanı. Tamamlanma, yazılı ölçütlere karşı yapılan bağımsız bir QA turuyla tanımlanır; bir commit mesajı, bir görev durumu ya da bir ajanın kendi iddiası açıkça kanıt sayılmaz; ve rapor, çalıştırılarak yapılan doğrulamayı incelemeden ayırır. İki dokümantasyon hatası bu yolla yakalandı ve düzeltilmeden önce kayda geçirildi.</div>
+  </div>
+  <p lang="en">None of this makes agent output automatically correct. It makes the failures <em>visible</em> — which is the
   property that mattered, since the reviewer is evaluating the delivered product, not the process that produced it.</p>
+  <p lang="tr">Bunların hiçbiri ajan çıktısını kendiliğinden doğru yapmaz. Hataları <em>görünür</em> kılar — asıl önemli
+  olan özellik buydu, çünkü değerlendirici süreci değil, teslim edilen ürünü değerlendiriyor.</p>
 </section>
 
 <footer>
-  <a href="index.html">← Reviewer overview</a> · Related:
+  <span lang="en"><a href="index.html">← Reviewer overview</a> · Related:
   <a href="frontend-report.html">Web admin architecture</a> ·
   <a href="mobile-report.html">Mobile architecture</a> ·
   <a href="backend-report.html">Backend &amp; modifications</a> ·
-  <a href="development-decisions.html">Engineering decisions</a>
+  <a href="development-decisions.html">Engineering decisions</a></span>
+  <span lang="tr"><a href="index.html">← Değerlendirici özeti</a> · İlgili:
+  <a href="frontend-report.html">Web yönetim paneli mimarisi</a> ·
+  <a href="mobile-report.html">Mobil mimari</a> ·
+  <a href="backend-report.html">Backend ve değişiklikler</a> ·
+  <a href="development-decisions.html">Mühendislik kararları</a></span>
 </footer>
 
 </div>
+<script>
+(function () {
+  var KEY = 'stokmate-lang', root = document.documentElement, buttons = [];
+  function apply(lang) {
+    lang = lang === 'tr' ? 'tr' : 'en';
+    root.setAttribute('data-lang', lang);
+    root.setAttribute('lang', lang);
+    buttons.forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-set-lang') === lang));
+    });
+    try { localStorage.setItem(KEY, lang); } catch (e) {}
+  }
+  function init() {
+    buttons = Array.prototype.slice.call(document.querySelectorAll('[data-set-lang]'));
+    buttons.forEach(function (b) {
+      b.addEventListener('click', function () { apply(b.getAttribute('data-set-lang')); });
+    });
+    var initial = 'en';
+    try { var s = localStorage.getItem(KEY); if (s === 'tr' || s === 'en') initial = s; } catch (e) {}
+    var q = (location.search.match(/[?&]lang=(tr|en)(?:&|$)/) || [])[1];
+    if (q) initial = q;
+    apply(initial);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
 </body>
 </html>

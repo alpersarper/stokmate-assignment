@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -54,30 +54,64 @@
   .note{background:var(--accent-soft);border:1px solid #bfdbfe;border-radius:10px;padding:12px 16px;margin:14px 0;font-size:14px}
   footer{margin-top:48px;border-top:1px solid var(--border);padding-top:16px;font-size:13px;color:var(--text-3)}
   @media (max-width:560px){ .mod dl{grid-template-columns:1fr} .mod dt{margin-top:6px} }
+  /* --- EN/TR bilingual layer --- */
+  [data-lang="en"] [lang="tr"]{display:none !important}
+  [data-lang="tr"] [lang="en"]{display:none !important}
+  .langswitch{display:inline-flex;align-items:stretch;border:1px solid var(--border-strong,#d6d3d1);
+    border-radius:999px;overflow:hidden;background:var(--surface,#fff);font-size:12px;line-height:1}
+  .langswitch button{appearance:none;background:transparent;border:0;cursor:pointer;padding:7px 13px;
+    font:inherit;font-weight:700;letter-spacing:.06em;color:var(--text-3,#78716c)}
+  .langswitch button + button{border-left:1px solid var(--border,#e7e5e4)}
+  .langswitch button[aria-pressed="true"]{background:var(--accent,#1d4ed8);color:#fff}
+  .langswitch button:focus-visible{outline:2px solid var(--accent,#1d4ed8);outline-offset:2px}
+  .langbar{display:flex;justify-content:flex-end;margin:0 0 14px}
+  /* paired table rows: keep the last VISIBLE row borderless in EN as well */
+  [data-lang="en"] tr[lang="en"]:nth-last-child(2) td{border-bottom:none}
 </style>
 </head>
 <body>
 <div class="wrap">
 
-<a class="back" href="index.html">← Reviewer overview</a>
+<div class="langbar">
+  <div class="langswitch" role="group" aria-label="Language / Dil">
+    <button type="button" data-set-lang="en" aria-pressed="true">EN</button>
+    <button type="button" data-set-lang="tr" aria-pressed="false">TR</button>
+  </div>
+</div>
+
+<a class="back" href="index.html" lang="en">← Reviewer overview</a>
+<a class="back" href="index.html" lang="tr">← Değerlendirici özeti</a>
 <header class="page">
-  <p class="kicker">StokMate · Reviewer report</p>
-  <h1>Backend architecture &amp; modifications</h1>
-  <p class="lede">The backend was <strong>provided with the assignment</strong> — a .NET 8 Web API with an in-memory
+  <p class="kicker" lang="en">StokMate · Reviewer report</p>
+  <p class="kicker" lang="tr">StokMate · Değerlendirici raporu</p>
+  <h1 lang="en">Backend architecture &amp; modifications</h1>
+  <h1 lang="tr">Backend mimarisi ve değişiklikler</h1>
+  <p class="lede" lang="en">The backend was <strong>provided with the assignment</strong> — a .NET 8 Web API with an in-memory
   store. It was not authored here. This report describes how it works, and then documents in full the
   <strong>three</strong> modifications made during the assignment, each with its original behavior, reason, impact, and
   verification.</p>
+  <p class="lede" lang="tr">Backend <strong>ödevle birlikte verildi</strong> — in-memory bir veri deposu kullanan bir
+  .NET 8 Web API. Burada yazılmadı. Bu rapor önce nasıl çalıştığını anlatıyor, ardından ödev sırasında yapılan
+  <strong>üç</strong> değişikliği özgün davranışı, gerekçesi, etkisi ve doğrulamasıyla eksiksiz belgeliyor.</p>
 </header>
 
 <section>
-  <h2 style="margin-top:0">Overview</h2>
-  <p>ASP.NET Core controllers over EF Core's in-memory provider, fixed to port 5080 on all interfaces, CORS fully open,
+  <h2 style="margin-top:0" lang="en">Overview</h2>
+  <h2 style="margin-top:0" lang="tr">Genel bakış</h2>
+  <p lang="en">ASP.NET Core controllers over EF Core's in-memory provider, fixed to port 5080 on all interfaces, CORS fully open,
   HTTP only, Swagger exposed. Everything — products, sessions, tokens — lives in process memory and is re-seeded on
   every start (80 products, 8 categories, 12 brands, 6 suppliers, 1 user). Error bodies are Turkish
   <code>text/plain</code>, not JSON, which shaped the clients' error handling. Verified behavior is recorded in
   <a href="https://github.com/alpersarper/stokmate-assignment/blob/main/docs/API_CONTRACT.md">docs/API_CONTRACT.md</a>
   from a runtime battery plus a full source read — the clients were built against that record, never against
   assumptions.</p>
+  <p lang="tr">EF Core'un in-memory sağlayıcısı üzerinde ASP.NET Core controller'ları: tüm arayüzlerde sabit 5080 portu,
+  tamamen açık CORS, yalnızca HTTP, açık Swagger. Ürünler, oturumlar, token'lar — her şey süreç belleğinde tutulur ve
+  her başlatmada yeniden seed'lenir (80 ürün, 8 kategori, 12 marka, 6 tedarikçi, 1 kullanıcı). Hata gövdeleri JSON
+  değil Türkçe <code>text/plain</code>; bu da istemcilerin hata işleyişini biçimlendirdi. Doğrulanmış davranış, bir
+  runtime test bataryası ve kaynak kodun baştan sona okunmasıyla
+  <a href="https://github.com/alpersarper/stokmate-assignment/blob/main/docs/API_CONTRACT.md">docs/API_CONTRACT.md</a>
+  belgesine kaydedildi — istemciler varsayımlara göre değil, bu kayda göre geliştirildi.</p>
   <figure class="diagram">
     <svg viewBox="0 0 900 340" role="img" aria-label="Backend layers: bearer auth attribute and rate limiter in front of controllers, controllers delegate to services, services use the in-memory DbContext, exception middleware maps domain exceptions to Turkish plain-text responses">
       <g font-family="-apple-system,Segoe UI,Roboto,sans-serif">
@@ -122,31 +156,45 @@
         <marker id="arrb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#a8a29e"/></marker>
       </defs>
     </svg>
-    <figcaption>Amber marks the one pipeline stage added during the assignment; everything else is the provided
-    structure, and the modifications follow its existing patterns rather than introducing new ones.</figcaption>
+    <figcaption><span lang="en">Amber marks the one pipeline stage added during the assignment; everything else is the provided
+    structure, and the modifications follow its existing patterns rather than introducing new ones.</span><span lang="tr">Amber
+    vurgu, ödev sırasında eklenen tek pipeline aşamasını gösterir; geri kalanı verilen yapıdır ve değişiklikler yeni
+    desenler getirmek yerine mevcut desenleri izler.</span></figcaption>
   </figure>
 </section>
 
 <section>
-  <h2>API surface</h2>
+  <h2 lang="en">API surface</h2>
+  <h2 lang="tr">API yüzeyi</h2>
   <div class="tablewrap">
   <table>
-    <tr><th>Group</th><th>Capability</th><th>Provenance</th></tr>
-    <tr><td>Auth</td><td>Login, refresh, logout, current user. Opaque (non-JWT) tokens: 15-minute access, 7-day refresh with strict rotation.</td><td><span class="badge badge-provided">provided</span></td></tr>
-    <tr><td>Product reads</td><td>Paged list with combinable search (<code>q</code>), category/brand/status filters, sort + direction; a stats endpoint (<code>total</code>, <code>outOfStock</code>, <code>lowStock</code>).</td><td><span class="badge badge-provided">provided</span></td></tr>
-    <tr><td>Product detail read</td><td><code>GET /products/{id}</code> returning the list fields plus <code>costPrice</code>, <code>supplierId</code>, <code>description</code>.</td><td><span class="badge badge-changed">added</span></td></tr>
-    <tr><td>Product writes</td><td>Create, full-replace update (<code>PUT</code>), delete, and a dedicated stock <code>PATCH</code>. Validation returns specific Turkish messages; SKU uniqueness returns 409.</td><td><span class="badge badge-provided">provided</span></td></tr>
-    <tr><td>Stock rule</td><td>Stock updates rejected for Discontinued products with 409.</td><td><span class="badge badge-changed">added</span></td></tr>
-    <tr><td>Read throttling</td><td>60 requests / 10 s per access token on product reads → 429 with <code>Retry-After</code>.</td><td><span class="badge badge-changed">added</span></td></tr>
-    <tr><td>Lookups</td><td>Categories, brands, suppliers as bare arrays.</td><td><span class="badge badge-provided">provided</span></td></tr>
+    <tr lang="en"><th>Group</th><th>Capability</th><th>Provenance</th></tr>
+    <tr lang="tr"><th>Grup</th><th>Yetenek</th><th>Köken</th></tr>
+    <tr lang="en"><td>Auth</td><td>Login, refresh, logout, current user. Opaque (non-JWT) tokens: 15-minute access, 7-day refresh with strict rotation.</td><td><span class="badge badge-provided">provided</span></td></tr>
+    <tr lang="tr"><td>Auth</td><td>Login, refresh, logout, mevcut kullanıcı. Opak (JWT olmayan) token'lar: 15 dakikalık access, katı rotasyonlu 7 günlük refresh.</td><td><span class="badge badge-provided">verilen</span></td></tr>
+    <tr lang="en"><td>Product reads</td><td>Paged list with combinable search (<code>q</code>), category/brand/status filters, sort + direction; a stats endpoint (<code>total</code>, <code>outOfStock</code>, <code>lowStock</code>).</td><td><span class="badge badge-provided">provided</span></td></tr>
+    <tr lang="tr"><td>Ürün okumaları</td><td>Birleştirilebilir arama (<code>q</code>), kategori/marka/durum filtreleri, sıralama + yön içeren sayfalı liste; bir stats endpoint'i (<code>total</code>, <code>outOfStock</code>, <code>lowStock</code>).</td><td><span class="badge badge-provided">verilen</span></td></tr>
+    <tr lang="en"><td>Product detail read</td><td><code>GET /products/{id}</code> returning the list fields plus <code>costPrice</code>, <code>supplierId</code>, <code>description</code>.</td><td><span class="badge badge-changed">added</span></td></tr>
+    <tr lang="tr"><td>Ürün detayı okuma</td><td>Liste alanlarına ek olarak <code>costPrice</code>, <code>supplierId</code>, <code>description</code> döndüren <code>GET /products/{id}</code>.</td><td><span class="badge badge-changed">eklendi</span></td></tr>
+    <tr lang="en"><td>Product writes</td><td>Create, full-replace update (<code>PUT</code>), delete, and a dedicated stock <code>PATCH</code>. Validation returns specific Turkish messages; SKU uniqueness returns 409.</td><td><span class="badge badge-provided">provided</span></td></tr>
+    <tr lang="tr"><td>Ürün yazmaları</td><td>Oluşturma, tam değiştiren güncelleme (<code>PUT</code>), silme ve özel bir stok <code>PATCH</code>'i. Doğrulama spesifik Türkçe mesajlar döner; SKU tekilliği 409 döner.</td><td><span class="badge badge-provided">verilen</span></td></tr>
+    <tr lang="en"><td>Stock rule</td><td>Stock updates rejected for Discontinued products with 409.</td><td><span class="badge badge-changed">added</span></td></tr>
+    <tr lang="tr"><td>Stok kuralı</td><td>Discontinued ürünlerde stok güncellemeleri 409 ile reddedilir.</td><td><span class="badge badge-changed">eklendi</span></td></tr>
+    <tr lang="en"><td>Read throttling</td><td>60 requests / 10 s per access token on product reads → 429 with <code>Retry-After</code>.</td><td><span class="badge badge-changed">added</span></td></tr>
+    <tr lang="tr"><td>Okuma sınırlama</td><td>Ürün okumalarında access token başına 10 sn'de 60 istek → <code>Retry-After</code> başlıklı 429.</td><td><span class="badge badge-changed">eklendi</span></td></tr>
+    <tr lang="en"><td>Lookups</td><td>Categories, brands, suppliers as bare arrays.</td><td><span class="badge badge-provided">provided</span></td></tr>
+    <tr lang="tr"><td>Lookup'lar</td><td>Kategoriler, markalar, tedarikçiler; düz dizi olarak.</td><td><span class="badge badge-provided">verilen</span></td></tr>
   </table>
   </div>
-  <p>Only the endpoints the assignment needs are consumed by the clients; create/delete exist server-side and are
+  <p lang="en">Only the endpoints the assignment needs are consumed by the clients; create/delete exist server-side and are
   deliberately unused.</p>
+  <p lang="tr">İstemciler yalnızca ödevin gerektirdiği endpoint'leri kullanır; create/delete sunucu tarafında mevcuttur
+  ve bilinçli olarak kullanılmaz.</p>
 </section>
 
 <section>
-  <h2>Authentication lifecycle</h2>
+  <h2 lang="en">Authentication lifecycle</h2>
+  <h2 lang="tr">Kimlik doğrulama yaşam döngüsü</h2>
   <figure class="diagram">
     <svg viewBox="0 0 900 300" role="img" aria-label="Auth lifecycle: login issues an access and refresh token pair; protected requests carry the bearer token; an expired token returns 401 and the client refreshes once with rotation; refresh failure ends the session; logout drops all access tokens for the user">
       <g font-family="-apple-system,Segoe UI,Roboto,sans-serif" font-size="12.5">
@@ -179,34 +227,53 @@
         <marker id="arrl3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b91c1c"/></marker>
       </defs>
     </svg>
-    <figcaption>Three provided behaviors drive the clients' session design: rotation makes concurrent refreshes fatal
-    (hence single-flight), logout is global across a user's sessions, and a backend restart kills every token at once.</figcaption>
+    <figcaption><span lang="en">Three provided behaviors drive the clients' session design: rotation makes concurrent refreshes fatal
+    (hence single-flight), logout is global across a user's sessions, and a backend restart kills every token at once.</span><span lang="tr">İstemcilerin
+    oturum tasarımını verilen üç davranış belirliyor: rotasyon eşzamanlı refresh'leri ölümcül kılar (bu yüzden
+    single-flight), logout kullanıcının bütün oturumlarını kapsar ve backend'in yeniden başlaması tüm token'ları aynı
+    anda geçersiz kılar.</span></figcaption>
   </figure>
 </section>
 
 <section>
-  <h2>Product lifecycle — a representative write</h2>
-  <p>Editing a product on web: the client reads <code>GET /products/{id}</code>, the user edits, and the client sends
+  <h2 lang="en">Product lifecycle — a representative write</h2>
+  <h2 lang="tr">Ürün yaşam döngüsü — temsili bir yazma işlemi</h2>
+  <p lang="en">Editing a product on web: the client reads <code>GET /products/{id}</code>, the user edits, and the client sends
   the <em>complete</em> object back with <code>PUT</code>. The service resolves the product (404 first, even before body
   validation), validates fields in a fixed order, checks category/brand/supplier relations, enforces SKU uniqueness
   (409), then writes and refreshes <code>updatedAt</code>, returning the full updated product. Stock uses the dedicated
   <code>PATCH</code> path instead — an absolute value, not a delta — which is what makes the mobile workflow
   first-class rather than a special case of product editing.</p>
-  <div class="note"><strong>The trap the clients must respect:</strong> <code>PUT</code> is a true full replace — omitted
+  <p lang="tr">Web'de ürün düzenleme: istemci <code>GET /products/{id}</code> ile okur, kullanıcı düzenler ve istemci
+  nesnenin <em>tamamını</em> <code>PUT</code> ile geri gönderir. Servis önce ürünü bulur (gövde doğrulamasından da önce
+  404), alanları sabit bir sırada doğrular, kategori/marka/tedarikçi ilişkilerini kontrol eder, SKU tekilliğini zorunlu
+  kılar (409), sonra yazar ve <code>updatedAt</code>'i tazeler; güncellenmiş ürünün tamamını döner. Stok bunun yerine
+  özel <code>PATCH</code> yolunu kullanır — delta değil, mutlak bir değer — mobil iş akışını ürün düzenlemenin özel bir
+  hâli olmaktan çıkarıp birinci sınıf yapan da budur.</p>
+  <div class="note" lang="en"><strong>The trap the clients must respect:</strong> <code>PUT</code> is a true full replace — omitted
   fields take C# defaults rather than being preserved (proved at runtime: omitting <code>price</code> set it to 0,
   omitting <code>barcode</code> wiped it). Likewise an empty stock <code>PATCH</code> body silently sets stock to 0.
   Both are structurally prevented in the shared client: PUT bodies are built from a fresh detail read, and the stock
   endpoint only accepts a validated numeric argument.</div>
+  <div class="note" lang="tr"><strong>İstemcilerin uymak zorunda olduğu tuzak:</strong> <code>PUT</code> gerçek bir tam
+  değiştirmedir — gönderilmeyen alanlar korunmaz, C# varsayılan değerlerini alır (runtime'da kanıtlandı:
+  <code>price</code> gönderilmeyince 0 oldu, <code>barcode</code> gönderilmeyince silindi). Aynı şekilde boş bir stok
+  <code>PATCH</code> gövdesi stoğu sessizce 0 yapar. İkisi de shared client'ta yapısal olarak engellendi: PUT gövdeleri
+  taze bir detay okumasından kurulur ve stok endpoint'i yalnızca doğrulanmış sayısal bir argüman kabul eder.</div>
 </section>
 
 <section>
-  <h2>Modifications made during the assignment</h2>
-  <p>The assignment asks to avoid backend changes; these three were each judged necessary, kept minimal, follow
+  <h2 lang="en">Modifications made during the assignment</h2>
+  <h2 lang="tr">Ödev sırasında yapılan değişiklikler</h2>
+  <p lang="en">The assignment asks to avoid backend changes; these three were each judged necessary, kept minimal, follow
   existing backend patterns and error conventions, and are documented in the contract and decision records.</p>
+  <p lang="tr">Ödev, backend değişikliklerinden kaçınılmasını istiyor; bu üç değişikliğin her biri gerekli görüldü,
+  asgari düzeyde tutuldu, mevcut backend desenlerini ve hata kurallarını izliyor ve API kontratı ile karar
+  kayıtlarında belgelendi.</p>
 
   <div class="mod">
-    <h3><span class="commit">a6b5476</span>1. Added <code>GET /products/{id}</code></h3>
-    <dl>
+    <h3><span class="commit">a6b5476</span><span lang="en">1. Added <code>GET /products/{id}</code></span><span lang="tr">1. <code>GET /products/{id}</code> eklendi</span></h3>
+    <dl lang="en">
       <dt>Original behavior</dt><dd>No product-by-id read existed. The route returned 405; product data was only obtainable through the paged list, whose DTO omits <code>costPrice</code>, <code>supplierId</code>, and <code>description</code>.</dd>
       <dt>Modification</dt><dd>One read-only controller action, one DTO, one service method: returns the 16 list fields plus those three.</dd>
       <dt>Reason</dt><dd>The assignment mandates product-detail screens fed by the actual API and web edits persisted through it. But the only whole-product write is a full-replace PUT requiring exactly those three fields — so <em>any</em> legal client PUT silently overwrote real data. This was proved at runtime during discovery, not theorized. Alternatives considered and rejected: guessing the three values from cached list rows (silent data corruption); widening the list DTO (changes an existing contract for every consumer and still gives no per-id fetch for deep links); relaxing PUT to partial-update semantics (a behavioral change to an existing write path — strictly more invasive).</dd>
@@ -214,11 +281,19 @@
       <dt>Compatibility</dt><dd>Purely additive and read-only. No existing endpoint's behavior changed; the list DTO is still exactly 16 fields; <code>/products/stats</code> route precedence is intact.</dd>
       <dt>Verification</dt><dd>Runtime: 200 happy path; 404 for an unknown id using the existing Turkish plain-text convention; 401 without/with an invalid bearer; regression checks on the list DTO and stats route; and a lossless GET→PUT round-trip proving <code>costPrice</code>, <code>supplierId</code>, <code>description</code>, <code>barcode</code>, <code>isFeatured</code> all survive an edit.</dd>
     </dl>
+    <dl lang="tr">
+      <dt>Özgün davranış</dt><dd>Id ile ürün okuma yoktu. Rota 405 dönüyordu; ürün verisine yalnızca sayfalı liste üzerinden ulaşılabiliyordu ve o DTO <code>costPrice</code>, <code>supplierId</code> ve <code>description</code> alanlarını içermiyor.</dd>
+      <dt>Değişiklik</dt><dd>Salt okunur tek bir controller action'ı, tek bir DTO, tek bir servis metodu: 16 liste alanına ek olarak bu üç alanı döner.</dd>
+      <dt>Gerekçe</dt><dd>Ödev, gerçek API'den beslenen ürün detay ekranlarını ve web düzenlemelerinin API üzerinden kalıcı olmasını zorunlu kılıyor. Ancak ürünün tamamını yazan tek yol, tam da bu üç alanı isteyen tam değiştiren PUT — dolayısıyla kurallara uygun <em>herhangi</em> bir istemci PUT'u gerçek veriyi sessizce eziyordu. Bu, keşif sırasında runtime'da kanıtlandı; teorik bir çıkarım değil. Değerlendirilip elenen alternatifler: üç değeri önbellekteki liste satırlarından tahmin etmek (sessiz veri bozulması); liste DTO'sunu genişletmek (mevcut kontratı tüm tüketiciler için değiştirir ve derin bağlantılar için yine id bazlı okuma sağlamaz); PUT'u kısmi güncelleme semantiğine gevşetmek (mevcut bir yazma yolunun davranışını değiştirir — açıkça daha müdahaleci).</dd>
+      <dt>Etki</dt><dd>Her iki istemcideki detay ekranları gerçek API verisini okur ve ürün düzenlemeleri kayıpsız gidip gelir. Gözlemlenebilir yan etki: rota artık 405 dönmüyor ve bu yol için 405'te dönen <code>Allow</code> başlığı artık <code>GET</code>'i de listeliyor.</dd>
+      <dt>Uyumluluk</dt><dd>Tamamen ekleyici ve salt okunur. Mevcut hiçbir endpoint'in davranışı değişmedi; liste DTO'su hâlâ tam 16 alan; <code>/products/stats</code> rota önceliği bozulmadı.</dd>
+      <dt>Doğrulama</dt><dd>Runtime: mutlu yolda 200; bilinmeyen id için mevcut Türkçe düz metin kuralıyla 404; bearer olmadan ve geçersiz bearer ile 401; liste DTO'su ve stats rotası üzerinde regresyon kontrolleri; ve <code>costPrice</code>, <code>supplierId</code>, <code>description</code>, <code>barcode</code>, <code>isFeatured</code> alanlarının bir düzenlemeden sağ çıktığını gösteren kayıpsız GET→PUT turu.</dd>
+    </dl>
   </div>
 
   <div class="mod">
-    <h3><span class="commit">faf1a85</span>2. Stock updates rejected for Discontinued products (409)</h3>
-    <dl>
+    <h3><span class="commit">faf1a85</span><span lang="en">2. Stock updates rejected for Discontinued products (409)</span><span lang="tr">2. Discontinued ürünlerde stok güncellemeleri reddediliyor (409)</span></h3>
+    <dl lang="en">
       <dt>Original behavior</dt><dd><code>PATCH /products/{id}/stock</code> accepted updates regardless of product status.</dd>
       <dt>Modification</dt><dd>An eight-line guard in <code>ProductService</code>: status 3 (Üretim Durduruldu) throws the existing <code>ConflictException</code> → <code>409 text/plain</code> "Üretimi durdurulmuş ürünün stoğu güncellenemez." Stock and <code>updatedAt</code> are left untouched.</dd>
       <dt>Reason</dt><dd>An explicit product assumption, documented as such: a store terminal could otherwise keep booking stock onto a product head office has already discontinued. Enforcing it in the backend — not merely disabling a button — is what protects <strong>stale clients</strong>: a device that opened the product while it was Active gets a definitive rejection if it saves afterwards.</dd>
@@ -226,11 +301,19 @@
       <dt>Compatibility</dt><dd>Uses the existing 409 + Turkish plain-text convention. <code>PUT</code> is deliberately not restricted, so <code>status</code> stays editable and Discontinued remains reversible — after switching back to Active, stock updates work again.</dd>
       <dt>Verification</dt><dd>Runtime curl battery plus a shared live-contract test: Active → 200, Passive → 200, Discontinued → 409 with stock confirmed unchanged by read-back, unknown id → 404, auth behavior unchanged.</dd>
     </dl>
+    <dl lang="tr">
+      <dt>Özgün davranış</dt><dd><code>PATCH /products/{id}/stock</code>, ürün durumundan bağımsız olarak güncellemeleri kabul ediyordu.</dd>
+      <dt>Değişiklik</dt><dd><code>ProductService</code> içinde sekiz satırlık bir kontrol: durum 3 (Üretim Durduruldu) mevcut <code>ConflictException</code>'ı fırlatır → <code>409 text/plain</code> "Üretimi durdurulmuş ürünün stoğu güncellenemez." Stok ve <code>updatedAt</code> olduğu gibi kalır.</dd>
+      <dt>Gerekçe</dt><dd>Açıkça belirtilmiş ve öyle belgelenmiş bir ürün varsayımı: aksi hâlde bir mağaza terminali, merkezin çoktan üretimini durdurduğu bir ürüne stok işlemeye devam edebilirdi. Bunu yalnızca bir butonu pasifleştirerek değil backend'de zorunlu kılmak, <strong>eski veriyle çalışan istemcileri</strong> koruyan şeydir: ürünü Aktif hâldeyken açmış bir cihaz, sonradan kaydetmeye kalkarsa kesin bir ret alır.</dd>
+      <dt>Etki</dt><dd>Mobil, Discontinued ürünlerde stok düzenleyicisini devre dışı bırakır, 409'u spesifik ve yerelleştirilmiş bir mesaja eşler ve detayı yeniden çekerek ekranı kilitli duruma geçirir. Durum 1 (Aktif) ve 2 (Pasif) değişmedi — Pasif bilinçli olarak stok kabul etmeye devam ediyor; çünkü ödev bunun için bir kısıt tanımlamıyor ve satıştan kaldırılmış ürünlere sevkiyat gelmeye devam eder.</dd>
+      <dt>Uyumluluk</dt><dd>Mevcut 409 + Türkçe düz metin kuralını kullanır. <code>PUT</code> bilinçli olarak kısıtlanmadı; böylece <code>status</code> düzenlenebilir kalır ve Discontinued geri alınabilir — tekrar Aktif'e geçildiğinde stok güncellemeleri yeniden çalışır.</dd>
+      <dt>Doğrulama</dt><dd>Runtime curl bataryası ve shared paketinde canlı kontrat testi: Aktif → 200, Pasif → 200, Discontinued → 409 ve geri okumayla stoğun değişmediği doğrulandı, bilinmeyen id → 404, auth davranışı değişmedi.</dd>
+    </dl>
   </div>
 
   <div class="mod">
-    <h3><span class="commit">e1ff1b0</span>3. Rate limiting on product reads</h3>
-    <dl>
+    <h3><span class="commit">e1ff1b0</span><span lang="en">3. Rate limiting on product reads</span><span lang="tr">3. Ürün okumalarında rate limiting</span></h3>
+    <dl lang="en">
       <dt>Original behavior</dt><dd>No throttling of any kind.</dd>
       <dt>Modification</dt><dd>A named rate-limit policy applied to <code>GET /products</code>, <code>GET /products/{id}</code>, and <code>GET /products/stats</code>: fixed window, 60 requests per 10 seconds, partitioned by the <code>Authorization</code> header (falling back to client IP), no queueing. Over the limit → <code>429</code> with the project's Turkish plain-text body and a <code>Retry-After</code> header.</dd>
       <dt>Reason</dt><dd>The freshness feature adds polling, pull-to-refresh, and manual refresh. Client-side cooldowns are a UX affordance, not a boundary — a server-side limit is the independent one. Partitioning per token means one client's misbehavior cannot consume another session's budget.</dd>
@@ -238,40 +321,99 @@
       <dt>Compatibility</dt><dd>Additive middleware on read paths only; response shapes for successful reads are unchanged.</dd>
       <dt>Verification</dt><dd>Runtime: 30 sequential reads at 2 req/s → all 200; a tight loop of 100 → exactly the first 60 succeed, the rest 429; a second session's token unaffected while the first is limited; lookups, <code>/auth/me</code>, and stock PATCH still 200 during a limited window; the token succeeds again after the window passes.</dd>
     </dl>
+    <dl lang="tr">
+      <dt>Özgün davranış</dt><dd>Hiçbir türden sınırlama yoktu.</dd>
+      <dt>Değişiklik</dt><dd><code>GET /products</code>, <code>GET /products/{id}</code> ve <code>GET /products/stats</code> üzerine uygulanan adlandırılmış bir rate limit politikası: sabit pencere, 10 saniyede 60 istek, <code>Authorization</code> başlığına göre bölümlenmiş (yoksa istemci IP'sine düşer), kuyruk yok. Limit aşılınca → projenin Türkçe düz metin gövdesi ve <code>Retry-After</code> başlığıyla <code>429</code>.</dd>
+      <dt>Gerekçe</dt><dd>Tazelik özelliği polling, pull-to-refresh ve manuel yenileme getiriyor. İstemci tarafındaki bekleme süreleri bir UX kolaylığıdır, sınır değil — bağımsız sınır sunucu tarafındakidir. Token başına bölümleme sayesinde bir istemcinin hatalı davranışı başka bir oturumun bütçesini tüketemez.</dd>
+      <dt>Etki</dt><dd>Normal kullanımda yok: limit bilinçli olarak cömert tutuldu ve meşru davranış (15 sn'lik liste polling'i, 10 sn'lik detay polling'i, bekleme süresiyle sınırlanan manuel yenilemeler, sayfalama patlamaları) bunun çok altında kalıyor. Auth, lookup'lar ve tüm yazma endpoint'leri sınırsız. Her iki istemci de 429'u bir 4xx olarak ele alır ve asla otomatik yeniden denemez.</dd>
+      <dt>Uyumluluk</dt><dd>Yalnızca okuma yollarına eklenen bir middleware; başarılı okumaların yanıt şekilleri değişmedi.</dd>
+      <dt>Doğrulama</dt><dd>Runtime: saniyede 2 istekle 30 ardışık okuma → hepsi 200; 100 isteklik sıkı bir döngü → tam olarak ilk 60'ı başarılı, kalanı 429; ilki sınırlıyken ikinci bir oturumun token'ı etkilenmiyor; sınırlı pencere boyunca lookup'lar, <code>/auth/me</code> ve stok PATCH hâlâ 200; pencere geçtikten sonra token yeniden başarılı oluyor.</dd>
+    </dl>
   </div>
 </section>
 
 <section>
-  <h2>What was deliberately preserved</h2>
-  <ul class="tight">
+  <h2 lang="en">What was deliberately preserved</h2>
+  <h2 lang="tr">Bilinçli olarak korunanlar</h2>
+  <ul class="tight" lang="en">
     <li><strong>The full-replace PUT semantics</strong> — relaxing them to partial updates would have been convenient for the client but is a behavioral change to an existing write path; the client adapted instead.</li>
     <li><strong>Turkish plain-text error bodies</strong> — not "improved" into structured JSON. The clients normalize them once, in the shared client, and identify known failures by status code plus request context rather than by matching prose.</li>
     <li><strong>No concurrency mechanism was invented</strong> — no versions, ETags, or preconditions were bolted on. Writes remain last-write-wins, which is documented rather than hidden behind fake client-side protection.</li>
     <li><strong>Seeding, ordering, collation, pagination clamps, and every response shape</strong> — untouched, including quirks like host-locale-dependent Turkish letter folding, which is documented as server-defined and never re-filtered client-side.</li>
     <li><strong>Unused endpoints</strong> (create, delete, suppliers) — left in place, not consumed.</li>
   </ul>
+  <ul class="tight" lang="tr">
+    <li><strong>Tam değiştiren PUT semantiği</strong> — kısmi güncellemeye gevşetmek istemci için kolaylık olurdu ama mevcut bir yazma yolunun davranışını değiştirmek demekti; bunun yerine istemci uyum sağladı.</li>
+    <li><strong>Türkçe düz metin hata gövdeleri</strong> — yapılandırılmış JSON'a "iyileştirilmedi". İstemciler bunları shared client'ta bir kez normalleştirir ve bilinen hataları metin eşleştirerek değil, durum kodu ve istek bağlamıyla tanır.</li>
+    <li><strong>Eşzamanlılık mekanizması uydurulmadı</strong> — sürüm alanı, ETag ya da ön koşul eklenmedi. Yazmalar son yazan kazanır olarak kaldı; bu, sahte bir istemci tarafı korumasının arkasına saklanmak yerine belgelendi.</li>
+    <li><strong>Seed verisi, sıralama, harf karşılaştırması, sayfalama sınırları ve tüm yanıt şekilleri</strong> — hiçbirine dokunulmadı; sunucunun locale'ine bağlı Türkçe harf katlaması gibi tuhaflıklar dahil. Bu davranış sunucu tanımlı olarak belgelendi ve istemcide asla yeniden filtrelenmedi.</li>
+    <li><strong>Kullanılmayan endpoint'ler</strong> (create, delete, suppliers) — yerinde bırakıldı, tüketilmedi.</li>
+  </ul>
 </section>
 
 <section>
-  <h2>Production considerations</h2>
-  <p>These are scope boundaries of a take-home exercise, not defects in the provided backend:</p>
-  <ul class="tight">
+  <h2 lang="en">Production considerations</h2>
+  <h2 lang="tr">Üretim ortamı için değerlendirmeler</h2>
+  <p lang="en">These are scope boundaries of a take-home exercise, not defects in the provided backend:</p>
+  <p lang="tr">Bunlar bir değerlendirme projesinin kapsam sınırlarıdır; verilen backend'in kusurları değil:</p>
+  <ul class="tight" lang="en">
     <li><strong>Persistence</strong> — the in-memory store re-seeds on every restart and wipes all sessions; a real deployment needs a database and durable session storage.</li>
     <li><strong>Distributed rate limiting</strong> — the current limiter is per-process, which is correct for a single local instance but would need shared state behind a load balancer.</li>
     <li><strong>Transport and secrets</strong> — HTTP only with open CORS and no secret management; production would mean HTTPS (the clients need only an environment-variable change), scoped CORS, and managed credentials.</li>
     <li><strong>Concurrency</strong> — a version or ETag mechanism would let clients detect stale writes instead of accepting last-write-wins.</li>
     <li><strong>Observability</strong> — structured logging, metrics, and tracing are absent, as expected at this scale.</li>
   </ul>
+  <ul class="tight" lang="tr">
+    <li><strong>Kalıcılık</strong> — in-memory depo her yeniden başlatmada yeniden seed'ler ve tüm oturumları siler; gerçek bir dağıtım için veritabanı ve kalıcı oturum saklama gerekir.</li>
+    <li><strong>Dağıtık rate limiting</strong> — mevcut sınırlayıcı süreç bazlıdır; tek bir yerel örnek için doğru ama bir load balancer arkasında paylaşılan state gerektirir.</li>
+    <li><strong>Taşıma ve gizli bilgiler</strong> — açık CORS ile yalnızca HTTP ve gizli bilgi yönetimi yok; üretimde HTTPS (istemciler için tek gereken bir ortam değişkeni değişikliği), kapsamı daraltılmış CORS ve yönetilen kimlik bilgileri olurdu.</li>
+    <li><strong>Eşzamanlılık</strong> — bir sürüm ya da ETag mekanizması, son yazan kazanır davranışını kabullenmek yerine istemcilerin eski veriye dayanan yazmaları fark etmesini sağlardı.</li>
+    <li><strong>Gözlemlenebilirlik</strong> — yapılandırılmış loglama, metrikler ve tracing yok; bu ölçekte beklendiği gibi.</li>
+  </ul>
 </section>
 
-<footer>
+<footer lang="en">
   <a href="index.html">← Reviewer overview</a> · Related:
   <a href="frontend-report.html">Web admin architecture</a> ·
   <a href="mobile-report.html">Mobile architecture</a> ·
   <a href="development-decisions.html">Engineering decisions</a> ·
   <a href="agent-workflow-report.html">AI-assisted workflow</a>
 </footer>
+<footer lang="tr">
+  <a href="index.html">← Değerlendirici özeti</a> · İlgili:
+  <a href="frontend-report.html">Web yönetim paneli mimarisi</a> ·
+  <a href="mobile-report.html">Mobil mimari</a> ·
+  <a href="development-decisions.html">Mühendislik kararları</a> ·
+  <a href="agent-workflow-report.html">Yapay zekâ destekli süreç</a>
+</footer>
 
 </div>
+<script>
+(function () {
+  var KEY = 'stokmate-lang', root = document.documentElement, buttons = [];
+  function apply(lang) {
+    lang = lang === 'tr' ? 'tr' : 'en';
+    root.setAttribute('data-lang', lang);
+    root.setAttribute('lang', lang);
+    buttons.forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-set-lang') === lang));
+    });
+    try { localStorage.setItem(KEY, lang); } catch (e) {}
+  }
+  function init() {
+    buttons = Array.prototype.slice.call(document.querySelectorAll('[data-set-lang]'));
+    buttons.forEach(function (b) {
+      b.addEventListener('click', function () { apply(b.getAttribute('data-set-lang')); });
+    });
+    var initial = 'en';
+    try { var s = localStorage.getItem(KEY); if (s === 'tr' || s === 'en') initial = s; } catch (e) {}
+    var q = (location.search.match(/[?&]lang=(tr|en)(?:&|$)/) || [])[1];
+    if (q) initial = q;
+    apply(initial);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
 </body>
 </html>

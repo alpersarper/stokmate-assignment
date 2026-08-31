@@ -1,3 +1,5 @@
+**English** | [Türkçe](README.tr.md)
+
 # StokMate
 
 Take-home assignment: two clients over the provided StokMate .NET API — a **web admin** for head-office product management and a **customer-facing mobile app** for store staff (stock updates as the primary workflow), sharing one framework-free TypeScript API/auth core. The backend is the provided API plus three small, documented modifications.
@@ -36,12 +38,15 @@ First run compiles and installs the native debug app, then starts Metro; later J
 **Test credentials** (intentionally provided by the assignment, test-only):
 e-mail `test@ornek.com` · password `Test1234!`
 
-## Android APK
+## APK
 
-- **Artifact**: `app-release-final.apk` — delivered with the submission package (APKs are intentionally not committed; see `.gitignore`).
-- **SHA-256**: `543c2d54339973566c777fad5dccf366b6af5365fdbe5c027426a825cb6ac356` (77,824,176 bytes).
-- Built from commit `339d00c`, variant `release`, applicationId `com.stokmate.app`; verified standalone end-to-end (12-point matrix, `docs/IMPLEMENTATION_REPORT.md`).
-- The API URL is **baked in at build time**; the delivered artifact targets `http://10.0.2.2:5080` (backend on the host machine, APK in an Android emulator).
+**[Download the latest Release APK →](https://github.com/alpersarper/stokmate-assignment/releases/tag/v1.0.0)** (GitHub Release `v1.0.0`)
+
+- **Build**: Release — `stokmate-v1.0.0-release.apk`, applicationId `com.stokmate.app`, not debuggable, signed with the Gradle debug keystore (assignment-grade).
+- **SHA-256**: `a004fa9c04fa42f469073dbf256cad4a2335e73e4fadeaede3dde904ea081290` (77,824,176 bytes).
+- **Source**: commit `339d00c` — the final application-source commit; everything after it on `main` is documentation only.
+- **API target**: `http://10.0.2.2:5080`, **baked in at build time**. `10.0.2.2` is the Android emulator's alias for the host machine, so run the backend there and install the APK on an emulator on that same machine. There is no hosted backend.
+- Verified standalone end-to-end before publishing (12-point matrix, `docs/IMPLEMENTATION_REPORT.md`); the published asset is byte-identical to the artifact that passed.
 - Reproduce (or retarget for a physical device by changing the URL):
 
   ```bash
@@ -52,7 +57,7 @@ e-mail `test@ornek.com` · password `Test1234!`
   # → app/build/outputs/apk/release/app-release.apk
   ```
 
-- The backend is plain HTTP, so Android cleartext traffic is enabled (`expo-build-properties`); signing uses the Gradle debug keystore (assignment-grade).
+- The backend is plain HTTP, so Android cleartext traffic is enabled (`expo-build-properties`).
 
 ## Project at a glance
 
@@ -142,7 +147,7 @@ Full rationale with alternatives and trade-offs: [Engineering decisions](https:/
 
 ## Reviewer deep dives
 
-Published via GitHub Pages:
+Published via GitHub Pages — every report carries an **EN / TR** switch in its header:
 
 | Report | Link |
 | --- | --- |

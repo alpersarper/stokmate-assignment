@@ -14,7 +14,7 @@ Source delta covered by this pass: `git diff 1fcb4fb..339d00c` — 31 files, ~2 
 
 ## Status
 
-**FINAL: delivery-ready. All Required criteria pass with executed evidence. All verified Quality/UX criteria pass. All three Optional/Bonus features pass. The submission release APK (`app-release-final.apk`, built from `339d00c`) passed all 12 standalone runtime checks. One documentation defect (D2, stale README claim) was found this pass and fixed in the same change set. No open defects.**
+**FINAL: delivery-ready. All Required criteria pass with executed evidence. All verified Quality/UX criteria pass. All three Optional/Bonus features pass. The submission release APK (built from `339d00c`, published as GitHub Release `v1.0.0` — see [Published artifact](#published-artifact-2026-08-31-github-release-v100)) passed all 12 standalone runtime checks. One documentation defect (D2, stale README claim) was found this pass and fixed in the same change set. No open defects.**
 
 ---
 
@@ -146,9 +146,9 @@ Checkpoint-pass verdict summary (unchanged surfaces): search debounce/trim/reset
 
 ## APK Status — VERIFIED (submission artifact)
 
-**This pass built and verified a NEW release artifact from `339d00c`; it supersedes the 2026-08-28 artifact as the submission APK.**
+**This pass built and verified a NEW release artifact from `339d00c`; it supersedes the 2026-08-28 artifact.** The published submission artifact is the GitHub Release build recorded under [Published artifact](#published-artifact-2026-08-31-github-release-v100) below; this section is the QA record of the build and matrix it was verified against.
 
-- Delivery path: `/Users/alpersarper/firstmate/data/delivery/app-release-final.apk` (copied byte-identical from this worktree's Gradle output)
+- Local delivery copy: `app-release-final.apk` (copied byte-identical from this worktree's Gradle output)
 - Size: 77 824 176 bytes
 - SHA-256: `543c2d54339973566c777fad5dccf366b6af5365fdbe5c027426a825cb6ac356`
 - Source commit: `339d00c` (main; local == origin/main; clean worktree)
@@ -160,6 +160,19 @@ Checkpoint-pass verdict summary (unchanged surfaces): search debounce/trim/reset
 **Standalone conditions**: Metro killed (0 listeners on 8081/8082, lsof-verified), `adb reverse --remove-all`, backend from the same worktree on `0.0.0.0:5080`, full uninstall before install.
 
 **12-point standalone matrix — all executed on AVD `TripFlow_API_36`, all PASS** (G4; screenshots archived next to the artifact in `final-shots/`): 1 install · 2 clean launch to product login · 3 login · 4 list with new visual pass · 5 server-side search · 6 filters + sort · 7 detail hero card · 8 stock update with curl read-back + list reflection · 9 Discontinued locked editor + curl 409 · 10 freshness + protected manual refresh · 11 backend-restart session recovery to localized login · 12 EN/TR switch (full TR session). Full command-level evidence: `app-release-final-notes.md` beside the artifact.
+
+### Published artifact (2026-08-31, GitHub Release `v1.0.0`)
+
+The delivery mechanism is now a public GitHub Release rather than a machine-local file. A **fresh** release APK was rebuilt from the same product commit with the same commands and re-verified before publishing:
+
+- Download: <https://github.com/alpersarper/stokmate-assignment/releases/tag/v1.0.0> — asset `stokmate-v1.0.0-release.apk`
+- Size: 77 824 176 bytes · SHA-256: `a004fa9c04fa42f469073dbf256cad4a2335e73e4fadeaede3dde904ea081290`
+- Source commit: `339d00c` (unchanged — the final application-source commit; the documentation commits after it do not touch `mobile/`, `shared/`, `web/`, or `api/`)
+- Variant `release`, applicationId `com.stokmate.app`, versionName 0.1.0, not debuggable; baked API URL `http://10.0.2.2:5080` (sole app URL in the bundle; no proxy, LAN, or localhost leak)
+
+**The checksum differs from the 2026-08-28 artifact above even though the source commit is identical.** Android APK packaging is not byte-reproducible (zip entry timestamps and build-tool metadata vary per build), so an identical checksum was not expected. The artifact that was verified is the artifact that was published.
+
+**Re-verified on the exact published binary** (AVD `TripFlow_API_36`, backend on the host): install of the named artifact · launch straight to the product login (no dev launcher) · login with the test user · product list matching an independent `curl` read · product detail matching the same read field-for-field · **stock write 12 → 15 confirmed server-side by independent `curl`** · Turkish-query search (`çaykur` → 2 results) matching the server · force-stop and relaunch restoring the remembered session (secure storage intact in the release build). Static audit: not debuggable, no secrets, no hardcoded credentials, Gradle debug keystore (assignment-grade). After upload, the release asset was downloaded again and its SHA-256 confirmed byte-identical to the tested binary.
 
 ---
 
