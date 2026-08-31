@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StokMate — Reviewer Overview</title>
+<style>
+  :root{
+    --bg:#fafaf9; --surface:#ffffff; --border:#e7e5e4; --border-strong:#d6d3d1;
+    --text:#1c1917; --text-2:#57534e; --text-3:#78716c;
+    --accent:#1d4ed8; --accent-soft:#eff6ff;
+    --ok:#15803d; --ok-soft:#f0fdf4; --warn:#a16207; --warn-soft:#fefce8;
+    --danger:#b91c1c; --danger-soft:#fef2f2;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:980px;margin:0 auto;padding:40px 24px 80px}
+  header.page{border-bottom:1px solid var(--border);padding-bottom:20px;margin-bottom:28px}
+  .kicker{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:0 0 6px}
+  h1{font-size:28px;line-height:1.2;margin:0 0 8px}
+  .lede{color:var(--text-2);font-size:16px;margin:0;max-width:70ch}
+  h2{font-size:20px;margin:40px 0 12px;padding-top:8px}
+  h3{font-size:16px;margin:24px 0 8px}
+  p{margin:0 0 12px;max-width:76ch}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  code{font-family:var(--mono);font-size:13px;background:#f5f5f4;border:1px solid var(--border);border-radius:4px;padding:1px 5px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin:16px 0}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;min-width:0}
+  .card h3{margin:0 0 6px;font-size:15px}
+  .card p{font-size:13.5px;color:var(--text-2);margin:0}
+  .card .tag{display:inline-block;font-family:var(--mono);font-size:11.5px;color:var(--text-3);margin-top:8px}
+  .diagram{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin:16px 0;overflow-x:auto}
+  .diagram svg{display:block;min-width:640px;width:100%;height:auto}
+  .diagram figcaption{font-size:13px;color:var(--text-3);margin-top:10px}
+  table{border-collapse:collapse;width:100%;margin:14px 0;background:var(--surface);
+    border:1px solid var(--border);border-radius:10px;overflow:hidden;font-size:14px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{background:#f5f5f4;font-size:12.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-2)}
+  tr:last-child td{border-bottom:none}
+  .tablewrap{overflow-x:auto}
+  ol.path{counter-reset:step;list-style:none;margin:14px 0;padding:0}
+  ol.path li{position:relative;padding:10px 14px 10px 46px;background:var(--surface);
+    border:1px solid var(--border);border-radius:10px;margin-bottom:8px}
+  ol.path li::before{counter-increment:step;content:counter(step);position:absolute;left:12px;top:10px;
+    width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;
+    font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center}
+  ul.tight{margin:8px 0 16px;padding-left:20px}
+  ul.tight li{margin-bottom:6px;max-width:76ch}
+  .navgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin:16px 0}
+  .navgrid a{display:block;background:var(--surface);border:1px solid var(--border);border-radius:10px;
+    padding:14px 16px;color:var(--text);min-width:0}
+  .navgrid a:hover{border-color:var(--accent);text-decoration:none}
+  .navgrid .t{font-weight:600;color:var(--accent);display:block;margin-bottom:4px}
+  .navgrid .d{font-size:13px;color:var(--text-2)}
+  footer{margin-top:48px;border-top:1px solid var(--border);padding-top:16px;font-size:13px;color:var(--text-3)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="page">
+  <p class="kicker">StokMate · Take-home delivery · Reviewer overview</p>
+  <h1>One product, two operational surfaces</h1>
+  <p class="lede">A head-office <strong>web admin</strong> and a store-floor <strong>mobile app</strong> built over the provided
+  StokMate .NET API, sharing a single framework-free TypeScript API/auth core. Delivered as source, a verified Android APK,
+  and this documentation set. How to run everything: the repository <a href="https://github.com/alpersarper/stokmate-assignment#readme">README</a>.</p>
+</header>
+
+<section>
+  <h2 style="margin-top:0">Delivered</h2>
+  <div class="cards">
+    <div class="card">
+      <h3>Web admin</h3>
+      <p>Login, dense product table with search / category / brand / status filters, server-side sorting, pagination,
+      guarded lossless editing, freshness &amp; refresh.</p>
+      <span class="tag">web/ · Vite + React + shadcn/ui</span>
+    </div>
+    <div class="card">
+      <h3>Mobile app</h3>
+      <p>Customer-facing store app: login, searchable product list with filters and infinite scroll, product detail,
+      stock update as the primary workflow. Shipped as a verified release APK.</p>
+      <span class="tag">mobile/ · Expo + React Native</span>
+    </div>
+    <div class="card">
+      <h3>Shared core</h3>
+      <p>API/domain types, one fetch-based client with single-flight 401&nbsp;→&nbsp;refresh&nbsp;→&nbsp;retry,
+      query-key factory, formatting utilities. No framework code.</p>
+      <span class="tag">shared/ · TypeScript source</span>
+    </div>
+    <div class="card">
+      <h3>Backend</h3>
+      <p>The provided .NET 8 in-memory API, verified at runtime and kept intact — plus three minimal, documented
+      modifications the assignment required.</p>
+      <span class="tag">api/StokMate/ · .NET 8</span>
+    </div>
+  </div>
+  <p style="font-size:13.5px;color:var(--text-2)">Final QA: all required acceptance criteria pass with executed evidence; the submission APK
+  (built from <code>339d00c</code>) passed a 12-point standalone verification matrix — see
+  <a href="https://github.com/alpersarper/stokmate-assignment/blob/main/docs/IMPLEMENTATION_REPORT.md">docs/IMPLEMENTATION_REPORT.md</a>.</p>
+</section>
+
+<section>
+  <h2>System overview</h2>
+  <figure class="diagram" style="margin-left:0;margin-right:0">
+    <svg viewBox="0 0 900 500" role="img" aria-label="System architecture: web and mobile clients each own UI state and a TanStack Query cache, both call the shared API core, which talks to the provided .NET backend over HTTP">
+      <!-- client boxes -->
+      <g font-family="-apple-system,Segoe UI,Roboto,sans-serif">
+        <!-- Web -->
+        <rect x="30" y="20" width="400" height="180" rx="10" fill="#ffffff" stroke="#d6d3d1"/>
+        <text x="50" y="48" font-size="16" font-weight="700" fill="#1c1917">Web admin — React SPA</text>
+        <text x="50" y="68" font-size="12" fill="#78716c">web/ · Vite · React Router · Tailwind + shadcn/ui</text>
+        <rect x="50" y="82" width="170" height="46" rx="6" fill="#eff6ff" stroke="#bfdbfe"/>
+        <text x="60" y="101" font-size="12.5" font-weight="600" fill="#1d4ed8">URL search params</text>
+        <text x="60" y="117" font-size="11.5" fill="#57534e">list state: q, filters, sort, page</text>
+        <rect x="240" y="82" width="170" height="46" rx="6" fill="#eff6ff" stroke="#bfdbfe"/>
+        <text x="250" y="101" font-size="12.5" font-weight="600" fill="#1d4ed8">TanStack Query cache</text>
+        <text x="250" y="117" font-size="11.5" fill="#57534e">server state per query key</text>
+        <rect x="50" y="138" width="170" height="46" rx="6" fill="#f5f5f4" stroke="#e7e5e4"/>
+        <text x="60" y="157" font-size="12.5" font-weight="600" fill="#44403c">react-hook-form</text>
+        <text x="60" y="173" font-size="11.5" fill="#57534e">edit-form draft + dirty state</text>
+        <rect x="240" y="138" width="170" height="46" rx="6" fill="#f5f5f4" stroke="#e7e5e4"/>
+        <text x="250" y="157" font-size="12.5" font-weight="600" fill="#44403c">Web storage adapter</text>
+        <text x="250" y="173" font-size="11.5" fill="#57534e">tokens: local/sessionStorage</text>
+
+        <!-- Mobile -->
+        <rect x="470" y="20" width="400" height="180" rx="10" fill="#ffffff" stroke="#d6d3d1"/>
+        <text x="490" y="48" font-size="16" font-weight="700" fill="#1c1917">Mobile — Expo / React Native</text>
+        <text x="490" y="68" font-size="12" fill="#78716c">mobile/ · React Navigation · hand-styled UI</text>
+        <rect x="490" y="82" width="170" height="46" rx="6" fill="#eff6ff" stroke="#bfdbfe"/>
+        <text x="500" y="101" font-size="12.5" font-weight="600" fill="#1d4ed8">List controls state</text>
+        <text x="500" y="117" font-size="11.5" fill="#57534e">search, filters, sort → query key</text>
+        <rect x="680" y="82" width="170" height="46" rx="6" fill="#eff6ff" stroke="#bfdbfe"/>
+        <text x="690" y="101" font-size="12.5" font-weight="600" fill="#1d4ed8">TanStack Query cache</text>
+        <text x="690" y="117" font-size="11.5" fill="#57534e">infinite list + detail entries</text>
+        <rect x="490" y="138" width="170" height="46" rx="6" fill="#f5f5f4" stroke="#e7e5e4"/>
+        <text x="500" y="157" font-size="12.5" font-weight="600" fill="#44403c">Stock editor draft</text>
+        <text x="500" y="173" font-size="11.5" fill="#57534e">local string state, UX-005</text>
+        <rect x="680" y="138" width="170" height="46" rx="6" fill="#f5f5f4" stroke="#e7e5e4"/>
+        <text x="690" y="157" font-size="12.5" font-weight="600" fill="#44403c">expo-secure-store</text>
+        <text x="690" y="173" font-size="11.5" fill="#57534e">tokens (when remembered)</text>
+
+        <!-- arrows clients -> shared -->
+        <line x1="230" y1="200" x2="330" y2="258" stroke="#a8a29e" stroke-width="1.5" marker-end="url(#arr)"/>
+        <line x1="670" y1="200" x2="570" y2="258" stroke="#a8a29e" stroke-width="1.5" marker-end="url(#arr)"/>
+        <text x="180" y="235" font-size="11.5" fill="#78716c">typed endpoint calls</text>
+        <text x="590" y="235" font-size="11.5" fill="#78716c">typed endpoint calls</text>
+
+        <!-- shared band -->
+        <rect x="140" y="262" width="620" height="96" rx="10" fill="#eff6ff" stroke="#93c5fd"/>
+        <text x="160" y="290" font-size="15" font-weight="700" fill="#1d4ed8">@stokmate/shared — framework-free core</text>
+        <text x="160" y="312" font-size="12.5" fill="#44403c">API/domain types · fetch client with Bearer injection · Turkish text/plain → ApiError normalization</text>
+        <text x="160" y="331" font-size="12.5" fill="#44403c">single-flight 401 → refresh → retry (session-epoch guarded) · query-key factory · ₺ kuruş + stock utilities</text>
+
+        <!-- arrow shared -> backend -->
+        <line x1="450" y1="358" x2="450" y2="404" stroke="#a8a29e" stroke-width="1.5" marker-end="url(#arr)"/>
+        <text x="462" y="386" font-size="11.5" fill="#78716c">HTTP · Bearer access token · JSON</text>
+
+        <!-- backend band -->
+        <rect x="140" y="408" width="620" height="72" rx="10" fill="#ffffff" stroke="#d6d3d1"/>
+        <text x="160" y="434" font-size="15" font-weight="700" fill="#1c1917">Provided .NET 8 API — in-memory, port 5080</text>
+        <text x="160" y="456" font-size="12.5" fill="#57534e">auth (opaque rotating tokens) · products · lookups · re-seeds on restart</text>
+        <text x="160" y="472" font-size="12" fill="#a16207">+ 3 assignment modifications: GET /products/{id} · Discontinued-stock 409 · read rate-limit</text>
+      </g>
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#a8a29e"/>
+        </marker>
+      </defs>
+    </svg>
+    <figcaption>Both clients keep UI state local and delegate all server communication to the shared core; the backend
+    is the single source of truth for data. There is no realtime channel — consistency is a coordinated
+    polling/refresh model (explained in the client reports).</figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>What this delivery optimized for</h2>
+  <div class="cards">
+    <div class="card"><h3>Assignment completeness</h3><p>Every required feature plus all three optional bonuses, verified against written acceptance criteria — never features for their own sake.</p></div>
+    <div class="card"><h3>API correctness</h3><p>The backend's real behavior was verified at runtime and recorded before client code depended on it; clients never invent API behavior.</p></div>
+    <div class="card"><h3>Admin / customer separation</h3><p>The web admin is dense and operational; the mobile app is a productized customer surface. Deliberately different designs over one shared data language.</p></div>
+    <div class="card"><h3>Predictable data flow</h3><p>One server-state layer (TanStack Query), one API client, one refresh pipeline per dataset — every data movement has a single, inspectable path.</p></div>
+    <div class="card"><h3>Data freshness</h3><p>Both clients show how old the visible data is, refresh it safely (cooldown + single-flight + server rate limit), and pick up other clients' changes.</p></div>
+    <div class="card"><h3>Pragmatic scope &amp; reviewer clarity</h3><p>Small dependency set, rejected-complexity list, documented assumptions — and this report set so the reasoning can be inspected, not guessed.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>Engineering highlights</h2>
+  <ul class="tight">
+    <li><strong>Single-flight token refresh with a session-epoch guard</strong> — strict refresh-token rotation makes concurrent refreshes fatal; the shared client makes them structurally impossible, and stale in-flight requests can neither resurrect a logged-out session nor tear down a new one (<code>shared/src/api/client.ts</code>).</li>
+    <li><strong>A proven data-loss trap, closed at the source</strong> — the provided PUT is a full replace requiring fields no read endpoint returned; discovery proved any legal client PUT silently corrupted data, and the minimal <code>GET /products/{id}</code> addition makes edits losslessly round-trippable.</li>
+    <li><strong>Coordinated freshness pipeline</strong> — manual refresh, pull-to-refresh, focus revalidation, mutation invalidation, and background polls all converge on one query fetch; polls re-anchor to the last fetch settle so triggers never stack, with backend rate limiting as the independent boundary.</li>
+    <li><strong>Server-enforced domain rule for stale clients</strong> — a stock update on a Discontinued product is rejected with <code>409</code> by the backend, so a device that opened the product while it was Active cannot book stock onto it after head office discontinues it.</li>
+    <li><strong>Evidence-based QA</strong> — the delivered APK itself (not a dev build) passed a 12-point standalone matrix with independent <code>curl</code> read-backs; "done" claims required executed evidence throughout.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Suggested review path</h2>
+  <ol class="path">
+    <li>Run the stack with the <a href="https://github.com/alpersarper/stokmate-assignment#readme">README</a> quick start (backend → web → mobile) and click through both clients with the test user.</li>
+    <li>Skim this overview's system diagram, then read the <a href="frontend-report.html">web admin report</a> and <a href="mobile-report.html">mobile report</a> — state ownership and data flow are the load-bearing sections.</li>
+    <li>Read the <a href="backend-report.html">backend report</a> for exactly what was provided vs. modified, and why each modification exists.</li>
+    <li>Read the <a href="development-decisions.html">engineering decisions</a> for rationale, alternatives, and rejected complexity.</li>
+    <li>Finish with the <a href="agent-workflow-report.html">AI-assisted workflow report</a> — how the project was actually built, verified, and kept in scope.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Reports</h2>
+  <div class="navgrid">
+    <a href="frontend-report.html"><span class="t">Web admin architecture</span><span class="d">Purpose, state ownership, data flow, list/edit flows, session lifecycle, UX philosophy.</span></a>
+    <a href="mobile-report.html"><span class="t">Mobile architecture</span><span class="d">Customer-facing product, data lifecycle, stock workflow, networking, localization.</span></a>
+    <a href="backend-report.html"><span class="t">Backend architecture &amp; modifications</span><span class="d">Provided API surface, auth lifecycle, and the three assignment modifications in detail.</span></a>
+    <a href="development-decisions.html"><span class="t">Engineering decisions</span><span class="d">Context, alternatives, trade-offs, and results for every material decision.</span></a>
+    <a href="agent-workflow-report.html"><span class="t">AI-assisted development workflow</span><span class="d">Human vs. agent responsibility, the actual workflow, verification, risks and controls.</span></a>
+  </div>
+</section>
+
+<footer>
+  StokMate take-home delivery · reports are self-contained HTML (work offline from a clone and on GitHub Pages) ·
+  <a href="https://github.com/alpersarper/stokmate-assignment#readme">README</a> · <a href="https://github.com/alpersarper/stokmate-assignment/blob/main/docs/IMPLEMENTATION_REPORT.md">QA report</a>
+</footer>
+
+</div>
+</body>
+</html>

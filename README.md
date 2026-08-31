@@ -1,135 +1,156 @@
 # StokMate
 
-Take-home assignment: two clients over the provided StokMate .NET API.
+Take-home assignment: two clients over the provided StokMate .NET API — a **web admin** for head-office product management and a **customer-facing mobile app** for store staff (stock updates as the primary workflow), sharing one framework-free TypeScript API/auth core. The backend is the provided API plus three small, documented modifications.
 
-- **Web** (`web/`) — head-office product management: login, product list with search/filter/pagination, product detail, product editing.
-- **Mobile** (`mobile/`) — store staff app (Expo/React Native): login, product list with search, product detail, **stock update** as the primary workflow. Delivered as an installable Android APK.
-- **Shared** (`shared/`) — framework-free TypeScript shared by both clients: API/domain types, the fetch-based API client (auth header, error normalization, single-flight 401 → refresh → retry), query-key factory, formatting utilities.
-- **Backend** (`api/StokMate/`) — the provided .NET 8 API (in-memory, no database), with one minimal documented addition (see [Backend modification](#backend-modification)).
+**Reviewer deep dives** (architecture, decisions, backend changes, AI-assisted workflow) are published on GitHub Pages — see [Reviewer deep dives](#reviewer-deep-dives).
 
-Project documentation lives in `docs/`: engineering decisions and rationale in `docs/DECISIONS.md`, technical architecture in `docs/ARCHITECTURE.md`, verified API behavior in `docs/API_CONTRACT.md`.
+## Quick start
 
-## Prerequisites
-
-- **Node.js ≥ 20** and npm (npm workspaces are used; no other package manager needed).
-- **.NET SDK 8.0+** for the backend (the project targets `net8.0` and rolls forward to newer SDKs).
-- For Android (mobile development and the APK): **JDK 17** and the **Android SDK** (platform 36, build-tools; standard Android Studio install). Not needed to run web.
-
-Install all workspaces from the repo root:
+**1. Backend** (requires .NET SDK 8.0+):
 
 ```bash
-npm install
-```
-
-## Backend (provided API)
-
-From `api/StokMate`:
-
-```bash
+cd api/StokMate
 dotnet run --project src/StokMate.Api
 ```
 
-- Listens on **`http://localhost:5080`** (binds `0.0.0.0:5080`, so it is also reachable over LAN for devices).
-- **Storage and sessions are in-memory.** Every restart re-seeds the product data **and invalidates all sessions/tokens** — after a backend restart, log in again.
-- Test credentials (intentionally provided by the assignment):
-  - e-mail: `test@ornek.com`
-  - password: `Test1234!`
-- Swagger UI: `http://localhost:5080/swagger`.
+→ `http://localhost:5080` (Swagger at `/swagger`). In-memory: every restart re-seeds data and invalidates all sessions.
 
-## Web
+**2. Web admin** (requires Node.js ≥ 20; new terminal, repo root):
 
 ```bash
-npm run dev:web        # from the repo root → http://localhost:5173
+npm install
+npm run dev:web
 ```
 
-- API base URL comes from `VITE_API_URL` (`web/.env`, committed default `http://localhost:5080` — not a secret).
-- Production build: `npm run build:web` (output in `web/dist/`; preview with `npm run preview --workspace web`).
+→ `http://localhost:5173`.
 
-## Mobile (development)
-
-Mobile development runs as a **native Android debug build** with interactive Metro. Expo remains the framework; Expo Go is no longer the primary development runtime.
+**3. Mobile** (Android emulator running; requires JDK 17 + Android SDK):
 
 ```bash
 cd mobile
-JAVA_HOME=<path-to-jdk-17> npx expo run:android    # prebuild + Gradle debug build + install + Metro
+npx expo run:android
 ```
 
-- The first run generates `mobile/android/` (intentionally not committed) and compiles the debug app; later runs are incremental. `npx expo run:android` is only needed again when native configuration or native dependencies change.
-- For JS-only iteration once the debug app is installed: start Metro with `npm run dev:mobile` (repo root) and open the installed **StokMate** app — it connects to Metro and supports Fast Refresh.
-- Metro is interactive: `r` reloads, `j` opens **React Native DevTools** (Console, Sources/breakpoints, React Components/Profiler). `expo-dev-client` is included as a dev-build-only dependency (it is inert in release builds), so the DevTools **Network panel captures the app's API traffic** in debug builds.
-- If port 8081 is busy, pass `--port 8082` to `expo run:android` — the port is baked into the debug build, so restart Metro with the same `--port` value afterwards.
+First run compiles and installs the native debug app, then starts Metro; later JS-only iteration needs only `npm run dev:mobile` (repo root) plus opening the installed app. Set `JAVA_HOME` to a JDK 17 if it is not your default. The emulator reaches the host backend via the default `http://10.0.2.2:5080`; for a physical device set `EXPO_PUBLIC_API_URL=http://<your-lan-ip>:5080` (same Wi-Fi).
 
-API base URL comes from `EXPO_PUBLIC_API_URL`. When unset, sensible defaults apply:
+**Test credentials** (intentionally provided by the assignment, test-only):
+e-mail `test@ornek.com` · password `Test1234!`
 
-- **Android emulator**: `http://10.0.2.2:5080` (the emulator's alias for the host machine — Android `localhost` is the device itself, not your machine).
-- **iOS simulator**: `http://localhost:5080`.
-- **Physical device**: set it explicitly to your machine's LAN IP, with phone and machine on the same Wi-Fi:
+## Android APK
+
+- **Artifact**: `app-release-final.apk` — delivered with the submission package (APKs are intentionally not committed; see `.gitignore`).
+- **SHA-256**: `543c2d54339973566c777fad5dccf366b6af5365fdbe5c027426a825cb6ac356` (77,824,176 bytes).
+- Built from commit `339d00c`, variant `release`, applicationId `com.stokmate.app`; verified standalone end-to-end (12-point matrix, `docs/IMPLEMENTATION_REPORT.md`).
+- The API URL is **baked in at build time**; the delivered artifact targets `http://10.0.2.2:5080` (backend on the host machine, APK in an Android emulator).
+- Reproduce (or retarget for a physical device by changing the URL):
 
   ```bash
-  EXPO_PUBLIC_API_URL=http://<your-lan-ip>:5080 npm run dev:mobile
+  cd mobile
+  CI=1 npx expo prebuild --platform android --clean
+  cd android
+  JAVA_HOME=<path-to-jdk-17> EXPO_PUBLIC_API_URL=http://10.0.2.2:5080 ./gradlew assembleRelease
+  # → app/build/outputs/apk/release/app-release.apk
   ```
 
-## Android APK (final delivery)
+- The backend is plain HTTP, so Android cleartext traffic is enabled (`expo-build-properties`); signing uses the Gradle debug keystore (assignment-grade).
 
-The delivered artifact is a **standalone release APK** — JS bundle embedded, no Metro, no development tooling. It is built locally (no cloud build service) via Expo prebuild + Gradle. Exact commands used to produce the delivered artifact:
+## Project at a glance
 
-```bash
-cd mobile
-CI=1 npx expo prebuild --platform android --clean
-cd android
-JAVA_HOME=/opt/homebrew/opt/openjdk@17 EXPO_PUBLIC_API_URL=http://10.0.2.2:5080 ./gradlew assembleRelease
+```
+api/StokMate/   provided .NET 8 API (in-memory) + 3 documented modifications
+shared/         framework-free TS: types, API client, query keys, utilities
+web/            Vite + React admin (Tailwind + shadcn/ui)
+mobile/         Expo (managed) + React Native customer app
+docs/           contracts, decisions, QA report, reviewer reports (docs/reviewer/)
 ```
 
-(`--clean` regenerates `android/` from scratch so a previous debug build can't leak configuration; on a fresh clone plain `npx expo prebuild --platform android` is equivalent.)
+## What changed
 
-- **Artifact**: `mobile/android/app/build/outputs/apk/release/app-release.apk` (build variant: `release`; the generated `android/` directory and APKs are intentionally not committed — see `.gitignore`).
-- Set `JAVA_HOME` to your JDK 17 (the path above is the macOS Homebrew location).
-- **The API URL is baked into the APK at build time** (Metro inlines `EXPO_PUBLIC_API_URL` during the Gradle JS-bundling step). The delivered artifact was built with `http://10.0.2.2:5080`, which targets a backend on the host machine when the APK runs in an **Android emulator**. To run the APK on a **physical device**, rebuild with your own LAN IP:
+### Web admin
 
-  ```bash
-  JAVA_HOME=... EXPO_PUBLIC_API_URL=http://<your-lan-ip>:5080 ./gradlew assembleRelease
-  ```
+- Full required slice: login/session, dense product table with search, category/brand/**status** filters, server-side header sorting, pagination — all list state lives in the URL.
+- Product detail with guarded edit form: lossless full-object PUT built from a fresh read, inline validation mirroring the verified API rules, unsaved-changes protection.
+- Data freshness: "Updated X ago" indicator, cooldown-protected manual refresh, and a 15 s poll anchored to the last fetch settle (cross-client changes appear without a reload — the optional bonus).
+- Complete loading/error/empty states, queued toasts, EN/TR chrome.
 
-  and keep the device and the backend machine on the same network.
-- Install: `adb install -r app/build/outputs/apk/release/app-release.apk`.
-- **Networking assumptions**: the provided backend is plain HTTP, so the app enables Android cleartext traffic (`usesCleartextTraffic` via `expo-build-properties`) — acceptable for this local/demo setup; a real deployment would use HTTPS through the same `EXPO_PUBLIC_API_URL` mechanism with no code change. Signing uses the Gradle debug keystore (assignment-grade, not a store-ready signature).
+→ Deep dive: [Web admin architecture](https://alpersarper.github.io/stokmate-assignment/reviewer/frontend-report.html)
 
-## Architecture & libraries (brief)
+### Mobile
 
-- **npm workspaces** monorepo (`shared` / `web` / `mobile`) — one install, one dependency tree, shared TypeScript source with no build step.
-- **TanStack Query v5** — the only server-state layer in both clients (query keys per filter combination, `keepPreviousData` for smooth filtering, invalidation after mutations).
-- **Web**: Vite + React + TypeScript (strict), React Router, Tailwind CSS + shadcn/ui, react-hook-form for the edit form (validation rules mirror the verified API contract).
-- **Mobile**: Expo (managed) + React Native + TypeScript, React Navigation, expo-secure-store for tokens.
-- **Shared API/auth layer**: one fetch-based client used by both apps — normalized errors, bearer-token handling, and a centralized **single-flight refresh**: concurrent 401s trigger exactly one token refresh, then retry; refresh failure logs the session out cleanly.
-- **APK strategy**: local `expo prebuild` + Gradle `assembleRelease` — reproducible offline, no cloud account required.
+- Full required slice as a productized customer app: login (with "remember me" via secure storage), product list with server-side search/filters/sort and infinite scroll, detail screen, and the **stock-update workflow** (draft-based editor, steppers, validation, server-verified saves).
+- Discontinued products lock the stock editor (and the backend enforces it with a 409 — stale clients cannot book stock onto a discontinued product).
+- Pull-to-refresh, freshness indicator, protected manual refresh, and a 10 s detail poll — one coordinated refresh pipeline.
+- Hand-styled visual system (no UI kit), queued snackbars, full EN/TR.
 
-Rationale and alternatives: `docs/DECISIONS.md`. Full architecture: `docs/ARCHITECTURE.md`.
+→ Deep dive: [Mobile architecture](https://alpersarper.github.io/stokmate-assignment/reviewer/mobile-report.html)
 
-## Backend modification
+### Backend
 
-The provided backend was modified in exactly one place: **`GET /products/{id}` was added** (it did not exist in the original delivery). It is required because:
+- **Provided**: the entire API surface — auth (opaque tokens, 15-min access / 7-day rotating refresh), product list/search/filter/sort/pagination, PUT full-replace update, dedicated stock PATCH, lookups, seeding, error conventions. Verified behavior is recorded in `docs/API_CONTRACT.md`.
+- **Changed during the assignment** (each minimal, documented, runtime-verified):
+  1. `GET /products/{id}` added — the original backend had no product-by-id read, while its full-replace PUT required three fields no read endpoint returned (a proven silent-data-loss trap).
+  2. Stock updates on **Discontinued** products rejected with `409` — server-side protection against stale clients.
+  3. Rate limiting on product reads (60 req / 10 s per token → `429`) — an independent backend boundary for the refresh/polling feature.
 
-1. the assignment requires product-detail screens fed by the real API, and
-2. the provided update contract is a **full-replacement `PUT`** that includes fields (`costPrice`, `supplierId`, `description`) which no original read endpoint returned — without a product-by-id read, any legal client `PUT` would silently overwrite real data.
+→ Deep dive: [Backend architecture & modifications](https://alpersarper.github.io/stokmate-assignment/reviewer/backend-report.html)
 
-The addition is read-only, follows the backend's existing patterns, and changes no other behavior. Details and evidence: `docs/DECISIONS.md` §1 and `docs/API_CONTRACT.md` §3.
+## Key decisions
 
-## Assumptions & known limitations
+| Decision | Why |
+| --- | --- |
+| npm workspaces monorepo | One install, one dependency tree; three packages need scripts, not a build graph. |
+| TanStack Query as the only server-state layer | The app is almost entirely server state; query keys + invalidation replace any global store. |
+| Framework-free `shared/` core | The wire format and auth/refresh/error plumbing are implemented exactly once for both clients. |
+| Centralized single-flight 401 → refresh → retry | Strict token rotation makes concurrent refreshes fatal; reactive recovery beats expiry timers. |
+| shadcn/ui + Tailwind on web | Vendored, inspectable primitives; small dependency surface for an operational admin UI. |
+| Hand-styled mobile UI (no kit) | Four screens; the hard part (queued snackbars) needs custom code even with a kit. |
+| Expo managed + local Gradle APK | Reproducible offline with documented commands; no cloud build account. |
+| EN/TR, English default, TRY everywhere | Typed message catalogs suffice for two locales; currency is data, never converted. |
 
-- **In-memory backend**: all data resets and **all sessions are invalidated** on every backend restart; clients handle this by returning to login when refresh fails.
-- **Concurrency**: the API has no versioning/ETag mechanism, so product and stock updates are **last-write-wins** (with the single exception below); the clients re-fetch after saving to show the persisted server state.
-- **Discontinued products are stock-locked** (explicit assignment decision): the backend rejects `PATCH /products/{id}/stock` with `409 Conflict` when a product's status is Discontinued — enforced server-side so a stale client that opened the product while it was Active cannot book stock onto it afterwards. The mobile app disables the stock editor for Discontinued products and maps the 409 to a specific message plus a detail refresh. Passive products deliberately still accept stock updates (the assignment defines no restriction for Passive). Rationale: `docs/DECISIONS.md` §12; contract: `docs/API_CONTRACT.md` §8.
-- **Search/collation is server-defined**: search input is passed through untouched (verified: Turkish characters are sent correctly UTF-8-encoded, e.g. `q=%C3%A7ay` matches the Çaykur products); Turkish dotted/dotless-I matching follows the backend host's locale and is not re-filtered client-side — on the development host `FİLİZ`/`FILIZ`/`filiz` all match, while a dotless-`ı` query (`ıslak`) does not match a capital-I name (`Islak…`). Documented as backend behavior, deliberately not worked around client-side.
-- **Currency**: prices are TRY (₺) per the provided domain documentation; the symbol is rendered explicitly for consistency across JS engines.
-- **Filters are single-value** (one category, one brand) — the API has no multi-select filtering.
-- **APK networking**: the APK's API URL is fixed at build time (no in-app server-settings screen — by design); running the delivered artifact against anything other than an emulator-hosted backend requires the rebuild described above.
+Full rationale with alternatives and trade-offs: [Engineering decisions](https://alpersarper.github.io/stokmate-assignment/reviewer/development-decisions.html).
 
-## Verification commands
+## Development process
 
-```bash
-npm run typecheck   # all workspaces
-npm run lint        # all workspaces
-npm run test        # shared unit tests (offline)
-npm run test:live --workspace shared   # shared client vs. the running backend
-npm run build:web   # web production build
-```
+- Requirements, UX decisions, and acceptance criteria were formalized in `docs/` before implementation and treated as binding contracts.
+- The backend's actual behavior was verified at runtime first; clients were built against the recorded contract (`docs/API_CONTRACT.md`), never against assumptions.
+- AI agents did the implementation, research, QA, and documentation under human-owned decisions; every PR was human-reviewed before merge — see the [AI-assisted development workflow](https://alpersarper.github.io/stokmate-assignment/reviewer/agent-workflow-report.html).
+- Verification combined automated checks (TypeScript, lint, unit + live-contract tests, builds) with real-backend flows in the browser, the emulator, and the final release APK (independent `curl` read-backs included).
+- Actual verified status lives in `docs/IMPLEMENTATION_REPORT.md`.
+
+## Assumptions
+
+- **In-memory backend**: restarts wipe data and all sessions; clients recover to login when refresh fails.
+- **Last-write-wins**: the API has no concurrency mechanism (verified); mitigated at UX level only (fresh-read edits, refetch after writes). The Discontinued-stock 409 is a domain rule, not a version check.
+- **Single-value filters** (one category, one brand) — the API has no multi-select.
+- **Search/sort collation is server-defined** (Turkish dotted/dotless-I behavior follows the backend host's locale); input is passed through untouched.
+- **TRY (₺)** per the provided domain documentation; rendered explicitly with integer-kuruş math.
+- English default chrome with a runtime EN/TR switch; API data (product/brand names) is never translated.
+
+## Main libraries
+
+- **Web**: Vite + React + TypeScript (strict) — SPA toolchain; React Router — routes + URL list state; TanStack Query v5 — server state; react-hook-form — edit-form dirty/validity tracking; Tailwind CSS v4 + shadcn/ui — vendored UI primitives; sonner — queued toasts.
+- **Mobile**: Expo (managed) + React Native + TypeScript; React Navigation (native stack); TanStack Query v5; expo-secure-store — token persistence; expo-build-properties — cleartext HTTP flag; expo-dev-client — dev-build tooling (inert in release, verified).
+- **Backend**: the provided .NET 8 + EF Core InMemory stack (unchanged); `System.Threading.RateLimiting` for the read rate-limit.
+- **Shared/testing**: Vitest — unit + live-contract tests; ESLint v9 + Prettier.
+
+## Notes
+
+- No realtime channel (WebSocket/SSE) — cross-client consistency is polling + coordinated refresh by design; see the freshness sections of the reports.
+- The delivered APK's API target is fixed at build time; other targets require the documented rebuild.
+- Assignment-focused infrastructure: no CI pipeline or E2E framework — verification is scripted checks plus the QA process recorded in `docs/IMPLEMENTATION_REPORT.md`.
+- Verification commands: `npm run typecheck`, `npm run lint`, `npm run test` (offline unit), `npm run test:live --workspace shared` (against the running backend), `npm run build:web`.
+
+## Reviewer deep dives
+
+Published via GitHub Pages:
+
+| Report | Link |
+| --- | --- |
+| **Technical overview** (start here) | [alpersarper.github.io/stokmate-assignment/reviewer](https://alpersarper.github.io/stokmate-assignment/reviewer/) |
+| Web admin architecture | [frontend-report.html](https://alpersarper.github.io/stokmate-assignment/reviewer/frontend-report.html) |
+| Mobile architecture | [mobile-report.html](https://alpersarper.github.io/stokmate-assignment/reviewer/mobile-report.html) |
+| Backend architecture & modifications | [backend-report.html](https://alpersarper.github.io/stokmate-assignment/reviewer/backend-report.html) |
+| Engineering decisions | [development-decisions.html](https://alpersarper.github.io/stokmate-assignment/reviewer/development-decisions.html) |
+| AI-assisted development workflow | [agent-workflow-report.html](https://alpersarper.github.io/stokmate-assignment/reviewer/agent-workflow-report.html) |
+
+The same reports are also available offline under [`docs/reviewer/`](docs/reviewer/) — every page is a self-contained HTML file that opens directly from a clone.

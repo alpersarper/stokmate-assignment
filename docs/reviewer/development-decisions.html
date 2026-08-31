@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StokMate — Engineering Decisions</title>
+<style>
+  :root{
+    --bg:#fafaf9; --surface:#ffffff; --border:#e7e5e4; --border-strong:#d6d3d1;
+    --text:#1c1917; --text-2:#57534e; --text-3:#78716c;
+    --accent:#1d4ed8; --accent-soft:#eff6ff;
+    --ok:#15803d; --ok-soft:#f0fdf4; --warn:#a16207; --warn-soft:#fefce8;
+    --danger:#b91c1c; --danger-soft:#fef2f2;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:980px;margin:0 auto;padding:40px 24px 80px}
+  .back{font-size:13.5px;display:inline-block;margin-bottom:18px}
+  header.page{border-bottom:1px solid var(--border);padding-bottom:20px;margin-bottom:28px}
+  .kicker{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:0 0 6px}
+  h1{font-size:28px;line-height:1.2;margin:0 0 8px}
+  .lede{color:var(--text-2);font-size:16px;margin:0;max-width:72ch}
+  h2{font-size:20px;margin:40px 0 12px}
+  p{margin:0 0 12px;max-width:78ch}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  code{font-family:var(--mono);font-size:13px;background:#f5f5f4;border:1px solid var(--border);border-radius:4px;padding:1px 5px}
+  .toc{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;margin:18px 0 8px}
+  .toc a{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13.5px;color:var(--text);min-width:0}
+  .toc a:hover{border-color:var(--accent);text-decoration:none;color:var(--accent)}
+  .dec{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:18px 0}
+  .dec h3{margin:0 0 12px;font-size:17px;scroll-margin-top:16px}
+  .dec dl{margin:0;display:grid;grid-template-columns:120px minmax(0,1fr);gap:7px 16px;font-size:14px}
+  .dec dt{font-weight:600;color:var(--text-2)}
+  .dec dd{margin:0;min-width:0}
+  .dec dd.res{color:var(--ok)}
+  .tablewrap{overflow-x:auto;margin:14px 0}
+  table{border-collapse:collapse;width:100%;background:var(--surface);border:1px solid var(--border);font-size:14px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{background:#f5f5f4;font-size:12.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-2)}
+  tr:last-child td{border-bottom:none}
+  footer{margin-top:48px;border-top:1px solid var(--border);padding-top:16px;font-size:13px;color:var(--text-3)}
+  @media (max-width:560px){ .dec dl{grid-template-columns:1fr} .dec dt{margin-top:6px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<a class="back" href="index.html">← Reviewer overview</a>
+<header class="page">
+  <p class="kicker">StokMate · Reviewer report</p>
+  <h1>Engineering decisions</h1>
+  <p class="lede">Why the delivered solution is built the way it is. Each entry gives the context, the decision, the
+  reasoning, the alternatives that were actually considered, the trade-off accepted, and the result. This is a
+  decision record, not a chronology.</p>
+</header>
+
+<nav class="toc">
+  <a href="#monorepo">1 · Monorepo &amp; npm workspaces</a>
+  <a href="#shared">2 · Shared-code boundaries</a>
+  <a href="#query">3 · TanStack Query for server state</a>
+  <a href="#auth">4 · Centralized single-flight refresh</a>
+  <a href="#weburl">5 · URL-owned web list state</a>
+  <a href="#webui">6 · shadcn/ui + Tailwind on web</a>
+  <a href="#mobileui">7 · Hand-styled mobile UI</a>
+  <a href="#split">8 · Admin vs. customer design split</a>
+  <a href="#expo">9 · Expo managed + local Gradle APK</a>
+  <a href="#apiurl">10 · EXPO_PUBLIC_API_URL, no settings screen</a>
+  <a href="#i18n">11 · EN/TR localization and TRY</a>
+  <a href="#backend">12 · Modifying the provided backend</a>
+  <a href="#freshness">13 · Freshness &amp; refresh model</a>
+  <a href="#concurrency">14 · Accepting last-write-wins</a>
+  <a href="#excluded">15 · Deliberately excluded scope</a>
+</nav>
+
+<section class="dec" id="monorepo">
+  <h3>1 · One repository, npm workspaces</h3>
+  <dl>
+    <dt>Context</dt><dd>Two clients that must agree exactly on types and API behavior, plus the provided backend, delivered as one submission.</dd>
+    <dt>Decision</dt><dd>A flat npm-workspaces monorepo: <code>shared</code>, <code>web</code>, <code>mobile</code>, with the backend alongside. <code>shared</code> ships TypeScript source directly — no build step, no project references.</dd>
+    <dt>Why</dt><dd>One install, one dependency tree, one lockfile. npm ships with Node, so a reviewer needs no extra tooling, and it has the fewest React Native/Metro edge cases. Vite transpiles workspace TypeScript and Metro compiles through Babel, so source-only sharing just works.</dd>
+    <dt>Alternatives</dt><dd>pnpm — faster, but adds an install step for the reviewer and occasional Metro friction whose standard mitigation reproduces npm's layout anyway. Separate folders without workspaces — duplicated types and client code. Nx/Turborepo — a build graph for three packages.</dd>
+    <dt>Trade-off</dt><dd>npm's flat <code>node_modules</code> is less strict about phantom dependencies than pnpm's isolated layout.</dd>
+    <dt>Result</dt><dd class="res">A reviewer runs <code>npm install</code> once at the root and everything works, including the mobile build.</dd>
+  </dl>
+</section>
+
+<section class="dec" id="shared">
+  <h3>2 · Share the wire, not the UI</h3>
+  <dl>
+    <dt>Context</dt><dd>Two clients, one API with several verified traps (full-replace PUT, plain-text errors, strict token rotation).</dd>
+    <dt>Decision</dt><dd>Share only framework-free code whose behavior is genuinely identical on both platforms: API/domain types, the fetch client core, the query-key factory, and small formatting/normalization utilities. UI, navigation, forms, and storage stay per-app; each app injects its own storage adapter.</dd>
+    <dt>Why</dt><dd>The plumbing that must be exactly right — error normalization, Bearer injection, refresh-and-retry — is implemented once and gets one set of tests. Query keys are shared so cache and invalidation semantics can't drift between clients.</dd>
+    <dt>Alternatives</dt><dd>A shared UI component package — rejected: DOM and React Native primitives don't share cleanly at this scale and the result is lowest-common-denominator components. Duplicating the client per app — two places to get token rotation wrong.</dd>
+    <dt>Trade-off</dt><dd>A little indirection: platform behavior enters through injected adapters rather than being inline.</dd>
+    <dt>Result</dt><dd class="res">Roughly 500 lines of shared source carry every cross-client correctness concern, covered by unit tests plus live contract tests against the running backend.</dd>
+  </dl>
+</section>
+
+<section class="dec" id="query">
+  <h3>3 · TanStack Query as the only server-state layer</h3>
+  <dl>
+    <dt>Context</dt><dd>Almost all application state in this product is server state. (Using TanStack Query was a fixed project decision; it was adopted willingly.)</dd>
+    <dt>Decision</dt><dd>TanStack Query v5 on both clients, with no additional state library. Remaining client state is one auth context plus local component state.</dd>
+    <dt>Why</dt><dd>Query keys per filter combination give stale-response protection for free — a late response lands under its own key and can never overwrite the current view. <code>keepPreviousData</code> delivers the required "keep results visible while loading" behavior natively, and invalidation delivers "the list shows persisted state after an update".</dd>
+    <dt>Alternatives</dt><dd>Redux/Zustand/Jotai on top — would duplicate a cache that already exists. Hand-rolled fetching hooks — reimplements deduplication, caching, and revalidation badly.</dd>
+    <dt>Trade-off</dt><dd>No optimistic updates by design: the UX contract requires showing persisted server state after a save, so optimism would add rollback complexity for no required behavior.</dd>
+    <dt>Result</dt><dd class="res">No global store exists in either client, and none is missing.</dd>
+  </dl>
+</section>
+
+<section class="dec" id="auth">
+  <h3>4 · Centralized, single-flight 401 → refresh → retry</h3>
+  <dl>
+    <dt>Context</dt><dd>Verified backend behavior: 15-minute access tokens; refresh tokens rotate strictly (replaying one kills the session); logout on one client invalidates the other's access tokens immediately; a backend restart wipes every session.</dd>
+    <dt>Decision</dt><dd>One interceptor in the shared client: on 401, refresh once behind a mutex, persist the new pair <em>before</em> resolving, retry the original request exactly once. Refresh failure clears storage and returns the app to login. A session-epoch counter invalidates in-flight handling across login/logout boundaries.</dd>
+    <dt>Why</dt><dd>This is required plumbing, not an enhancement — without it both apps appear randomly broken mid-use. Rotation makes concurrent refreshes fatal, so single-flight is a correctness requirement, not an optimization.</dd>
+    <dt>Alternatives</dt><dd>Proactive expiry timers — clock-skew and lifecycle complexity for no benefit over reactive refresh. Per-app implementations — two chances to get rotation wrong. Shared token storage between clients — each client legitimately owns its own session chain.</dd>
+    <dt>Trade-off</dt><dd>The first request after expiry pays one extra round trip.</dd>
+    <dt>Result</dt><dd class="res">Session-expiry, cross-client-logout, and backend-restart recovery were all exercised end-to-end, including in the release APK.</dd>
+  </dl>
+</section>
+
+<section class="dec" id="weburl">
+  <h3>5 · The web list state lives in the URL</h3>
+  <dl>
+    <dt>Context</dt><dd>The admin list carries search, three filters, sort, direction, and page — and the UX requires that returning from a product detail preserves all of it.</dd>
+    <dt>Decision</dt><dd>All of it lives in URL search params; the parsed params are the TanStack query key.</dd>
+    <dt>Why</dt><dd>"Preserve the view" comes for free from the browser's own history, and it survives reload, is shareable, and makes the displayed data and the address bar structurally incapable of disagreeing.</dd>
+    <dt>Alternatives</dt><dd>Component state plus a restoration mechanism — more code and a new class of bug (state and URL drifting apart).</dd>
+    <dt>Trade-off</dt><dd>Search input needs a 300 ms debounce before it reaches the URL, so typing doesn't spam history.</dd>
+    <dt>Result</dt><dd class="res">Filter/sort/page state is inspectable in the address bar during review — e.g. <code>?status=3&amp;sort=price&amp;dir=desc</code>.</dd>
+  </dl>
+</section>
+
+<section class="dec" id="webui">
+  <h3>6 · shadcn/ui on Tailwind for the web admin</h3>
+  <dl>
+    <dt>Context</dt><dd>An operational admin UI needing accessible primitives — table, select, dialog, toast — without adopting a design system.</dd>
+    <dt>Decision</dt><dd>shadcn/ui components vendored into the repository on Tailwind CSS v4; only the ~10 components the assignment needs.</dd>
+    <dt>Why</dt><dd>The components are owned source in the repo: inspectable, adaptable, and reviewable, with accessible Radix primitives underneath and a small dependency surface.</dd>
+    <dt>Alternatives</dt><dd>Mantine — a strong fit for the table/snackbar requirements (and the initial discovery recommendation), but a larger opaque dependency with its own styling system. MUI — heavier still. Hand-rolled CSS — the weakest accessibility for the effort.</dd>
+    <dt>Trade-off</dt><dd>Vendored components are code to maintain; the mitigation is composing rather than modifying primitives, with domain display logic kept in one place.</dd>
+    <dt>Result</dt><dd class="res">A consistent admin surface that never grew into a design-system project.</dd>
+  </dl>
+</section>
+
+<section class="dec" id="mobileui">
+  <h3>7 · Hand-styled mobile UI, no component kit</h3>
+  <dl>
+    <dt>Context</dt><dd>Four mobile screens plus feedback states, with queued bottom snackbars required by the UX decisions.</dd>
+    <dt>Decision</dt><dd>React Native <code>StyleSheet</code> with a small owned primitive set and a token file; no RN Paper or equivalent.</dd>
+    <dt>Why</dt><dd>The genuinely hard piece — a queued snackbar system — needs custom code even with a kit (Paper's is single-instance), so a kit would have added a dependency without removing work. It also keeps the mobile look free of a third-party visual identity.</dd>
+    <dt>Alternatives</dt><dd>React Native Paper — kept as an explicit escape hatch if velocity had suffered; it wasn't needed.</dd>
+    <dt>Trade-off</dt><dd>More styling effort, accepted for a minimal dependency set.</dd>
+    <dt>Result</dt><dd class="res">A coherent surface system (documented in <code>mobile/DESIGN.md</code>) with two UI-related runtime dependencies: navigation and safe-area handling.</dd>
+  </dl>
+</section>
+
+<section class="dec" id="split">
+  <h3>8 · Deliberately different designs for admin and mobile</h3>
+  <dl>
+    <dt>Context</dt><dd>One product family, two audiences: head-office operators at a desk and store staff on a phone.</dd>
+    <dt>Decision</dt><dd>Share the <em>data language</em> — status semantics, stock thresholds, currency formatting, terminology — but not the visual system. Web is a dense operational table; mobile is a productized browsing-and-editing surface.</dd>
+    <dt>Why</dt><dd>Operators scan many rows and compare values; store staff hold a phone one-handed and act on one product. Forcing one visual system on both would compromise the primary task of each.</dd>
+    <dt>Alternatives</dt><dd>A shared component/design package — rejected for the same reason as shared UI code generally.</dd>
+    <dt>Trade-off</dt><dd>Two style systems to keep coherent; mitigated by recording both in <code>DESIGN.md</code> files so later passes extend rather than reinvent them.</dd>
+    <dt>Result</dt><dd class="res">Each surface reads as fit for its user, while status colours and ₺ amounts mean the same thing everywhere.</dd>
+  </dl>
+</section>
+
+<section class="dec" id="expo">
+  <h3>9 · Expo managed workflow, APK built locally with Gradle</h3>
+  <dl>
+    <dt>Context</dt><dd>The assignment requires a working Android APK; Expo vs bare React Native was left open.</dd>
+    <dt>Decision</dt><dd>Expo managed workflow; the deliverable APK produced by <code>expo prebuild</code> + local <code>gradlew assembleRelease</code>, signed with the Gradle debug keystore and documented as assignment-grade.</dd>
+    <dt>Why</dt><dd>No cloud build account or queue; reproducible offline; the reviewer can run the exact same documented commands. Managed Expo keeps native configuration declarative — including the cleartext-HTTP flag the HTTP-only backend requires — while prebuild yields the full native project when Gradle needs it.</dd>
+    <dt>Alternatives</dt><dd>EAS cloud build — an account and upload dependency for the reviewer's reproduction path. Bare React Native — permanent native-config maintenance in exchange for one-time prebuild output.</dd>
+    <dt>Trade-off</dt><dd>Debug-keystore signing is not store-ready, and the first Gradle build is slow and network-heavy.</dd>
+    <dt>Result</dt><dd class="res">The delivered APK was built from a known commit and verified standalone on an emulator against the live backend — an APK that merely builds was explicitly not treated as done.</dd>
+  </dl>
+</section>
+
+<section class="dec" id="apiurl">
+  <h3>10 · One environment variable instead of a server-settings screen</h3>
+  <dl>
+    <dt>Context</dt><dd>The mobile app must reach the backend from an emulator, a physical device, and a release APK.</dd>
+    <dt>Decision</dt><dd><code>EXPO_PUBLIC_API_URL</code> is the single configuration point (emulator default <code>10.0.2.2</code>, iOS simulator <code>localhost</code>, device/APK an explicit LAN or HTTPS URL). No in-app server-address UI.</dd>
+    <dt>Why</dt><dd>Configuration over product surface: a settings screen is UI the assignment never asked for, with validation, persistence, and UX costs — and a hosted deployment would just set an HTTPS URL through the same variable with no code change.</dd>
+    <dt>Alternatives</dt><dd>A runtime settings screen — considered during architecture and explicitly superseded by this policy.</dd>
+    <dt>Trade-off</dt><dd>Changing a built APK's API address requires a rebuild; the README documents the exact command.</dd>
+    <dt>Result</dt><dd class="res">One documented variable covers every environment, and the release artifact's baked URL was verified in the built APK.</dd>
+  </dl>
+</section>
+
+<section class="dec" id="i18n">
+  <h3>11 · Lightweight EN/TR localization, English default, TRY everywhere</h3>
+  <dl>
+    <dt>Context</dt><dd>The domain data and every backend message are Turkish; the evaluation context is Turkish; the project decision was an English-default interface.</dd>
+    <dt>Decision</dt><dd>Both clients ship English (default) and Turkish via small typed message catalogs, switchable at runtime and persisted. API data is never translated. Prices are always TRY, formatted from integer kuruş.</dd>
+    <dt>Why</dt><dd>Two locales and a small message set don't justify an i18n framework or translation backend. Typed catalogs also make a missing translation a compile error.</dd>
+    <dt>Alternatives</dt><dd>i18next and similar — infrastructure disproportionate to two locales. Translating backend error prose by string-matching — brittle and forbidden: known failures are identified by status code plus request context instead, with a localized generic fallback otherwise.</dd>
+    <dt>Trade-off</dt><dd>Mixed-language screens are possible by design (English chrome around Turkish product names) — the honest outcome, since renaming API data would be worse.</dd>
+    <dt>Result</dt><dd class="res">A full Turkish pass was verified in the release APK, including decimal-comma currency formatting.</dd>
+  </dl>
+</section>
+
+<section class="dec" id="backend">
+  <h3>12 · Modifying the provided backend — three times, minimally</h3>
+  <dl>
+    <dt>Context</dt><dd>The assignment says to avoid backend changes, but its own mandatory requirements collided with the provided API in one place, and two product rules were judged to belong server-side.</dd>
+    <dt>Decision</dt><dd>Add <code>GET /products/{id}</code>; reject stock updates on Discontinued products with 409; rate-limit product reads. Nothing else.</dd>
+    <dt>Why</dt><dd>The detail endpoint closes a proven silent-data-loss trap in the full-replace PUT. The 409 protects against stale clients in a way a disabled button cannot. The rate limit is the independent boundary that client-side refresh cooldowns are not.</dd>
+    <dt>Alternatives</dt><dd>For the detail endpoint: guessing the missing fields client-side, widening the list DTO, or relaxing PUT semantics — all rejected as either data-corrupting or more invasive. Full detail per modification: <a href="backend-report.html">backend report</a>.</dd>
+    <dt>Trade-off</dt><dd>Any backend change is a deviation from the assignment's preference; each was kept to a controller action, a guard, or a middleware policy, following existing patterns and error conventions.</dd>
+    <dt>Result</dt><dd class="res">Every modification is documented in the API contract with runtime verification, and no existing endpoint's behavior changed.</dd>
+  </dl>
+</section>
+
+<section class="dec" id="freshness">
+  <h3>13 · One refresh pipeline per dataset, with layered protection</h3>
+  <dl>
+    <dt>Context</dt><dd>Multiple clients edit the same catalog, and the optional bonus asks the open web list to reflect other clients' changes. Several mechanisms can trigger a refetch: manual buttons, pull-to-refresh, focus/reconnect revalidation, mutation invalidation, and background polls.</dd>
+    <dt>Decision</dt><dd>Every trigger converges on one TanStack query fetch per key. Background polls are anchored to the last fetch <em>settle</em> rather than running on a free interval, joined refetches reuse the in-flight request, manual refresh has a ~4 s cooldown, 4xx is never auto-retried, and the backend rate-limits reads independently. Freshness is displayed from the last <em>successful</em> fetch.</dd>
+    <dt>Why</dt><dd>Refreshing should raise confidence in the data without disrupting work or creating avoidable load. Anchoring the poll means a manual or mutation-driven refetch pushes the next automatic one a full interval out, so triggers can never stack.</dd>
+    <dt>Alternatives</dt><dd>WebSockets/SSE/SignalR — realtime infrastructure plus backend changes the assignment discourages. A plain <code>refetchInterval</code> — simpler, but it free-runs and stacks on top of other triggers.</dd>
+    <dt>Trade-off</dt><dd>Convergence is bounded by the poll interval (~15 s on the web list) rather than instant.</dd>
+    <dt>Result</dt><dd class="res">Verified on both clients: an external stock change made with <code>curl</code> appears through the refresh pipeline, with the cooldown visibly protecting the button.</dd>
+  </dl>
+</section>
+
+<section class="dec" id="concurrency">
+  <h3>14 · Accepting last-write-wins instead of faking safety</h3>
+  <dl>
+    <dt>Context</dt><dd>Discovery verified exhaustively that the backend has no concurrency protection: no versions, no ETag/If-Match (stale preconditions are ignored and return 200), no 412 path. Lost updates were reproduced at runtime.</dd>
+    <dt>Decision</dt><dd>Accept it. Build no client-side concurrency protocol. Mitigate at UX level only: edit forms initialize from a fresh read, every mutation applies the server's returned state, the mobile stock editor surfaces "changed elsewhere" instead of silently overwriting a dirty draft, and the limitation is documented.</dd>
+    <dt>Why</dt><dd>Any client-side "protection" would be safety the server does not enforce — and inventing API behavior was explicitly out of bounds.</dd>
+    <dt>Alternatives</dt><dd>Emulating If-Match or <code>updatedAt</code> preconditions client-side — rejected as fake safety. Adding a version column to the backend — a substantially more invasive change than the three that were made.</dd>
+    <dt>Trade-off</dt><dd>Simultaneous edits can still overwrite each other; the user is never misled into thinking otherwise.</dd>
+    <dt>Result</dt><dd class="res">The one place where a domain rule <em>can</em> protect a stale client — discontinued products — is enforced server-side, and is documented as a domain rejection rather than a version check.</dd>
+  </dl>
+</section>
+
+<section id="excluded">
+  <h2>15 · Deliberately excluded scope</h2>
+  <p>Rejecting complexity was itself a decision. The full list lives in
+  <a href="https://github.com/alpersarper/stokmate-assignment/blob/main/docs/ARCHITECTURE.md">docs/ARCHITECTURE.md</a>; the
+  load-bearing entries:</p>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Not built</th><th>Why not</th></tr>
+    <tr><td>SSR meta-framework (Next.js/Remix)</td><td>An SPA over a local API; server rendering is pure overhead here.</td></tr>
+    <tr><td>Redux / Zustand / Jotai / MobX</td><td>TanStack Query owns server state; what remains is one auth context.</td></tr>
+    <tr><td>axios / ky</td><td><code>fetch</code> is native on both platforms and the wrapper is needed either way.</td></tr>
+    <tr><td>OpenAPI type codegen</td><td>~10 hand-written types versus a toolchain that needs a running backend at build time.</td></tr>
+    <tr><td>Zod / Yup, Formik</td><td>Few client-known validation rules and an authoritative backend; react-hook-form's built-ins suffice.</td></tr>
+    <tr><td>Expo Router / TanStack Router</td><td>Three web routes and two mobile screens: the boring default wins.</td></tr>
+    <tr><td>Optimistic updates</td><td>The UX contract requires displaying persisted server state after a save.</td></tr>
+    <tr><td>WebSockets / SSE for the bonus</td><td>Realtime infrastructure plus backend changes; coordinated polling meets the criterion.</td></tr>
+    <tr><td>E2E frameworks (Playwright/Detox/Maestro), API mocking</td><td>Acceptance is verified against a real seeded backend by executed flows; the harness would outweigh the app.</td></tr>
+    <tr><td>Husky / CI pipelines</td><td>Not required by the acceptance criteria; root scripts plus the QA process cover verification.</td></tr>
+    <tr><td>Product create/delete, stats dashboard</td><td>The API supports them; the assignment doesn't ask for them.</td></tr>
+  </table>
+  </div>
+</section>
+
+<footer>
+  <a href="index.html">← Reviewer overview</a> · Related:
+  <a href="frontend-report.html">Web admin architecture</a> ·
+  <a href="mobile-report.html">Mobile architecture</a> ·
+  <a href="backend-report.html">Backend &amp; modifications</a> ·
+  <a href="agent-workflow-report.html">AI-assisted workflow</a>
+</footer>
+
+</div>
+</body>
+</html>

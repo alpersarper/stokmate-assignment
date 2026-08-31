@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StokMate — Mobile Architecture</title>
+<style>
+  :root{
+    --bg:#fafaf9; --surface:#ffffff; --border:#e7e5e4; --border-strong:#d6d3d1;
+    --text:#1c1917; --text-2:#57534e; --text-3:#78716c;
+    --accent:#1d4ed8; --accent-soft:#eff6ff;
+    --ok:#15803d; --ok-soft:#f0fdf4; --warn:#a16207; --warn-soft:#fefce8;
+    --danger:#b91c1c; --danger-soft:#fef2f2;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:980px;margin:0 auto;padding:40px 24px 80px}
+  .back{font-size:13.5px;display:inline-block;margin-bottom:18px}
+  header.page{border-bottom:1px solid var(--border);padding-bottom:20px;margin-bottom:28px}
+  .kicker{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:0 0 6px}
+  h1{font-size:28px;line-height:1.2;margin:0 0 8px}
+  .lede{color:var(--text-2);font-size:16px;margin:0;max-width:72ch}
+  h2{font-size:20px;margin:40px 0 12px}
+  h3{font-size:16px;margin:24px 0 8px}
+  p{margin:0 0 12px;max-width:78ch}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  code{font-family:var(--mono);font-size:13px;background:#f5f5f4;border:1px solid var(--border);border-radius:4px;padding:1px 5px}
+  .diagram{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin:16px 0;overflow-x:auto}
+  .diagram svg{display:block;min-width:640px;width:100%;height:auto}
+  .diagram figcaption{font-size:13px;color:var(--text-3);margin-top:10px}
+  .tablewrap{overflow-x:auto;margin:14px 0}
+  table{border-collapse:collapse;width:100%;background:var(--surface);
+    border:1px solid var(--border);font-size:14px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{background:#f5f5f4;font-size:12.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-2)}
+  tr:last-child td{border-bottom:none}
+  ul.tight{margin:8px 0 16px;padding-left:20px}
+  ul.tight li{margin-bottom:6px;max-width:78ch}
+  ol.flow{margin:8px 0 16px;padding-left:22px}
+  ol.flow li{margin-bottom:6px;max-width:78ch}
+  .note{background:var(--accent-soft);border:1px solid #bfdbfe;border-radius:10px;padding:12px 16px;margin:14px 0;font-size:14px}
+  .warnbox{background:var(--warn-soft);border:1px solid #fde68a;border-radius:10px;padding:12px 16px;margin:14px 0;font-size:14px}
+  footer{margin-top:48px;border-top:1px solid var(--border);padding-top:16px;font-size:13px;color:var(--text-3)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<a class="back" href="index.html">← Reviewer overview</a>
+<header class="page">
+  <p class="kicker">StokMate · Reviewer report</p>
+  <h1>Mobile architecture</h1>
+  <p class="lede">The store-floor application: a productized, customer-facing app whose primary job is
+  <strong>updating stock</strong> quickly and safely. Source: <code>mobile/</code>. Expo (managed) + React Native +
+  TypeScript, React Navigation native stack, TanStack Query v5, hand-styled UI. Delivered as a verified
+  release APK.</p>
+</header>
+
+<section>
+  <h2 style="margin-top:0">Product purpose</h2>
+  <p>This is not a shrunken admin panel. Store staff hold a phone one-handed, find a product, and correct its stock —
+  so the app is built around discovery and a single confident write. Products are presented as a browsable catalog
+  (image, name, brand, price, stock state), and the detail screen makes the current stock and the editor the
+  visual centre of gravity. The web admin's density conventions were deliberately <em>not</em> carried over;
+  what is shared is the data language (status semantics, ₺ formatting, low-stock rules), not the styling.</p>
+</section>
+
+<section>
+  <h2>Architecture</h2>
+  <figure class="diagram">
+    <svg viewBox="0 0 900 420" role="img" aria-label="Mobile architecture: auth-status-driven navigator renders either Login or the product stack; screens own local UI state and read server state from TanStack Query; the shared API core talks to the backend via EXPO_PUBLIC_API_URL">
+      <g font-family="-apple-system,Segoe UI,Roboto,sans-serif">
+        <rect x="30" y="20" width="840" height="106" rx="10" fill="#ffffff" stroke="#d6d3d1"/>
+        <text x="50" y="46" font-size="14" font-weight="700" fill="#1c1917">Navigation — auth-status-driven native stack</text>
+        <rect x="50" y="60" width="200" height="48" rx="6" fill="#f5f5f4" stroke="#e7e5e4"/>
+        <text x="62" y="80" font-size="12.5" font-weight="600" fill="#44403c">status = restoring</text>
+        <text x="62" y="98" font-size="11.5" fill="#57534e">session restore screen</text>
+        <rect x="270" y="60" width="200" height="48" rx="6" fill="#f5f5f4" stroke="#e7e5e4"/>
+        <text x="282" y="80" font-size="12.5" font-weight="600" fill="#44403c">status = signedOut</text>
+        <text x="282" y="98" font-size="11.5" fill="#57534e">Login screen only</text>
+        <rect x="490" y="60" width="360" height="48" rx="6" fill="#eff6ff" stroke="#bfdbfe"/>
+        <text x="502" y="80" font-size="12.5" font-weight="600" fill="#1d4ed8">status = signedIn</text>
+        <text x="502" y="98" font-size="11.5" fill="#57534e">ProductList → ProductDetail (stock editor)</text>
+
+        <line x1="450" y1="126" x2="450" y2="152" stroke="#a8a29e" stroke-width="1.5" marker-end="url(#arrm)"/>
+
+        <rect x="30" y="156" width="410" height="106" rx="10" fill="#eff6ff" stroke="#93c5fd"/>
+        <text x="50" y="182" font-size="14" font-weight="700" fill="#1d4ed8">Screen-local state</text>
+        <text x="50" y="204" font-size="12.5" fill="#44403c">search input (300 ms debounce) · filters · sort key</text>
+        <text x="50" y="220" font-size="12.5" fill="#44403c">sheet visibility · scroll-arm ref · stock draft (string)</text>
+        <text x="50" y="242" font-size="12" fill="#78716c">filters + sort compose the dataset identity → query key</text>
+
+        <rect x="460" y="156" width="410" height="106" rx="10" fill="#eff6ff" stroke="#93c5fd"/>
+        <text x="480" y="182" font-size="14" font-weight="700" fill="#1d4ed8">Server state — TanStack Query v5</text>
+        <text x="480" y="204" font-size="12.5" fill="#44403c">useInfiniteQuery(products.list) · products.detail(id)</text>
+        <text x="480" y="220" font-size="12.5" fill="#44403c">lookups (lazy) · mutation patches caches directly</text>
+        <text x="480" y="242" font-size="12" fill="#78716c">keepPreviousData · anchored 10 s detail poll</text>
+
+        <line x1="450" y1="262" x2="450" y2="290" stroke="#a8a29e" stroke-width="1.5" marker-end="url(#arrm)"/>
+
+        <rect x="30" y="294" width="840" height="52" rx="10" fill="#ffffff" stroke="#93c5fd"/>
+        <text x="50" y="320" font-size="14" font-weight="700" fill="#1d4ed8">@stokmate/shared api-core</text>
+        <text x="330" y="320" font-size="12.5" fill="#44403c">+ expo-secure-store token adapter · single-flight 401 → refresh → retry</text>
+
+        <line x1="450" y1="346" x2="450" y2="372" stroke="#a8a29e" stroke-width="1.5" marker-end="url(#arrm)"/>
+        <rect x="30" y="376" width="840" height="34" rx="10" fill="#f5f5f4" stroke="#d6d3d1"/>
+        <text x="450" y="398" font-size="13" font-weight="600" fill="#44403c" text-anchor="middle">StokMate .NET API — EXPO_PUBLIC_API_URL (emulator default http://10.0.2.2:5080)</text>
+      </g>
+      <defs>
+        <marker id="arrm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#a8a29e"/></marker>
+      </defs>
+    </svg>
+    <figcaption>Login and the product screens are never mounted together, so signing out (or session death)
+    <em>is</em> the stack reset — protected content is unreachable through navigation history.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>State ownership</h2>
+  <div class="tablewrap">
+  <table>
+    <tr><th>State</th><th>Where it lives</th><th>Why there</th></tr>
+    <tr><td><strong>Server data</strong></td><td>TanStack Query cache: one infinite query per dataset identity, one detail entry per product, lazily-fetched lookups</td><td>Same server-state layer as web, same query-key factory — identical cache semantics on both platforms.</td></tr>
+    <tr><td><strong>Dataset identity</strong> (search, category, brand, status, sort, direction)</td><td>Screen state in <code>ProductListScreen</code>, composed into <code>listParams</code> → the query key</td><td>There is no URL on mobile, so the screen owns it; making it the query key means switching filters starts a clean page-1 dataset instead of mutating one.</td></tr>
+    <tr><td><strong>Pagination position</strong></td><td>Inside the infinite query's page progression (<code>getNextPageParam</code>)</td><td>Page number is a property of the loaded dataset, not user intent — it never needs separate state.</td></tr>
+    <tr><td><strong>Session</strong> (<code>{ user, status }</code>)</td><td><code>AuthContext</code>; tokens in <code>expo-secure-store</code> (only when "remember" is chosen, otherwise memory-only)</td><td>The navigator renders from <code>status</code>, so session state drives navigation directly.</td></tr>
+    <tr><td><strong>Navigation</strong></td><td>React Navigation native stack</td><td>Two app screens; a plain stack is less machinery than file-based routing.</td></tr>
+    <tr><td><strong>Stock draft</strong></td><td>Local <strong>string</strong> state inside <code>StockEditor</code></td><td>Text input is a string until the user commits; normalization to a valid non-negative integer happens through the shared utility, so partial input never becomes a bogus number.</td></tr>
+    <tr><td><strong>Freshness metadata</strong></td><td>Derived from the query's <code>dataUpdatedAt</code></td><td>Same rule as web: only a <em>successful</em> fetch moves the indicator.</td></tr>
+    <tr><td><strong>Interaction guards</strong> (scroll-arm ref, sheet visibility, pull state)</td><td>Component refs/state</td><td>Purely local concerns; nothing outside the screen depends on them.</td></tr>
+  </table>
+  </div>
+</section>
+
+<section>
+  <h2>Data lifecycle</h2>
+  <h3>Launch → session → first screen</h3>
+  <ol class="flow">
+    <li>App starts in <code>status: 'restoring'</code> and reads any persisted token pair from secure storage.</li>
+    <li>If a pair exists it is validated with <code>GET /auth/me</code>. Success → <code>signedIn</code>; a dead session (e.g. the in-memory backend restarted) → <code>signedOut</code> silently, with no error spam on a screen the user never saw.</li>
+    <li>The list screen mounts and fetches page 1 of the default dataset (Active products, name ascending).</li>
+    <li>Scrolling appends pages; changing search/filters/sort creates a new dataset under a new key, with the previous results kept on screen until the new ones arrive.</li>
+  </ol>
+  <h3>Mutation → cache</h3>
+  <p>A stock save returns the full updated product — canonical persisted server state. Instead of invalidating and
+  refetching every loaded page (which on an infinite list means a request storm), the response is applied directly to
+  the caches: the detail entry is patched (preserving detail-only fields) and the matching row is patched inside every
+  cached list dataset. Dataset <em>membership</em> — a product that no longer matches an active filter — is
+  deliberately not corrected in place; that resolves on the next explicit refresh of that dataset, which keeps rows
+  from vanishing under the user's thumb mid-interaction.</p>
+</section>
+
+<section>
+  <h2>Product list</h2>
+  <ul class="tight">
+    <li><strong>Discovery-oriented rows</strong> — image, name, brand, price, and a stat rail carrying the stock state (with "Low stock"/"Out of stock" text labels, not colour alone).</li>
+    <li><strong>Search</strong> — 300 ms debounce, trimmed, server-side (<code>q</code>); the same substring match the web admin uses.</li>
+    <li><strong>Filters &amp; sort</strong> — bottom sheets for status/category/brand and an 8-option sort menu, all mapped to the API's own parameters; lookup lists load lazily the first time the filter sheet opens. Active filter chips carry their own labels, so they never depend on the lookup cache.</li>
+    <li><strong>Pagination</strong> — infinite scroll armed by a genuine user gesture: one <code>fetchNextPage</code> per drag/fling, so momentum can't chain-load pages; failures pause pagination behind an explicit footer Retry; the backend-reported total decides when the list ends ("You've reached the end").</li>
+    <li><strong>Result count</strong> comes from the backend's <code>total</code> for the filtered dataset — never the number of loaded rows.</li>
+    <li><strong>Refresh</strong> — pull-to-refresh and the explicit Refresh action share one protected pipeline; the freshness indicator shows the age of the visible data.</li>
+    <li><strong>States</strong> — skeleton rows on first load, previous results retained while a new dataset loads, dedicated empty/zero-result and error+retry states.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Product detail &amp; the stock workflow</h2>
+  <p>The detail screen leads with a hero card (image, name, brand, price, status) and puts current stock immediately
+  beside the editor — the one raised surface on the screen. Supporting information (SKU, barcode, category, supplier
+  description, min-stock) sits below, deliberately secondary.</p>
+  <figure class="diagram">
+    <svg viewBox="0 0 900 300" role="img" aria-label="Stock editor lifecycle: local string draft, normalization, save through PATCH, success patches caches, 409 conflict refetches detail and locks the editor">
+      <g font-family="-apple-system,Segoe UI,Roboto,sans-serif" font-size="12.5">
+        <rect x="24" y="24" width="180" height="70" rx="8" fill="#ffffff" stroke="#d6d3d1"/>
+        <text x="114" y="50" font-weight="700" fill="#1c1917" text-anchor="middle">Local draft</text>
+        <text x="114" y="70" fill="#57534e" text-anchor="middle">string · steppers · typing</text>
+        <text x="114" y="86" fill="#78716c" text-anchor="middle">nothing sent yet</text>
+
+        <line x1="204" y1="59" x2="252" y2="59" stroke="#a8a29e" stroke-width="1.5" marker-end="url(#arrs)"/>
+
+        <rect x="256" y="24" width="180" height="70" rx="8" fill="#ffffff" stroke="#d6d3d1"/>
+        <text x="346" y="50" font-weight="700" fill="#1c1917" text-anchor="middle">Normalize + guard</text>
+        <text x="346" y="70" fill="#57534e" text-anchor="middle">valid non-negative int?</text>
+        <text x="346" y="86" fill="#78716c" text-anchor="middle">Save = changed ∧ valid ∧ !saving</text>
+
+        <line x1="436" y1="59" x2="484" y2="59" stroke="#a8a29e" stroke-width="1.5" marker-end="url(#arrs)"/>
+
+        <rect x="488" y="24" width="180" height="70" rx="8" fill="#eff6ff" stroke="#93c5fd"/>
+        <text x="578" y="50" font-weight="700" fill="#1d4ed8" text-anchor="middle">PATCH stock</text>
+        <text x="578" y="70" fill="#57534e" text-anchor="middle">typed numeric value only</text>
+        <text x="578" y="86" fill="#78716c" text-anchor="middle">empty-body trap unreachable</text>
+
+        <!-- success -->
+        <line x1="668" y1="45" x2="716" y2="45" stroke="#15803d" stroke-width="1.5" marker-end="url(#arrok)"/>
+        <rect x="720" y="14" width="156" height="62" rx="8" fill="#f0fdf4" stroke="#bbf7d0"/>
+        <text x="798" y="36" font-weight="700" fill="#15803d" text-anchor="middle">200 · full product</text>
+        <text x="798" y="54" fill="#57534e" text-anchor="middle">patch detail + list caches</text>
+        <text x="798" y="70" fill="#57534e" text-anchor="middle">"Stock updated." snackbar</text>
+
+        <!-- conflict -->
+        <line x1="668" y1="75" x2="716" y2="120" stroke="#b91c1c" stroke-width="1.5" marker-end="url(#arrbad)"/>
+        <rect x="720" y="96" width="156" height="74" rx="8" fill="#fef2f2" stroke="#fecaca"/>
+        <text x="798" y="118" font-weight="700" fill="#b91c1c" text-anchor="middle">409 Discontinued</text>
+        <text x="798" y="136" fill="#57534e" text-anchor="middle">localized message +</text>
+        <text x="798" y="152" fill="#57534e" text-anchor="middle">detail refetch → editor</text>
+        <text x="798" y="166" fill="#57534e" text-anchor="middle">shows locked state</text>
+
+        <!-- external change -->
+        <rect x="24" y="150" width="644" height="64" rx="8" fill="#fefce8" stroke="#fde68a"/>
+        <text x="44" y="174" font-weight="700" fill="#a16207">Server stock changed underneath (detail poll / another client)</text>
+        <text x="44" y="194" fill="#57534e">clean draft → follows the server silently · dirty draft → never overwritten; a "changed elsewhere" notice appears instead</text>
+
+        <rect x="24" y="228" width="852" height="56" rx="8" fill="#ffffff" stroke="#d6d3d1"/>
+        <text x="44" y="250" font-weight="700" fill="#1c1917">Other failures</text>
+        <text x="44" y="270" fill="#57534e">draft preserved untouched · localized snackbar (network / validation / generic) · user corrects or retries · leaving with an unsaved draft asks for confirmation</text>
+      </g>
+      <defs>
+        <marker id="arrs" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#a8a29e"/></marker>
+        <marker id="arrok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#15803d"/></marker>
+        <marker id="arrbad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b91c1c"/></marker>
+      </defs>
+    </svg>
+    <figcaption>The editor's whole contract in one picture: local draft until Save, a typed absolute stock value on the
+    wire, persisted server state back into the caches, and explicit handling for both failure shapes that matter.</figcaption>
+  </figure>
+  <div class="warnbox"><strong>Discontinued products are stock-locked.</strong> The editor disables its controls and shows a
+  localized notice — but the real protection is server-side: the backend rejects the update with <code>409</code>. A device
+  that opened the product while it was Active and saves after head office discontinued it gets a definitive rejection,
+  a specific message, and a detail refetch that flips the screen into the locked presentation. See the
+  <a href="backend-report.html">backend report</a>.</div>
+</section>
+
+<section>
+  <h2>Networking</h2>
+  <ul class="tight">
+    <li><strong>One variable</strong>: <code>EXPO_PUBLIC_API_URL</code>. Unset, it resolves to <code>http://10.0.2.2:5080</code> on Android (the emulator's alias for the host machine — Android <code>localhost</code> is the device itself) and <code>http://localhost:5080</code> elsewhere.</li>
+    <li><strong>Physical devices and APKs</strong> set it explicitly to the host's LAN address; a hosted deployment would set an HTTPS URL through the same variable with no code change. There is deliberately no in-app server-settings screen.</li>
+    <li><strong>Release builds bake the value in</strong> at JS-bundling time, which is why the delivered APK targets the emulator host and retargeting means a rebuild (documented in the README).</li>
+    <li><strong>Cleartext HTTP</strong> is enabled via <code>expo-build-properties</code> only because the provided backend is HTTP-only; without it every network call in a release build fails.</li>
+    <li>Development uses a native debug build with Metro; <code>expo-dev-client</code> is a dev-build dependency and was verified inert in the release artifact (no dev-launcher activity, zero dev-menu entries). Debugging tooling is not part of the app's architecture.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Localization</h2>
+  <p>English (default) and Turkish, switchable at runtime and persisted, via a small typed message catalog — the same
+  approach as web. Chrome, states, validation, and status labels are localized; API data (product, brand, category
+  names) never is. Backend error prose is never string-matched: failures are identified by status code plus request
+  context and mapped to localized messages, with a generic localized fallback otherwise. Prices are always TRY,
+  formatted from integer kuruş with locale-aware separators (<code>₺39,50</code> tr / <code>₺39.50</code> en) and an
+  explicit ₺ prefix, because Hermes renders the currency code instead of the symbol.</p>
+</section>
+
+<section>
+  <h2>Why Expo (managed)</h2>
+  <p>The assignment leaves Expo vs bare React Native open. Managed Expo keeps native configuration declarative — the
+  cleartext-HTTP flag, icons, and build properties are config, not patched Gradle files — while
+  <code>expo prebuild</code> produces a full native project on demand, so the APK is built locally with plain Gradle
+  and no cloud account or build queue. Rationale, alternatives, and the signing caveat:
+  <a href="development-decisions.html">engineering decisions</a>.</p>
+</section>
+
+<section>
+  <h2>Mobile UI philosophy</h2>
+  <p>Surface hierarchy instead of outlines: a stone ground, borderless white content cards with faint elevation, filled
+  (not bordered) controls, and exactly one raised surface per screen — the stock editor, because that is the screen's
+  job. One brand-ish blue reserved for primary actions; semantic colours (danger/warning/success) carry the same
+  meanings as the web admin's and are never repurposed for emphasis. Every stock numeral uses tabular figures.
+  Snackbars are queued and bottom-anchored; sheets keep their actions above the gesture nav bar. The full token set and
+  conventions are recorded in <code>mobile/DESIGN.md</code>.</p>
+</section>
+
+<section>
+  <h2>Trade-offs and limitations</h2>
+  <ul class="tight">
+    <li><strong>Hand-styled UI</strong> costs more styling effort than a component kit, accepted to keep the dependency set minimal — the hardest piece (queued snackbars) would have needed custom code anyway.</li>
+    <li><strong>Fixed API target in the APK</strong> — by design (configuration over UI surface); retargeting is a documented rebuild.</li>
+    <li><strong>Debug-keystore signing</strong> — assignment-grade, not a store-ready signature.</li>
+    <li><strong>Last-write-wins</strong> for stock, except the Discontinued rule; the app surfaces "changed elsewhere" rather than pretending to prevent it.</li>
+    <li><strong>Product images require internet</strong> (the seed data points at a public placeholder service); failures degrade gracefully so they don't read as app failures.</li>
+    <li><strong>Android-verified only</strong> — the assignment asks for an Android APK; iOS is unbuilt though the code paths exist.</li>
+  </ul>
+</section>
+
+<footer>
+  <a href="index.html">← Reviewer overview</a> · Related:
+  <a href="frontend-report.html">Web admin architecture</a> ·
+  <a href="backend-report.html">Backend &amp; modifications</a> ·
+  <a href="development-decisions.html">Engineering decisions</a> ·
+  <a href="agent-workflow-report.html">AI-assisted workflow</a>
+</footer>
+
+</div>
+</body>
+</html>
