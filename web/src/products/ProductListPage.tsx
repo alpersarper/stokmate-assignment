@@ -367,7 +367,9 @@ export function ProductListPage() {
                     key={product.id}
                     tabIndex={0}
                     aria-label={t('openProduct', { name: product.name })}
-                    className="cursor-pointer focus-visible:bg-muted/60 focus-visible:outline-none"
+                    // Keyboard focus must be clearly visible (UX-006): the
+                    // muted tint alone reads like hover, so add an inset ring.
+                    className="cursor-pointer focus-visible:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:ring-inset"
                     onClick={() => openProduct(product.id)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
@@ -386,7 +388,11 @@ export function ProductListPage() {
                       {formatKurus(product.price, locale)}
                     </TableCell>
                     <TableCell className="text-right">
-                      <StockIndicator stock={product.stock} minStock={product.minStock} />
+                      <StockIndicator
+                        stock={product.stock}
+                        minStock={product.minStock}
+                        align="right"
+                      />
                     </TableCell>
                     <TableCell>
                       <StatusBadge status={product.status} />
@@ -491,19 +497,59 @@ function formatUpdatedAt(iso: string, locale: Locale): string {
   }).format(new Date(iso));
 }
 
+/**
+ * Initial-load skeleton mirroring the real table (UX-004): same container,
+ * real (localized) column headers — they don't depend on data — and
+ * column-proportioned cell placeholders, so the loaded table lands without a
+ * layout jump.
+ */
 function ListSkeleton() {
+  const { t } = useI18n();
   return (
-    <div className="flex flex-col gap-2 rounded-lg border border-border p-4">
-      {Array.from({ length: 10 }, (_, i) => (
-        <div key={i} className="flex items-center gap-4 py-1.5">
-          <Skeleton className="h-5 w-1/3" />
-          <Skeleton className="h-5 w-24" />
-          <Skeleton className="h-5 w-24" />
-          <Skeleton className="h-5 w-16" />
-          <Skeleton className="h-5 w-12" />
-          <Skeleton className="h-5 w-16" />
-        </div>
-      ))}
+    <div className="overflow-x-auto rounded-lg border border-border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>{t('colName')}</TableHead>
+            <TableHead>{t('colCategory')}</TableHead>
+            <TableHead>{t('colBrand')}</TableHead>
+            <TableHead className="text-right">{t('colPrice')}</TableHead>
+            <TableHead className="text-right">{t('colStock')}</TableHead>
+            <TableHead>{t('colStatus')}</TableHead>
+            <TableHead>{t('colUpdated')}</TableHead>
+            <TableHead className="w-8" />
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {Array.from({ length: 10 }, (_, i) => (
+            <TableRow key={i}>
+              <TableCell className="w-[30%]">
+                <Skeleton className="mb-1.5 h-4 w-3/4" />
+                <Skeleton className="h-3 w-20" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="h-4 w-20" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="h-4 w-20" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="ml-auto h-4 w-16" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="ml-auto h-4 w-10" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="h-5 w-14 rounded-full" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="h-4 w-24" />
+              </TableCell>
+              <TableCell className="w-8" />
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 }

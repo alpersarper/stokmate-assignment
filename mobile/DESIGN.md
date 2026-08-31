@@ -22,8 +22,8 @@ language: root `DESIGN.md`. Approved behavior: `docs/UX_DECISIONS.md`.
   reserved for primary actions.
 - Semantic triads (text / surface / border): danger `#b91c1c` on
   `#fef2f2`/`#fecaca`; warning `#a16207` on `#fefce8`/`#fde68a`; success
-  `#15803d` on `#f0fdf4`. Same meanings as web's emerald/amber/destructive
-  — never repurpose them.
+  `#15803d` on `#f0fdf4`/`#bbf7d0`. Same meanings as web's
+  emerald/amber/destructive — never repurpose them.
 - Radius scale 6 / 10 / 14. Light theme only (no dark mode shipped).
 
 ## Typography
@@ -44,7 +44,16 @@ display sizes.
   (UX-005).
 - Pull-to-refresh on the product list preserves the current search.
 - Safe areas via react-native-safe-area-context; keyboard must never
-  cover the focused input or the save action.
+  cover the focused input or the save action. **Edge-to-edge Android:**
+  every bottom-anchored or scrolling surface (bottom sheets, FlatList /
+  ScrollView content, snackbars) adds `useSafeAreaInsets().bottom` to its
+  bottom padding so controls and content clear the system nav bar —
+  `Snackbar.tsx` is the reference pattern.
+- Status badges follow the shared status semantics (root DESIGN.md):
+  Active → success tone, Passive → neutral, Discontinued → danger.
+- Stock emphasis never relies on color alone (UX-008): list rows carry the
+  localized "Low stock" / "Out of stock" text next to the colored number,
+  matching the detail badges.
 
 ## States
 

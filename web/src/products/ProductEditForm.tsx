@@ -259,7 +259,11 @@ function UnsavedChangesDialog({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={onStay}>{t('stay')}</AlertDialogCancel>
-          <AlertDialogAction onClick={onDiscard}>{t('discardChanges')}</AlertDialogAction>
+          {/* Data-losing action carries destructive styling (shared semantics);
+              Stay keeps the safe, quiet default. */}
+          <AlertDialogAction variant="destructive" onClick={onDiscard}>
+            {t('discardChanges')}
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
