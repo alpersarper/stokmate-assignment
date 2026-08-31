@@ -7,10 +7,10 @@ import {
   type ProductStatus,
   type SortDirection,
 } from '@stokmate/shared';
-import { ArrowDownIcon, ArrowUpIcon, ChevronRightIcon, ChevronsUpDownIcon, Loader2Icon, PackageOpenIcon, SearchIcon, SearchXIcon, TriangleAlertIcon, XIcon } from 'lucide-react';
+import { ArrowDownIcon, ArrowUpIcon, ChevronRightIcon, ChevronsUpDownIcon, PackageOpenIcon, SearchIcon, SearchXIcon, TriangleAlertIcon, XIcon } from 'lucide-react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router';
-import { toast } from 'sonner';
+import { FreshnessControl } from '@/components/FreshnessControl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -30,6 +30,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useI18n } from '@/i18n';
+import { useManualRefresh } from '@/lib/refresh';
 import { StatusBadge, StockIndicator } from '@/products/product-display';
 import { useBrands, useCategories, useProductList } from '@/products/queries';
 
@@ -159,15 +160,11 @@ export function ProductListPage() {
     }
   }, [page]);
 
-  // A failed refetch keeps the previous results visible (keepPreviousData) and
-  // surfaces the failure as a snackbar instead of destroying the page (UX-006).
-  const lastToastedErrorRef = useRef(0);
-  useEffect(() => {
-    if (listQuery.isError && data && listQuery.errorUpdatedAt !== lastToastedErrorRef.current) {
-      lastToastedErrorRef.current = listQuery.errorUpdatedAt;
-      toast.error(t('listRefreshFailed'));
-    }
-  }, [listQuery.isError, listQuery.errorUpdatedAt, data, t]);
+  // A failed refetch keeps the previous results visible (keepPreviousData);
+  // the toolbar FreshnessControl states the failure and which snapshot is
+  // shown (supersedes the earlier one-shot snackbar — persistent, and it
+  // cannot spam on repeated poll failures).
+  const { refresh, refreshDisabled } = useManualRefresh(listQuery);
 
   const openProduct = (id: number) => {
     // Carry the list URL so detail's back link restores this exact state.
@@ -185,8 +182,6 @@ export function ProductListPage() {
     });
   };
 
-  const showRefetchSpinner = listQuery.isFetching && !listQuery.isPending;
-
   return (
     <div className="flex flex-col gap-4 py-8">
       <div className="flex items-center gap-3">
@@ -196,9 +191,15 @@ export function ProductListPage() {
             {t(data.total === 1 ? 'productCountOne' : 'productCount', { count: data.total })}
           </span>
         )}
-        {showRefetchSpinner && (
-          <Loader2Icon className="size-4 animate-spin text-muted-foreground" aria-hidden />
-        )}
+        <div className="ml-auto">
+          <FreshnessControl
+            dataUpdatedAt={listQuery.dataUpdatedAt}
+            errorUpdatedAt={listQuery.errorUpdatedAt}
+            isFetching={listQuery.isFetching}
+            onRefresh={refresh}
+            refreshDisabled={refreshDisabled}
+          />
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
@@ -309,7 +310,9 @@ export function ProductListPage() {
         <div className="flex flex-col items-center gap-3 rounded-lg border border-border py-16 text-center">
           <TriangleAlertIcon className="size-8 text-destructive" aria-hidden />
           <p className="font-medium">{t('listErrorTitle')}</p>
-          <Button variant="outline" onClick={() => void listQuery.refetch()}>
+          {/* Same protected pipeline as the toolbar refresh: spam-clicking
+              Retry joins the in-flight request instead of restarting it. */}
+          <Button variant="outline" onClick={refresh}>
             {t('retry')}
           </Button>
         </div>

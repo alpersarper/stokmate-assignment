@@ -66,7 +66,17 @@ const en = {
   noResultsTitle: 'No matching products',
   noResultsBody: 'No products match your current search or filters.',
   listErrorTitle: 'Products could not be loaded',
-  listRefreshFailed: 'Could not refresh the product list.',
+
+  // data freshness + manual refresh
+  updatedJustNow: 'Updated just now',
+  updatedSecondsAgo: 'Updated {count} sec ago',
+  updatedMinutesAgo: 'Updated {count} min ago',
+  updatedAtTime: 'Last updated at {time}',
+  updating: 'Updating…',
+  refreshData: 'Refresh',
+  refreshDataLabel: 'Refresh data',
+  refreshFailedShowing: "Couldn't refresh data. Showing results from {time}.",
+  refreshFailed: "Couldn't refresh data.",
 
   // product detail / edit (UX-002 / UX-003)
   productDetailTitle: 'Product detail',
@@ -166,7 +176,16 @@ const tr: Record<MessageKey, string> = {
   noResultsTitle: 'Eşleşen ürün yok',
   noResultsBody: 'Mevcut arama veya filtrelerle eşleşen ürün bulunamadı.',
   listErrorTitle: 'Ürünler yüklenemedi',
-  listRefreshFailed: 'Ürün listesi yenilenemedi.',
+
+  updatedJustNow: 'Az önce güncellendi',
+  updatedSecondsAgo: '{count} sn önce güncellendi',
+  updatedMinutesAgo: '{count} dk önce güncellendi',
+  updatedAtTime: 'Son güncelleme: {time}',
+  updating: 'Güncelleniyor…',
+  refreshData: 'Yenile',
+  refreshDataLabel: 'Verileri yenile',
+  refreshFailedShowing: 'Veriler yenilenemedi. {time} itibarıyla alınan sonuçlar gösteriliyor.',
+  refreshFailed: 'Veriler yenilenemedi.',
 
   productDetailTitle: 'Ürün detayı',
   backToList: 'Ürünlere dön',

@@ -20,9 +20,11 @@ import {
   View,
 } from 'react-native';
 import { apiClient } from '../api/client';
+import { FreshnessControl } from '../components/FreshnessControl';
 import { EmptyState, ErrorState, LoadingState } from '../components/ui';
 import { useI18n } from '../i18n';
 import { describeFailure } from '../lib/errors';
+import { useManualRefresh } from '../lib/refresh';
 import { colors, radius } from '../lib/theme';
 import type { RootStackParamList } from '../navigation-shared';
 import {
@@ -45,8 +47,9 @@ const SEARCH_DEBOUNCE_MS = 300;
  * sort + direction) mapped to one TanStack infinite query. The page number
  * lives inside the infinite-query progression; changing any dataset-defining
  * input starts a fresh page-1 result set under a new query key. Pagination
- * appends only; refresh happens only via pull-to-refresh (never from
- * scrolling); mutations patch these caches directly (see product-cache.ts).
+ * appends only; the dataset refreshes only through the protected manual
+ * pipeline — pull-to-refresh and the Refresh action, never from scrolling —
+ * and mutations patch these caches directly (see product-cache.ts).
  */
 export function ProductListScreen({ navigation }: Props) {
   const { t, locale } = useI18n();
@@ -55,7 +58,7 @@ export function ProductListScreen({ navigation }: Props) {
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState<ListFilters>(DEFAULT_FILTERS);
   const [sortKey, setSortKey] = useState<SortOptionKey>(DEFAULT_SORT);
-  const [refreshing, setRefreshing] = useState(false);
+  const [pullActive, setPullActive] = useState(false);
   const [filterSheetVisible, setFilterSheetVisible] = useState(false);
   const [sortSheetVisible, setSortSheetVisible] = useState(false);
 
@@ -144,13 +147,15 @@ export function ProductListScreen({ navigation }: Props) {
     listRef.current?.scrollToOffset({ offset: 0, animated: false });
   }, [datasetKey]);
 
-  async function onRefresh() {
-    setRefreshing(true);
-    try {
-      await query.refetch();
-    } finally {
-      setRefreshing(false);
-    }
+  // Pull-to-refresh and the Refresh action share ONE protected pipeline: a
+  // pull that lands during cooldown or an in-flight fetch starts nothing and
+  // the spinner retracts immediately.
+  const { refresh, refreshDisabled } = useManualRefresh(query);
+  function onPullRefresh() {
+    const started = refresh();
+    if (!started) return;
+    setPullActive(true);
+    void started.finally(() => setPullActive(false));
   }
 
   const filtersRestricting =
@@ -167,7 +172,7 @@ export function ProductListScreen({ navigation }: Props) {
   const clearFilters = () => setFilters(DEFAULT_FILTERS);
 
   const showBackgroundFetch =
-    query.isFetching && !query.isLoading && !query.isFetchingNextPage && !refreshing;
+    query.isFetching && !query.isLoading && !query.isFetchingNextPage && !pullActive;
 
   let content: React.ReactElement;
   if (query.isLoading) {
@@ -179,7 +184,8 @@ export function ProductListScreen({ navigation }: Props) {
         title={t('listErrorTitle')}
         detail={failure.key === 'errorGeneric' && failure.detail ? failure.detail : t(failure.key)}
         retryLabel={t('retry')}
-        onRetry={() => void query.refetch()}
+        // Protected pipeline: hammering Retry joins the in-flight request.
+        onRetry={refresh}
       />
     );
   } else {
@@ -199,8 +205,8 @@ export function ProductListScreen({ navigation }: Props) {
         keyboardDismissMode="on-drag"
         refreshControl={
           <RefreshControl
-            refreshing={refreshing}
-            onRefresh={() => void onRefresh()}
+            refreshing={pullActive}
+            onRefresh={onPullRefresh}
             colors={[colors.primary]}
             tintColor={colors.primary}
           />
@@ -345,6 +351,16 @@ export function ProductListScreen({ navigation }: Props) {
         ) : null}
       </View>
 
+      <View style={styles.freshnessRow}>
+        <FreshnessControl
+          dataUpdatedAt={query.dataUpdatedAt}
+          errorUpdatedAt={query.errorUpdatedAt}
+          isFetching={query.isFetching}
+          onRefresh={refresh}
+          refreshDisabled={refreshDisabled}
+        />
+      </View>
+
       {content}
 
       <FilterSheet
@@ -462,6 +478,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   countText: { fontSize: 12, fontWeight: '600', color: colors.textSecondary },
+  freshnessRow: { marginHorizontal: 12, marginBottom: 4 },
   activeChip: {
     borderWidth: 1,
     borderColor: colors.border,

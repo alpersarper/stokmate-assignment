@@ -52,6 +52,17 @@ const en = {
   productCount: '{count} products',
   productCountOne: '{count} product',
 
+  // Data freshness + manual refresh
+  updatedJustNow: 'Updated just now',
+  updatedSecondsAgo: 'Updated {count} sec ago',
+  updatedMinutesAgo: 'Updated {count} min ago',
+  updatedAtTime: 'Last updated at {time}',
+  updating: 'Updating…',
+  refreshData: 'Refresh',
+  refreshDataLabel: 'Refresh data',
+  refreshFailedShowing: "Couldn't refresh data. Showing results from {time}.",
+  refreshFailed: "Couldn't refresh data.",
+
   // List controls (filters / sort)
   filtersButton: 'Filters',
   sortButton: 'Sort',
@@ -155,6 +166,16 @@ const tr: Record<MessageKey, string> = {
   stockLabel: 'Stok',
   productCount: '{count} ürün',
   productCountOne: '{count} ürün',
+
+  updatedJustNow: 'Az önce güncellendi',
+  updatedSecondsAgo: '{count} sn önce güncellendi',
+  updatedMinutesAgo: '{count} dk önce güncellendi',
+  updatedAtTime: 'Son güncelleme: {time}',
+  updating: 'Güncelleniyor…',
+  refreshData: 'Yenile',
+  refreshDataLabel: 'Verileri yenile',
+  refreshFailedShowing: 'Veriler yenilenemedi. {time} itibarıyla alınan sonuçlar gösteriliyor.',
+  refreshFailed: 'Veriler yenilenemedi.',
 
   filtersButton: 'Filtreler',
   sortButton: 'Sıralama',
