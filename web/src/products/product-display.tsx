@@ -21,24 +21,43 @@ export function StatusBadge({ status }: { status: ProductStatus }) {
  * Stock with verified low-stock emphasis (UX-008): zero stock gets strong
  * emphasis; low stock uses the API's own signal (0 < stock <= minStock, the
  * relation behind GET /products/stats) — no invented client threshold.
+ *
+ * `align="right"` (table cells) puts the badge before the numeral so every
+ * row's numeral shares the column's right-aligned rail for vertical scanning;
+ * the default keeps numeral-first for left-aligned contexts (detail view).
  */
-export function StockIndicator({ stock, minStock }: { stock: number; minStock: number }) {
+export function StockIndicator({
+  stock,
+  minStock,
+  align = 'left',
+}: {
+  stock: number;
+  minStock: number;
+  align?: 'left' | 'right';
+}) {
   const { t } = useI18n();
+  const badgeFirst = align === 'right';
   if (stock === 0) {
+    const numeral = <span className="font-semibold text-destructive tabular-nums">0</span>;
+    const badge = <Badge variant="destructive">{t('outOfStock')}</Badge>;
     return (
       <span className="inline-flex items-center gap-2">
-        <span className="font-semibold text-destructive tabular-nums">0</span>
-        <Badge variant="destructive">{t('outOfStock')}</Badge>
+        {badgeFirst ? badge : numeral}
+        {badgeFirst ? numeral : badge}
       </span>
     );
   }
   if (stock <= minStock) {
+    const numeral = <span className="font-medium text-amber-700 tabular-nums">{stock}</span>;
+    const badge = (
+      <Badge variant="outline" className="border-amber-300 bg-amber-50 text-amber-800">
+        {t('lowStock')}
+      </Badge>
+    );
     return (
       <span className="inline-flex items-center gap-2">
-        <span className="font-medium text-amber-700 tabular-nums">{stock}</span>
-        <Badge variant="outline" className="border-amber-300 bg-amber-50 text-amber-800">
-          {t('lowStock')}
-        </Badge>
+        {badgeFirst ? badge : numeral}
+        {badgeFirst ? numeral : badge}
       </span>
     );
   }
