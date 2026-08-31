@@ -2,6 +2,7 @@ import { useIsFocused } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
   formatKurus,
+  isApiError,
   queryKeys,
   statusLabel,
   unitLabel,
@@ -99,7 +100,12 @@ export function ProductDetailScreen({ navigation, route }: Props) {
     return <LoadingState label={t('restoringSession')} />;
   }
 
-  if (query.isError || !query.data) {
+  // A definitive 404 (product deleted elsewhere) is handled explicitly; a
+  // transient refetch failure with cached data keeps the screen usable and
+  // surfaces the failure through the FreshnessControl instead (directive:
+  // failure keeps previous data, never destroys the working surface).
+  const notFound = query.isError && isApiError(query.error) && query.error.status === 404;
+  if (!query.data || notFound) {
     const failure = describeFailure(query.error, 'productDetail');
     return (
       <ErrorState
