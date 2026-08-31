@@ -29,7 +29,8 @@ export function RootNavigator() {
       screenOptions={{
         headerStyle: { backgroundColor: colors.surface },
         headerTintColor: colors.text,
-        headerTitleStyle: { fontWeight: '600' },
+        headerTitleStyle: { fontWeight: '700', fontSize: 18 },
+        headerShadowVisible: false,
       }}
     >
       {status === 'signedOut' ? (
@@ -64,6 +65,7 @@ function ListHeaderActions() {
         accessibilityRole="button"
         accessibilityLabel={t('language')}
         onPress={() => setLocale(nextLocale)}
+        android_ripple={{ color: colors.ripple }}
         style={({ pressed }) => [styles.chip, pressed && styles.pressed]}
       >
         <Text style={styles.chipText}>{locale.toUpperCase()}</Text>
@@ -71,6 +73,7 @@ function ListHeaderActions() {
       <Pressable
         accessibilityRole="button"
         onPress={() => void logout()}
+        android_ripple={{ color: colors.ripple }}
         style={({ pressed }) => [styles.chip, pressed && styles.pressed]}
       >
         <Text style={styles.chipText}>{t('logout')}</Text>
@@ -82,13 +85,12 @@ function ListHeaderActions() {
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   chip: {
-    borderWidth: 1,
-    borderColor: colors.borderStrong,
-    borderRadius: radius.sm,
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    backgroundColor: colors.surface,
+    borderRadius: radius.pill,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    backgroundColor: colors.surfaceMuted,
+    overflow: 'hidden',
   },
   chipText: { fontSize: 13, fontWeight: '600', color: colors.textSecondary },
-  pressed: { opacity: 0.6 },
+  pressed: { backgroundColor: colors.surfacePressed },
 });

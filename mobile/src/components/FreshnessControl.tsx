@@ -75,6 +75,7 @@ export function FreshnessControl({
         accessibilityLabel={t('refreshDataLabel')}
         onPress={onRefresh}
         disabled={refreshDisabled}
+        android_ripple={refreshDisabled ? undefined : { color: colors.ripple }}
         style={({ pressed }) => [
           styles.button,
           pressed && styles.buttonPressed,
@@ -105,12 +106,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    borderRadius: radius.md,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
+    borderRadius: radius.pill,
+    paddingVertical: 5,
+    paddingHorizontal: 12,
+    backgroundColor: colors.surfaceMuted,
+    overflow: 'hidden',
   },
-  buttonPressed: { backgroundColor: colors.border },
+  buttonPressed: { backgroundColor: colors.surfacePressed },
   buttonDisabled: { opacity: 0.4 },
-  buttonGlyph: { fontSize: 14, color: colors.textSecondary },
+  buttonGlyph: { fontSize: 13, color: colors.textSecondary },
   buttonText: { fontSize: 12, fontWeight: '600', color: colors.textSecondary },
 });
