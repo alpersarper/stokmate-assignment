@@ -1,6 +1,6 @@
 # StokMate API Contract
 
-Authoritative record of **verified** backend behavior (`api/StokMate`, .NET 8, EF Core InMemory, fixed port `5080`, HTTP only, CORS `*`). Produced from the reviewed API discovery findings (runtime curl battery + full source read, 2026-08-28) and from runtime verification of the one approved backend addition (§3).
+Authoritative record of **verified** backend behavior (`api/StokMate`, .NET 8, EF Core InMemory, fixed port `5080`, HTTP only, CORS `*`). Produced from the reviewed API discovery findings (runtime curl battery + full source read, 2026-08-28) and subsequent runtime verification of the three intentional additions: product detail (§3), the Discontinued-stock rule (§8), and product-read rate limiting (§2a).
 
 **Evidence levels used below**
 
@@ -16,9 +16,10 @@ Everything is [runtime] unless marked otherwise. This document contains no specu
 
 | Part | Provenance |
 | --- | --- |
-| §2, §4–§11 | Original provided backend, verified by discovery |
+| §2, §4–§7, §9–§11 | Original provided backend, verified by discovery |
 | §3 | **Assignment-motivated minimal addition** `GET /products/{id}` (approved decision D1 Option A), runtime-verified after implementation |
 | §2a | **Assignment-motivated minimal addition** — rate limiting on product reads (data-freshness directive; `docs/DECISIONS.md` §13), runtime-verified after implementation |
+| §8 Discontinued rule | **Review-stabilization addition** — stock PATCH rejects status `3` with `409`; the rest of §8 is original behavior |
 | §12 | Source-only-verified items and remaining uncertainties |
 
 ---
@@ -47,6 +48,7 @@ All endpoints require `Authorization: Bearer <accessToken>` except login and ref
 > **Not part of the original provided backend.** Added 2026-08-31 for the data-freshness/manual-refresh feature (decision record: `docs/DECISIONS.md` §13). Client-side refresh protections are not a security boundary; the API independently limits unusually frequent refresh-shaped requests.
 
 - **Scope:** `GET /products`, `GET /products/{id}`, `GET /products/stats` only. Auth, lookups, and all write endpoints are unlimited.
+- **Policy:** named policy `product-reads`; fixed-window limiter, process-local.
 - **Limit:** fixed window, **60 requests per 10 seconds**, partitioned by `Authorization` header value (per access token; falls back to client IP when the header is absent). No queueing.
 - **Over limit:** `429 text/plain; charset=utf-8` `Çok fazla istek gönderildi. Lütfen kısa bir süre sonra tekrar deneyin.` with a `Retry-After: <seconds>` header. The window resets normally afterwards.
 - **Deliberately generous:** legitimate client behavior (15 s list polling, 10 s detail polling, cooldown-gated manual refreshes, pagination bursts) stays far below the limit. Runtime-verified 2026-08-31: 30 sequential reads at 2 req/s → all `200`; a tight loop of 100 requests → exactly the first 60 `200`, the rest `429`; a second session's token unaffected while the first is limited (list and detail share the same per-token budget); lookups, `/auth/me`, and `PATCH /products/{id}/stock` still `200` during a limited window; the same token succeeds again after the window passes; unauthenticated requests still receive the usual `401`.

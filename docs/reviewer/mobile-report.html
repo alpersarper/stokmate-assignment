@@ -201,15 +201,13 @@
   <p lang="en">A stock save returns the full updated product — canonical persisted server state. Instead of invalidating and
   refetching every loaded page (which on an infinite list means a request storm), the response is applied directly to
   the caches: the detail entry is patched (preserving detail-only fields) and the matching row is patched inside every
-  cached list dataset. Dataset <em>membership</em> — a product that no longer matches an active filter — is
-  deliberately not corrected in place; that resolves on the next explicit refresh of that dataset, which keeps rows
-  from vanishing under the user's thumb mid-interaction.</p>
+  cached list dataset. No success-path GET follows. This keeps values current, but a dataset sorted by stock or
+  updated time is not re-sorted or re-paged locally; its order can remain stale until an explicit refresh.</p>
   <p lang="tr">Stok kaydı, güncellenen ürünün tamamını döndürür — kalıcılaşmış, kanonik sunucu durumu. Yüklü her sayfayı
   geçersizleştirip yeniden çekmek yerine (sonsuz bir listede bu istek fırtınası demek), yanıt doğrudan cache'lere
   uygulanır: detay kaydı yamalanır (yalnızca detayda bulunan alanlar korunarak) ve eşleşen satır, cache'teki her liste
-  veri kümesinde yamalanır. Veri kümesi <em>üyeliği</em> — aktif bir filtreye artık uymayan bir ürün — bilinçli olarak
-  yerinde düzeltilmez; bu, o veri kümesinin bir sonraki açık yenilemesinde çözülür ve satırların etkileşimin ortasında
-  kullanıcının parmağının altından kaybolmasını engeller.</p>
+  veri kümesinde yamalanır. Başarı yolunda ardından GET gelmez. Bu, değerleri güncel tutar; ancak stoğa veya güncelleme
+  zamanına göre sıralanan veri kümesi yerelde yeniden sıralanıp sayfalanmaz ve açık bir yenilemeye kadar sırası bayat kalabilir.</p>
 </section>
 
 <section>
@@ -219,7 +217,7 @@
     <li><strong>Discovery-oriented rows</strong> — image, name, brand, price, and a stat rail carrying the stock state (with "Low stock"/"Out of stock" text labels, not colour alone).</li>
     <li><strong>Search</strong> — 300 ms debounce, trimmed, server-side (<code>q</code>); the same substring match the web admin uses.</li>
     <li><strong>Filters &amp; sort</strong> — bottom sheets for status/category/brand and an 8-option sort menu, all mapped to the API's own parameters; lookup lists load lazily the first time the filter sheet opens. Active filter chips carry their own labels, so they never depend on the lookup cache.</li>
-    <li><strong>Pagination</strong> — infinite scroll armed by a genuine user gesture: one <code>fetchNextPage</code> per drag/fling, so momentum can't chain-load pages; failures pause pagination behind an explicit footer Retry; the backend-reported total decides when the list ends ("You've reached the end").</li>
+    <li><strong>Pagination</strong> — infinite scroll uses gesture, end-of-data, in-flight, placeholder, and retry guards; however, drag-start and momentum-start both re-arm the same ref. Senior-review proxy evidence reproduced two page requests 441 ms apart without a deliberate second fling. The intended one-fling/one-page guarantee is therefore <strong>not currently met</strong>. The backend-reported total still decides when the list ends ("You've reached the end").</li>
     <li><strong>Result count</strong> comes from the backend's <code>total</code> for the filtered dataset — never the number of loaded rows.</li>
     <li><strong>Refresh</strong> — pull-to-refresh and the explicit Refresh action share one protected pipeline; the freshness indicator shows the age of the visible data.</li>
     <li><strong>States</strong> — skeleton rows on first load, previous results retained while a new dataset loads, dedicated empty/zero-result and error+retry states.</li>
@@ -228,7 +226,7 @@
     <li><strong>Keşfe dönük satırlar</strong> — görsel, ad, marka, fiyat ve stok durumunu taşıyan bir bilgi şeridi ("Düşük stok"/"Stokta yok" metin etiketleriyle, yalnızca renkle değil).</li>
     <li><strong>Arama</strong> — 300 ms debounce, kırpılmış, sunucu tarafında (<code>q</code>); web yönetim panelindeki alt dize eşleşmesinin aynısı.</li>
     <li><strong>Filtreler ve sıralama</strong> — durum/kategori/marka için alt sheet'ler ve 8 seçenekli bir sıralama menüsü; hepsi API'nin kendi parametrelerine eşlenir. Lookup listeleri, filtre sheet'i ilk açıldığında tembel yüklenir. Aktif filtre çipleri kendi etiketlerini taşır, bu yüzden lookup cache'ine hiç bağlı değiller.</li>
-    <li><strong>Sayfalama</strong> — gerçek bir kullanıcı hareketiyle tetiklenen sonsuz kaydırma: her sürükleme/savurma başına tek bir <code>fetchNextPage</code>, böylece atalet zincirleme sayfa yükleyemez; hata olduğunda sayfalama durur ve altta açık bir Tekrar dene beklenir; listenin nerede bittiğine backend'in bildirdiği toplam karar verir ("Sona ulaştınız").</li>
+    <li><strong>Sayfalama</strong> — sonsuz kaydırma; hareket, veri sonu, uçuştaki istek, placeholder ve retry korumalarını kullanır; ancak sürükleme başlangıcı ile momentum başlangıcı aynı ref'i yeniden tetikler. Kıdemli incelemenin proxy kanıtı, bilinçli ikinci bir savurma olmadan 441 ms arayla iki sayfa isteğini yeniden üretti. Amaçlanan tek-savurma/tek-sayfa garantisi bu nedenle <strong>şu anda sağlanmıyor</strong>. Listenin nerede bittiğine yine backend'in bildirdiği toplam karar verir ("Sona ulaştınız").</li>
     <li><strong>Sonuç sayısı</strong>, filtrelenmiş veri kümesi için backend'in verdiği <code>total</code> değerinden gelir — asla yüklenmiş satır sayısından değil.</li>
     <li><strong>Yenileme</strong> — pull-to-refresh ile açık Yenile eylemi tek bir korumalı hattı paylaşır; tazelik göstergesi görünen verinin yaşını gösterir.</li>
     <li><strong>Durumlar</strong> — ilk yüklemede iskelet satırlar, yeni veri kümesi yüklenirken önceki sonuçların korunması, boş/sonuç yok ve hata+tekrar dene için ayrı durumlar.</li>
@@ -238,12 +236,20 @@
 <section>
   <h2 lang="en">Product detail &amp; the stock workflow</h2>
   <h2 lang="tr">Ürün detayı ve stok akışı</h2>
-  <p lang="en">The detail screen leads with a hero card (image, name, brand, price, status) and puts current stock immediately
-  beside the editor — the one raised surface on the screen. Supporting information (SKU, barcode, category, supplier
-  description, min-stock) sits below, deliberately secondary.</p>
-  <p lang="tr">Detay ekranı bir hero kartıyla başlar (görsel, ad, marka, fiyat, durum) ve mevcut stoğu doğrudan editörün
-  yanına koyar — ekrandaki tek yükseltilmiş yüzey. Destekleyici bilgiler (SKU, barkod, kategori, tedarikçi açıklaması,
-  min. stok) bilinçli olarak ikincil kalacak şekilde altta durur.</p>
+  <p lang="en">The detail screen leads with a hero card (image, name, price, status) and puts current stock immediately
+  beside the editor — the one raised surface on the screen. The information section contains SKU, barcode, category,
+  brand, unit, status, last-updated time, and the product description.</p>
+  <p lang="tr">Detay ekranı bir hero kartıyla başlar (görsel, ad, fiyat, durum) ve mevcut stoğu doğrudan editörün
+  yanına koyar — ekrandaki tek yükseltilmiş yüzey. Bilgi bölümünde SKU, barkod, kategori, marka, birim, durum,
+  son güncelleme zamanı ve ürün açıklaması bulunur.</p>
+  <p lang="en">Only the current product detail is polled: approximately every 10 s, anchored to the last request settle,
+  while this screen is focused and the app is active. Backgrounding or leaving the screen stops the timer;
+  foreground/refocus triggers targeted detail revalidation. Incoming data follows the server when the stock draft is
+  clean and shows a “changed elsewhere” notice without overwriting a dirty draft.</p>
+  <p lang="tr">Yalnızca açık ürün detayı poll edilir: bu ekran odaktayken ve uygulama aktifken, son isteğin tamamlanmasına
+  sabitlenmiş biçimde yaklaşık her 10 sn. Arka plana geçmek veya ekrandan ayrılmak zamanlayıcıyı durdurur;
+  ön plana/odağa dönüş yalnızca bu detayı yeniden doğrular. Gelen veri stok taslağı temizse sunucuyu izler, kirliyse
+  taslağı ezmeden “başka yerde değişti” uyarısını gösterir.</p>
   <figure class="diagram">
     <svg viewBox="0 0 900 300" role="img" aria-label="Stock editor lifecycle: local string draft, normalization, save through PATCH, success patches caches, 409 conflict refetches detail and locks the editor">
       <g font-family="-apple-system,Segoe UI,Roboto,sans-serif" font-size="12.5">
@@ -390,6 +396,8 @@
     <li><strong>Fixed API target in the APK</strong> — by design (configuration over UI surface); retargeting is a documented rebuild.</li>
     <li><strong>Debug-keystore signing</strong> — assignment-grade, not a store-ready signature.</li>
     <li><strong>Last-write-wins</strong> for stock, except the Discontinued rule; the app surfaces "changed elsewhere" rather than pretending to prevent it.</li>
+    <li><strong>Pagination HIGH</strong> — one physical gesture can currently request more than one page because drag and momentum both arm the guard; approval is held pending a product-code fix or explicit acceptance.</li>
+    <li><strong>Stock-sort cache order</strong> — a successful save patches values without refetching, so stock/updated-time sorted lists can remain out of order until refresh.</li>
     <li><strong>Product images require internet</strong> (the seed data points at a public placeholder service); failures degrade gracefully so they don't read as app failures.</li>
     <li><strong>Android-verified only</strong> — the assignment asks for an Android APK; iOS is unbuilt though the code paths exist.</li>
   </ul>
@@ -398,6 +406,8 @@
     <li><strong>APK içinde sabit API hedefi</strong> — tasarım gereği (arayüz yerine konfigürasyon); hedefi değiştirmek belgelenmiş bir yeniden build.</li>
     <li><strong>Debug keystore ile imzalama</strong> — ödev düzeyinde, mağazaya hazır bir imza değil.</li>
     <li>Stokta <strong>son yazan kazanır</strong>, Discontinued kuralı hariç; uygulama bunu engelliyormuş gibi yapmak yerine "başka yerde değişti" uyarısını gösterir.</li>
+    <li><strong>YÜKSEK sayfalama hatası</strong> — sürükleme ve momentum aynı korumayı tetiklediği için tek bir fiziksel hareket şu anda birden fazla sayfa isteyebilir; ürün kodu düzeltilene veya açıkça kabul edilene kadar onay beklemede.</li>
+    <li><strong>Stok sıralı cache düzeni</strong> — başarılı kayıt değerleri refetch yapmadan yamalar; bu nedenle stok/güncelleme zamanı sıralı listeler yenilemeye kadar yanlış sırada kalabilir.</li>
     <li><strong>Ürün görselleri internet gerektirir</strong> (seed verisi herkese açık bir placeholder servisini gösteriyor); hatalar zarifçe karşılanır, böylece uygulama hatası gibi okunmaz.</li>
     <li><strong>Yalnızca Android'de doğrulandı</strong> — ödev bir Android APK istiyor; kod yolları var olsa da iOS derlenmedi.</li>
   </ul>

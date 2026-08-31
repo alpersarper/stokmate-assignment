@@ -177,8 +177,7 @@ The stock input must feel stable and responsive.
 
 After success:
 
-- refetch persisted stock
-- display the persisted value
+- apply and display the server-confirmed stock returned by the backend
 - show success feedback
 
 After failure:
@@ -375,4 +374,3 @@ Prices are always TRY and use ₺ formatting (locale-aware, e.g. `₺39,50`) in 
 
 - Known, reliably identifiable failures — recognized by status code and request context, not by matching backend message text — are shown as localized client-side messages.
 - Unknown or unrecognized failures use a localized generic error message; the raw server text may appear as secondary detail.
-

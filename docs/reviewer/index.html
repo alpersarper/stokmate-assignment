@@ -146,11 +146,13 @@
       <span class="tag">api/StokMate/ · .NET 8</span>
     </div>
   </div>
-  <p style="font-size:13.5px;color:var(--text-2)" lang="en">Final QA: all required acceptance criteria pass with executed evidence; the submission APK
-  (built from <code>339d00c</code>) passed a 12-point standalone verification matrix — see
+  <p style="font-size:13.5px;color:var(--text-2)" lang="en">The submission APK (built from <code>339d00c</code>) passed its recorded
+  12-point standalone matrix. A later senior review reproduced a <strong>HIGH mobile pagination defect</strong>: one physical gesture can
+  request multiple pages. Approval is held until it is fixed or explicitly accepted — see
   <a href="https://github.com/alpersarper/stokmate-assignment/blob/main/docs/IMPLEMENTATION_REPORT.md">docs/IMPLEMENTATION_REPORT.md</a>.</p>
-  <p style="font-size:13.5px;color:var(--text-2)" lang="tr">Son QA: zorunlu kabul ölçütlerinin tamamı yürütülmüş kanıtlarla geçti; teslim APK'sı
-  (<code>339d00c</code> üzerinden derlendi) 12 maddelik bağımsız doğrulama matrisini geçti — bkz.
+  <p style="font-size:13.5px;color:var(--text-2)" lang="tr">Teslim APK'sı (<code>339d00c</code> üzerinden derlendi) kayıtlı 12 maddelik
+  bağımsız matrisini geçti. Daha sonraki kıdemli inceleme <strong>YÜKSEK önem seviyesinde bir mobil sayfalama hatasını</strong> yeniden üretti:
+  tek bir fiziksel hareket birden fazla sayfa isteyebiliyor. Düzeltilene veya açıkça kabul edilene kadar onay beklemede — bkz.
   <a href="https://github.com/alpersarper/stokmate-assignment/blob/main/docs/IMPLEMENTATION_REPORT.md">docs/IMPLEMENTATION_REPORT.md</a>.</p>
 </section>
 
@@ -173,7 +175,7 @@
         <text x="250" y="117" font-size="11.5" fill="#57534e">server state per query key</text>
         <rect x="50" y="138" width="170" height="46" rx="6" fill="#f5f5f4" stroke="#e7e5e4"/>
         <text x="60" y="157" font-size="12.5" font-weight="600" fill="#44403c">react-hook-form</text>
-        <text x="60" y="173" font-size="11.5" fill="#57534e">edit-form draft + dirty state</text>
+        <text x="60" y="173" font-size="11.5" fill="#57534e">field registration + validation</text>
         <rect x="240" y="138" width="170" height="46" rx="6" fill="#f5f5f4" stroke="#e7e5e4"/>
         <text x="250" y="157" font-size="12.5" font-weight="600" fill="#44403c">Web storage adapter</text>
         <text x="250" y="173" font-size="11.5" fill="#57534e">tokens: local/sessionStorage</text>
@@ -235,8 +237,8 @@
   <h2 lang="en">What this delivery optimized for</h2>
   <h2 lang="tr">Bu teslimde neye öncelik verildi</h2>
   <div class="cards">
-    <div class="card" lang="en"><h3>Assignment completeness</h3><p>Every required feature plus all three optional bonuses, verified against written acceptance criteria — never features for their own sake.</p></div>
-    <div class="card" lang="tr"><h3>Ödev bütünlüğü</h3><p>Zorunlu özelliklerin tamamı ve üç opsiyonel bonusun hepsi, yazılı kabul ölçütlerine göre doğrulandı — özellik olsun diye özellik eklenmedi.</p></div>
+    <div class="card" lang="en"><h3>Assignment completeness</h3><p>The required vertical slices and optional refresh work are implemented; current verification evidence, including the open pagination defect, is reported without converting historical passes into guarantees.</p></div>
+    <div class="card" lang="tr"><h3>Ödev bütünlüğü</h3><p>Zorunlu dikey akışlar ve opsiyonel yenileme işi uygulandı; açık sayfalama hatası dâhil güncel doğrulama kanıtı, geçmiş geçişler garantiye çevrilmeden raporlanıyor.</p></div>
     <div class="card" lang="en"><h3>API correctness</h3><p>The backend's real behavior was verified at runtime and recorded before client code depended on it; clients never invent API behavior.</p></div>
     <div class="card" lang="tr"><h3>API doğruluğu</h3><p>Backend'in gerçek davranışı, istemci kodu ona bağımlı hâle gelmeden önce çalışır hâlde doğrulanıp kayda geçirildi; istemciler API davranışı uydurmaz.</p></div>
     <div class="card" lang="en"><h3>Admin / customer separation</h3><p>The web admin is dense and operational; the mobile app is a productized customer surface. Deliberately different designs over one shared data language.</p></div>
@@ -256,14 +258,14 @@
   <ul class="tight" lang="en">
     <li><strong>Single-flight token refresh with a session-epoch guard</strong> — strict refresh-token rotation makes concurrent refreshes fatal; the shared client makes them structurally impossible, and stale in-flight requests can neither resurrect a logged-out session nor tear down a new one (<code>shared/src/api/client.ts</code>).</li>
     <li><strong>A proven data-loss trap, closed at the source</strong> — the provided PUT is a full replace requiring fields no read endpoint returned; discovery proved any legal client PUT silently corrupted data, and the minimal <code>GET /products/{id}</code> addition makes edits losslessly round-trippable.</li>
-    <li><strong>Coordinated freshness pipeline</strong> — manual refresh, pull-to-refresh, focus revalidation, mutation invalidation, and background polls all converge on one query fetch; polls re-anchor to the last fetch settle so triggers never stack, with backend rate limiting as the independent boundary.</li>
+    <li><strong>Coordinated freshness pipeline</strong> — the visible web list polls its current query about every 15 s; the focused, foreground mobile detail polls only its current product about every 10 s. Manual/lifecycle reads join the same per-key pipeline; mobile stock success patches caches without a follow-up GET. Polls re-anchor to the last fetch settle, with backend rate limiting as the independent boundary.</li>
     <li><strong>Server-enforced domain rule for stale clients</strong> — a stock update on a Discontinued product is rejected with <code>409</code> by the backend, so a device that opened the product while it was Active cannot book stock onto it after head office discontinues it.</li>
     <li><strong>Evidence-based QA</strong> — the delivered APK itself (not a dev build) passed a 12-point standalone matrix with independent <code>curl</code> read-backs; "done" claims required executed evidence throughout.</li>
   </ul>
   <ul class="tight" lang="tr">
     <li><strong>Session-epoch korumalı single-flight token yenileme</strong> — katı refresh token rotasyonu eşzamanlı yenilemeleri ölümcül kılıyor; paylaşılan client bunu yapısal olarak imkânsız hâle getiriyor ve uçuştaki bayat istekler ne kapanmış bir oturumu diriltebiliyor ne de yeni bir oturumu düşürebiliyor (<code>shared/src/api/client.ts</code>).</li>
     <li><strong>Kanıtlanmış bir veri kaybı tuzağı, kaynağında kapatıldı</strong> — verilen PUT, hiçbir okuma endpoint'inin döndürmediği alanları zorunlu kılan tam bir değiştirme işlemi; keşif aşaması, kurallara uygun her istemci PUT'unun veriyi sessizce bozduğunu kanıtladı ve minimal <code>GET /products/{id}</code> eklemesi düzenlemeleri kayıpsız gidip gelebilir hâle getirdi.</li>
-    <li><strong>Koordineli tazelik hattı</strong> — manuel yenileme, pull-to-refresh, odaklanmada yeniden doğrulama, mutation invalidasyonu ve arka plan polling'i tek bir query fetch'inde birleşiyor; polling son fetch'in tamamlanmasına yeniden bağlandığı için tetikleyiciler üst üste binmiyor, backend rate limiting ise bağımsız sınır olarak duruyor.</li>
+    <li><strong>Koordineli tazelik hattı</strong> — görünür web listesi açık query'sini yaklaşık her 15 sn, odaktaki ve ön plandaki mobil detay yalnızca açık ürünü yaklaşık her 10 sn poll eder. Manuel/yaşam döngüsü okumaları aynı key hattına katılır; mobil stok başarısı ardından GET yapmadan cache'leri yamalar. Polling son fetch'in tamamlanmasına yeniden bağlanır, backend rate limiting ise bağımsız sınırdır.</li>
     <li><strong>Bayat istemciler için sunucuda zorlanan iş kuralı</strong> — Discontinued bir ürüne yapılan stok güncellemesi backend tarafından <code>409</code> ile reddediliyor; böylece ürünü Active durumdayken açmış bir cihaz, genel müdürlük ürünü durdurduktan sonra ona stok işleyemiyor.</li>
     <li><strong>Kanıta dayalı QA</strong> — teslim edilen APK'nın kendisi (dev build değil) bağımsız <code>curl</code> okumalarıyla 12 maddelik bağımsız matrisi geçti; süreç boyunca "tamamlandı" iddiaları yürütülmüş kanıt gerektirdi.</li>
   </ul>

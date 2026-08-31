@@ -127,7 +127,7 @@ Full rationale with alternatives and trade-offs: [Engineering decisions](https:/
 ### Environment and API facts
 
 - **In-memory backend**: restarts wipe data and all sessions; clients recover to login when refresh fails.
-- **Last-write-wins**: the API has no concurrency mechanism (verified); mitigated at UX level only (fresh-read edits, refetch after writes). The Discontinued-stock 409 is a domain rule, not a version check.
+- **Last-write-wins**: the API has no concurrency mechanism (verified); mitigated at UX level only (fresh-read edits, canonical mutation responses, targeted refresh). The Discontinued-stock 409 is a domain rule, not a version check.
 - **Single-value filters** (one category, one brand) — the API has no multi-select.
 - **Search/sort collation is server-defined** (Turkish dotted/dotless-I behavior follows the backend host's locale); input is passed through untouched.
 - **TRY (₺)** per the provided domain documentation; rendered explicitly with integer-kuruş math.
@@ -140,20 +140,21 @@ These are deliberate choices where the assignment left behavior open; [`docs/DEC
 - **Operational status boundary**: Discontinued is terminal for stock (`409` plus a mobile lock) to protect stale store clients; Passive stays mutable, and Discontinued stays listable and otherwise editable because visibility and status administration were deliberately not restricted.
 - **Audience-specific defaults**: mobile opens on Active products for store staff while web opens on All statuses for head-office oversight; both surfaces still expose every status choice.
 - **Lossless detail read**: only `GET /products/{id}` was added because the full-replace PUT required fields no read returned; values were not guessed, the list DTO was not widened, and PUT semantics were not changed.
-- **Independent read-rate limit**: the server caps product reads because client cooldowns are not a security boundary; legitimate refresh/polling and all writes remain unaffected.
+- **Independent read-rate limit**: the three product GETs share a 60-request/10-second budget per authorization value (IP fallback); auth, lookups, and writes are excluded, so legitimate refresh/polling remains unaffected.
 - **Verified low-stock semantics**: emphasis follows the API's `minStock` signal so the same domain rule appears on both clients; no client-only threshold was invented.
 - **Freshness without realtime**: coordinated polling/refetch makes cross-client changes visible within a reasonable time while preserving one data path; no WebSocket/SSE or second synchronization system was added.
 
 ## Main libraries
 
-- **Web**: Vite + React + TypeScript (strict) — SPA toolchain; React Router — routes + URL list state; TanStack Query v5 — server state; react-hook-form — edit-form dirty/validity tracking; Tailwind CSS v4 + shadcn/ui — vendored UI primitives; sonner — queued toasts.
+- **Web**: Vite + React + TypeScript (strict) — SPA toolchain; React Router — routes + URL list state; TanStack Query v5 — server state; react-hook-form — field registration and validation; Tailwind CSS v4 + shadcn/ui — vendored UI primitives; sonner — queued toasts.
 - **Mobile**: Expo (managed) + React Native + TypeScript; React Navigation (native stack); TanStack Query v5; expo-secure-store — token persistence; expo-build-properties — cleartext HTTP flag; expo-dev-client — dev-build tooling (inert in release, verified).
-- **Backend**: the provided .NET 8 + EF Core InMemory stack (unchanged); `System.Threading.RateLimiting` for the read rate-limit.
+- **Backend**: the provided .NET 8 + EF Core InMemory base; three narrow additions documented above, including `System.Threading.RateLimiting` for product reads.
 - **Shared/testing**: Vitest — unit + live-contract tests; ESLint v9 + Prettier.
 
 ## Notes
 
 - No realtime channel (WebSocket/SSE) — cross-client consistency is polling + coordinated refresh by design; see the freshness sections of the reports.
+- **Open senior-review finding**: one mobile drag/fling can currently request multiple pages because drag and momentum both arm pagination; approval is held pending a product-code fix or explicit acceptance. Stock-sorted cached rows also update their value without reordering until refresh. See `docs/IMPLEMENTATION_REPORT.md`.
 - The delivered APK's API target is fixed at build time; other targets require the documented rebuild.
 - Assignment-focused infrastructure: no CI pipeline or E2E framework — verification is scripted checks plus the QA process recorded in `docs/IMPLEMENTATION_REPORT.md`.
 - Verification commands: `npm run typecheck`, `npm run lint`, `npm run test` (offline unit), `npm run test:live --workspace shared` (against the running backend), `npm run build:web`.
