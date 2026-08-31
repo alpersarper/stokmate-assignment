@@ -49,7 +49,22 @@ don't fork their logic into screens.
 
 ## States
 
-- Initial loads: `skeleton` components mirroring the final layout.
+- Initial loads: `skeleton` components mirroring the final layout. The
+  product-list skeleton is a real table with the actual localized column
+  headers (headers don't depend on data) and column-proportioned cells.
 - Refetches: keep data visible + lightweight indicator; no layout jumps.
 - Empty vs no-matches vs error are distinct, each with a recovery action
   (clear filters / retry).
+
+## Conventions added by the 2026-08-31 polish pass
+
+- **Numeral rail in tables:** numeric cells keep every row's numeral on the
+  same right-aligned rail. `StockIndicator` takes `align="right"` in table
+  cells, which renders the label badge *before* the numeral; the default
+  (numeral first) is for left-aligned contexts like the detail view.
+- **Table-row keyboard focus:** rows use the muted tint *plus* an inset ring
+  (`focus-visible:ring-2 ring-ring/70 ring-inset`) so keyboard focus never
+  reads as hover.
+- **Destructive dialog actions:** a data-losing confirm action (e.g. Discard
+  changes) uses the `destructive` button variant; the safe action stays the
+  quiet default. Never give a destructive action the primary emphasis.
