@@ -18,6 +18,7 @@ export const colors = {
   warningBorder: '#fde68a',
   success: '#15803d',
   successSurface: '#f0fdf4',
+  successBorder: '#bbf7d0',
   disabledSurface: '#e5e5e5',
   disabledText: '#a3a3a3',
   skeleton: '#e7e5e4',

@@ -19,6 +19,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { apiClient } from '../api/client';
 import { FreshnessControl } from '../components/FreshnessControl';
 import { EmptyState, ErrorState, LoadingState } from '../components/ui';
@@ -53,6 +54,8 @@ const SEARCH_DEBOUNCE_MS = 300;
  */
 export function ProductListScreen({ navigation }: Props) {
   const { t, locale } = useI18n();
+  // Edge-to-edge Android: scrolled content must clear the system nav bar.
+  const insets = useSafeAreaInsets();
 
   const [searchInput, setSearchInput] = useState('');
   const [search, setSearch] = useState('');
@@ -200,7 +203,11 @@ export function ProductListScreen({ navigation }: Props) {
             onPress={() => navigation.navigate('ProductDetail', { id: item.id })}
           />
         )}
-        contentContainerStyle={products.length === 0 ? styles.emptyListContent : styles.listContent}
+        contentContainerStyle={
+          products.length === 0
+            ? styles.emptyListContent
+            : [styles.listContent, { paddingBottom: 24 + insets.bottom }]
+        }
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
         refreshControl={
@@ -422,6 +429,12 @@ function ProductRow({ product, onPress }: { product: Product; onPress: () => voi
         >
           {t('stockLabel')}: {product.stock}
         </Text>
+        {/* UX-008: the low/zero-stock signal must not rely on color alone. */}
+        {outOfStock ? (
+          <Text style={[styles.rowStockFlag, styles.rowStockOut]}>{t('outOfStockBadge')}</Text>
+        ) : lowStock ? (
+          <Text style={[styles.rowStockFlag, styles.rowStockLow]}>{t('lowStockBadge')}</Text>
+        ) : null}
         <Text style={styles.rowPrice}>{formatKurus(product.price, locale)}</Text>
       </View>
       <Text style={styles.chevron}>›</Text>
@@ -514,6 +527,7 @@ const styles = StyleSheet.create({
   rowStock: { fontSize: 14, fontWeight: '700', color: colors.text },
   rowStockOut: { color: colors.danger },
   rowStockLow: { color: colors.warning },
+  rowStockFlag: { fontSize: 11, fontWeight: '600' },
   rowPrice: { fontSize: 12, color: colors.textMuted },
   chevron: { fontSize: 22, color: colors.borderStrong, paddingHorizontal: 4 },
 

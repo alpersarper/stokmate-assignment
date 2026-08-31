@@ -14,6 +14,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useI18n } from '../i18n';
 import type { MessageKey } from '../i18n/messages';
 import { colors, radius } from '../lib/theme';
@@ -215,11 +216,14 @@ function SheetModal({
   title: string;
   children: ReactNode;
 }) {
+  // Edge-to-edge Android draws behind the system navigation bar; the sheet's
+  // footer controls must clear it (same inset pattern as Snackbar.tsx).
+  const insets = useSafeAreaInsets();
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View style={styles.backdropContainer}>
         <Pressable style={styles.backdrop} onPress={onClose} accessibilityRole="button" />
-        <View style={styles.sheet}>
+        <View style={[styles.sheet, { paddingBottom: 24 + insets.bottom }]}>
           <Text style={styles.sheetTitle}>{title}</Text>
           {children}
         </View>
@@ -284,7 +288,6 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: radius.lg,
     borderTopRightRadius: radius.lg,
     paddingTop: 16,
-    paddingBottom: 24,
     paddingHorizontal: 16,
     maxHeight: '80%',
   },

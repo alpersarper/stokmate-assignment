@@ -12,6 +12,7 @@ import {
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Alert, AppState, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { apiClient } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import { FreshnessControl } from '../components/FreshnessControl';
@@ -144,6 +145,7 @@ function DetailContent({
   onDirtyChange: (dirty: boolean) => void;
 }) {
   const { t } = useI18n();
+  const insets = useSafeAreaInsets();
   const [imageFailed, setImageFailed] = useState(false);
   const outOfStock = product.stock === 0;
   const lowStock = product.stock > 0 && product.stock <= product.minStock;
@@ -154,7 +156,11 @@ function DetailContent({
   }).format(new Date(product.updatedAt));
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={styles.container}
+      // Edge-to-edge Android: the scroll end must clear the system nav bar.
+      contentContainerStyle={[styles.content, { paddingBottom: 32 + insets.bottom }]}
+    >
       <View style={styles.headerCard}>
         {imageFailed ? (
           <View style={[styles.image, styles.imageFallback]}>
@@ -171,7 +177,12 @@ function DetailContent({
           <Text style={styles.name}>{product.name}</Text>
           <Text style={styles.price}>{formatKurus(product.price, locale)}</Text>
           <View style={styles.badgeRow}>
-            <Badge label={statusLabel(product.status, locale)} tone="neutral" />
+            {/* Shared status semantics (DESIGN.md): Active positive, Passive
+                neutral, Discontinued destructive — label carries the meaning. */}
+            <Badge
+              label={statusLabel(product.status, locale)}
+              tone={product.status === 3 ? 'danger' : product.status === 1 ? 'success' : 'neutral'}
+            />
             {outOfStock ? <Badge label={t('outOfStockBadge')} tone="danger" /> : null}
             {lowStock ? <Badge label={t('lowStockBadge')} tone="warning" /> : null}
           </View>
@@ -199,7 +210,13 @@ function DetailContent({
   );
 }
 
-function Badge({ label, tone }: { label: string; tone: 'neutral' | 'danger' | 'warning' }) {
+function Badge({
+  label,
+  tone,
+}: {
+  label: string;
+  tone: 'neutral' | 'danger' | 'warning' | 'success';
+}) {
   return (
     <View style={[styles.badge, badgeTones[tone].box]}>
       <Text style={[styles.badgeText, badgeTones[tone].text]}>{label}</Text>
@@ -230,6 +247,10 @@ const badgeTones = {
   warning: {
     box: { backgroundColor: colors.warningSurface, borderColor: colors.warningBorder },
     text: { color: colors.warning },
+  },
+  success: {
+    box: { backgroundColor: colors.successSurface, borderColor: colors.successBorder },
+    text: { color: colors.success },
   },
 } as const;
 
