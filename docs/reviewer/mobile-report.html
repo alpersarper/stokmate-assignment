@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -44,32 +44,64 @@
   .note{background:var(--accent-soft);border:1px solid #bfdbfe;border-radius:10px;padding:12px 16px;margin:14px 0;font-size:14px}
   .warnbox{background:var(--warn-soft);border:1px solid #fde68a;border-radius:10px;padding:12px 16px;margin:14px 0;font-size:14px}
   footer{margin-top:48px;border-top:1px solid var(--border);padding-top:16px;font-size:13px;color:var(--text-3)}
+  /* --- EN/TR bilingual layer --- */
+  [data-lang="en"] [lang="tr"]{display:none !important}
+  [data-lang="tr"] [lang="en"]{display:none !important}
+  .langswitch{display:inline-flex;align-items:stretch;border:1px solid var(--border-strong,#d6d3d1);
+    border-radius:999px;overflow:hidden;background:var(--surface,#fff);font-size:12px;line-height:1}
+  .langswitch button{appearance:none;background:transparent;border:0;cursor:pointer;padding:7px 13px;
+    font:inherit;font-weight:700;letter-spacing:.06em;color:var(--text-3,#78716c)}
+  .langswitch button + button{border-left:1px solid var(--border,#e7e5e4)}
+  .langswitch button[aria-pressed="true"]{background:var(--accent,#1d4ed8);color:#fff}
+  .langswitch button:focus-visible{outline:2px solid var(--accent,#1d4ed8);outline-offset:2px}
+  .langbar{display:flex;justify-content:flex-end;margin:0 0 14px}
 </style>
 </head>
 <body>
 <div class="wrap">
 
-<a class="back" href="index.html">← Reviewer overview</a>
+<div class="langbar">
+  <div class="langswitch" role="group" aria-label="Language / Dil">
+    <button type="button" data-set-lang="en" aria-pressed="true">EN</button>
+    <button type="button" data-set-lang="tr" aria-pressed="false">TR</button>
+  </div>
+</div>
+
+<a class="back" href="index.html" lang="en">← Reviewer overview</a>
+<a class="back" href="index.html" lang="tr">← Değerlendirici özeti</a>
 <header class="page">
-  <p class="kicker">StokMate · Reviewer report</p>
-  <h1>Mobile architecture</h1>
-  <p class="lede">The store-floor application: a productized, customer-facing app whose primary job is
+  <p class="kicker" lang="en">StokMate · Reviewer report</p>
+  <p class="kicker" lang="tr">StokMate · Değerlendirici raporu</p>
+  <h1 lang="en">Mobile architecture</h1>
+  <h1 lang="tr">Mobil mimari</h1>
+  <p class="lede" lang="en">The store-floor application: a productized, customer-facing app whose primary job is
   <strong>updating stock</strong> quickly and safely. Source: <code>mobile/</code>. Expo (managed) + React Native +
   TypeScript, React Navigation native stack, TanStack Query v5, hand-styled UI. Delivered as a verified
   release APK.</p>
+  <p class="lede" lang="tr">Mağaza sahasının uygulaması: birincil işi <strong>stok güncellemeyi</strong> hızlı ve
+  güvenli yapmak olan, müşteriye dönük ürünleşmiş bir uygulama. Kaynak: <code>mobile/</code>. Expo (managed) +
+  React Native + TypeScript, React Navigation native stack, TanStack Query v5, elle tasarlanmış UI. Doğrulanmış bir
+  release APK olarak teslim edildi.</p>
 </header>
 
 <section>
-  <h2 style="margin-top:0">Product purpose</h2>
-  <p>This is not a shrunken admin panel. Store staff hold a phone one-handed, find a product, and correct its stock —
+  <h2 style="margin-top:0" lang="en">Product purpose</h2>
+  <h2 style="margin-top:0" lang="tr">Ürünün amacı</h2>
+  <p lang="en">This is not a shrunken admin panel. Store staff hold a phone one-handed, find a product, and correct its stock —
   so the app is built around discovery and a single confident write. Products are presented as a browsable catalog
   (image, name, brand, price, stock state), and the detail screen makes the current stock and the editor the
   visual centre of gravity. The web admin's density conventions were deliberately <em>not</em> carried over;
   what is shared is the data language (status semantics, ₺ formatting, low-stock rules), not the styling.</p>
+  <p lang="tr">Bu, küçültülmüş bir yönetim paneli değil. Mağaza personeli telefonu tek eliyle tutar, bir ürünü bulur ve
+  stoğunu düzeltir — bu yüzden uygulama keşif ve tek bir kararlı yazma işlemi etrafında kuruldu. Ürünler göz atılabilir
+  bir katalog olarak sunulur (görsel, ad, marka, fiyat, stok durumu); detay ekranında ise görsel ağırlık merkezi mevcut
+  stok ile editördür. Web yönetim panelinin yoğunluk alışkanlıkları bilinçli olarak <em>taşınmadı</em>; paylaşılan şey
+  stil değil, veri dilidir (durum anlamları, ₺ biçimlendirme, düşük stok kuralları).</p>
 </section>
 
 <section>
-  <h2>Architecture</h2>
+  <h2 lang="en">Architecture</h2>
+  <h2 lang="tr">Mimari</h2>
   <figure class="diagram">
     <svg viewBox="0 0 900 420" role="img" aria-label="Mobile architecture: auth-status-driven navigator renders either Login or the product stack; screens own local UI state and read server state from TanStack Query; the shared API core talks to the backend via EXPO_PUBLIC_API_URL">
       <g font-family="-apple-system,Segoe UI,Roboto,sans-serif">
@@ -113,49 +145,77 @@
         <marker id="arrm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#a8a29e"/></marker>
       </defs>
     </svg>
-    <figcaption>Login and the product screens are never mounted together, so signing out (or session death)
-    <em>is</em> the stack reset — protected content is unreachable through navigation history.</figcaption>
+    <figcaption><span lang="en">Login and the product screens are never mounted together, so signing out (or session death)
+    <em>is</em> the stack reset — protected content is unreachable through navigation history.</span><span lang="tr">Login
+    ekranı ile ürün ekranları hiçbir zaman birlikte mount edilmez; bu yüzden çıkış yapmak (ya da oturumun ölmesi)
+    <em>doğrudan</em> stack'in sıfırlanması demektir — korunan içeriğe gezinme geçmişinden ulaşılamaz.</span></figcaption>
   </figure>
 </section>
 
 <section>
-  <h2>State ownership</h2>
+  <h2 lang="en">State ownership</h2>
+  <h2 lang="tr">State sahipliği</h2>
   <div class="tablewrap">
   <table>
-    <tr><th>State</th><th>Where it lives</th><th>Why there</th></tr>
-    <tr><td><strong>Server data</strong></td><td>TanStack Query cache: one infinite query per dataset identity, one detail entry per product, lazily-fetched lookups</td><td>Same server-state layer as web, same query-key factory — identical cache semantics on both platforms.</td></tr>
-    <tr><td><strong>Dataset identity</strong> (search, category, brand, status, sort, direction)</td><td>Screen state in <code>ProductListScreen</code>, composed into <code>listParams</code> → the query key</td><td>There is no URL on mobile, so the screen owns it; making it the query key means switching filters starts a clean page-1 dataset instead of mutating one.</td></tr>
-    <tr><td><strong>Pagination position</strong></td><td>Inside the infinite query's page progression (<code>getNextPageParam</code>)</td><td>Page number is a property of the loaded dataset, not user intent — it never needs separate state.</td></tr>
-    <tr><td><strong>Session</strong> (<code>{ user, status }</code>)</td><td><code>AuthContext</code>; tokens in <code>expo-secure-store</code> (only when "remember" is chosen, otherwise memory-only)</td><td>The navigator renders from <code>status</code>, so session state drives navigation directly.</td></tr>
-    <tr><td><strong>Navigation</strong></td><td>React Navigation native stack</td><td>Two app screens; a plain stack is less machinery than file-based routing.</td></tr>
-    <tr><td><strong>Stock draft</strong></td><td>Local <strong>string</strong> state inside <code>StockEditor</code></td><td>Text input is a string until the user commits; normalization to a valid non-negative integer happens through the shared utility, so partial input never becomes a bogus number.</td></tr>
-    <tr><td><strong>Freshness metadata</strong></td><td>Derived from the query's <code>dataUpdatedAt</code></td><td>Same rule as web: only a <em>successful</em> fetch moves the indicator.</td></tr>
-    <tr><td><strong>Interaction guards</strong> (scroll-arm ref, sheet visibility, pull state)</td><td>Component refs/state</td><td>Purely local concerns; nothing outside the screen depends on them.</td></tr>
+    <tr lang="en"><th>State</th><th>Where it lives</th><th>Why there</th></tr>
+    <tr lang="tr"><th>State</th><th>Nerede tutulur</th><th>Neden orada</th></tr>
+    <tr lang="en"><td><strong>Server data</strong></td><td>TanStack Query cache: one infinite query per dataset identity, one detail entry per product, lazily-fetched lookups</td><td>Same server-state layer as web, same query-key factory — identical cache semantics on both platforms.</td></tr>
+    <tr lang="tr"><td><strong>Sunucu verisi</strong></td><td>TanStack Query cache: her veri kümesi kimliği için bir infinite query, her ürün için bir detay kaydı, tembel çekilen lookup listeleri</td><td>Web ile aynı server-state katmanı, aynı query key üreticisi — iki platformda da özdeş cache semantiği.</td></tr>
+    <tr lang="en"><td><strong>Dataset identity</strong> (search, category, brand, status, sort, direction)</td><td>Screen state in <code>ProductListScreen</code>, composed into <code>listParams</code> → the query key</td><td>There is no URL on mobile, so the screen owns it; making it the query key means switching filters starts a clean page-1 dataset instead of mutating one.</td></tr>
+    <tr lang="tr"><td><strong>Veri kümesi kimliği</strong> (arama, kategori, marka, durum, sıralama, yön)</td><td><code>ProductListScreen</code> içindeki ekran state'i; <code>listParams</code> olarak birleşip query key'e dönüşür</td><td>Mobilde URL yok, o yüzden sahibi ekran; bunu query key yapmak, filtre değiştirmenin mevcut veri kümesini bozmak yerine temiz bir 1. sayfa veri kümesi başlatması demek.</td></tr>
+    <tr lang="en"><td><strong>Pagination position</strong></td><td>Inside the infinite query's page progression (<code>getNextPageParam</code>)</td><td>Page number is a property of the loaded dataset, not user intent — it never needs separate state.</td></tr>
+    <tr lang="tr"><td><strong>Sayfalama konumu</strong></td><td>Infinite query'nin sayfa ilerleyişinin içinde (<code>getNextPageParam</code>)</td><td>Sayfa numarası kullanıcı niyetinin değil, yüklenmiş veri kümesinin bir özelliği — ayrı bir state'e hiç ihtiyacı yok.</td></tr>
+    <tr lang="en"><td><strong>Session</strong> (<code>{ user, status }</code>)</td><td><code>AuthContext</code>; tokens in <code>expo-secure-store</code> (only when "remember" is chosen, otherwise memory-only)</td><td>The navigator renders from <code>status</code>, so session state drives navigation directly.</td></tr>
+    <tr lang="tr"><td><strong>Oturum</strong> (<code>{ user, status }</code>)</td><td><code>AuthContext</code>; token'lar <code>expo-secure-store</code> içinde (yalnızca "beni hatırla" seçiliyse, aksi hâlde sadece bellekte)</td><td>Navigator <code>status</code> değerine göre render eder; yani oturum state'i doğrudan navigasyonu sürer.</td></tr>
+    <tr lang="en"><td><strong>Navigation</strong></td><td>React Navigation native stack</td><td>Two app screens; a plain stack is less machinery than file-based routing.</td></tr>
+    <tr lang="tr"><td><strong>Navigasyon</strong></td><td>React Navigation native stack</td><td>İki uygulama ekranı; düz bir stack, dosya tabanlı yönlendirmeye göre daha az mekanizma.</td></tr>
+    <tr lang="en"><td><strong>Stock draft</strong></td><td>Local <strong>string</strong> state inside <code>StockEditor</code></td><td>Text input is a string until the user commits; normalization to a valid non-negative integer happens through the shared utility, so partial input never becomes a bogus number.</td></tr>
+    <tr lang="tr"><td><strong>Stok taslağı</strong></td><td><code>StockEditor</code> içinde yerel <strong>string</strong> state'i</td><td>Metin girdisi, kullanıcı onaylayana kadar bir string; geçerli ve negatif olmayan bir tam sayıya normalleştirme paylaşılan yardımcıyla yapılır, böylece yarım girdi asla uyduruk bir sayıya dönüşmez.</td></tr>
+    <tr lang="en"><td><strong>Freshness metadata</strong></td><td>Derived from the query's <code>dataUpdatedAt</code></td><td>Same rule as web: only a <em>successful</em> fetch moves the indicator.</td></tr>
+    <tr lang="tr"><td><strong>Veri tazeliği bilgisi</strong></td><td>Query'nin <code>dataUpdatedAt</code> değerinden türetilir</td><td>Web'dekiyle aynı kural: göstergeyi yalnızca <em>başarılı</em> bir fetch ilerletir.</td></tr>
+    <tr lang="en"><td><strong>Interaction guards</strong> (scroll-arm ref, sheet visibility, pull state)</td><td>Component refs/state</td><td>Purely local concerns; nothing outside the screen depends on them.</td></tr>
+    <tr lang="tr"><td><strong>Etkileşim korumaları</strong> (kaydırma tetikleme ref'i, sheet görünürlüğü, çekme durumu)</td><td>Bileşen ref'leri/state'i</td><td>Tamamen yerel meseleler; ekranın dışında bunlara bağlı hiçbir şey yok.</td></tr>
   </table>
   </div>
 </section>
 
 <section>
-  <h2>Data lifecycle</h2>
-  <h3>Launch → session → first screen</h3>
-  <ol class="flow">
+  <h2 lang="en">Data lifecycle</h2>
+  <h2 lang="tr">Verinin yaşam döngüsü</h2>
+  <h3 lang="en">Launch → session → first screen</h3>
+  <h3 lang="tr">Açılış → oturum → ilk ekran</h3>
+  <ol class="flow" lang="en">
     <li>App starts in <code>status: 'restoring'</code> and reads any persisted token pair from secure storage.</li>
     <li>If a pair exists it is validated with <code>GET /auth/me</code>. Success → <code>signedIn</code>; a dead session (e.g. the in-memory backend restarted) → <code>signedOut</code> silently, with no error spam on a screen the user never saw.</li>
     <li>The list screen mounts and fetches page 1 of the default dataset (Active products, name ascending).</li>
     <li>Scrolling appends pages; changing search/filters/sort creates a new dataset under a new key, with the previous results kept on screen until the new ones arrive.</li>
   </ol>
-  <h3>Mutation → cache</h3>
-  <p>A stock save returns the full updated product — canonical persisted server state. Instead of invalidating and
+  <ol class="flow" lang="tr">
+    <li>Uygulama <code>status: 'restoring'</code> ile açılır ve güvenli depolamadaki token çiftini okur.</li>
+    <li>Çift varsa <code>GET /auth/me</code> ile doğrulanır. Başarılıysa → <code>signedIn</code>; ölü bir oturumda (ör. in-memory backend yeniden başlamıştır) → sessizce <code>signedOut</code>, kullanıcının hiç görmediği bir ekranda hata yığmadan.</li>
+    <li>Liste ekranı mount olur ve varsayılan veri kümesinin 1. sayfasını çeker (Aktif ürünler, ada göre artan).</li>
+    <li>Kaydırma yeni sayfalar ekler; arama/filtre/sıralama değişince yeni bir key altında yeni bir veri kümesi doğar ve yenileri gelene kadar önceki sonuçlar ekranda kalır.</li>
+  </ol>
+  <h3 lang="en">Mutation → cache</h3>
+  <h3 lang="tr">Mutasyon → cache</h3>
+  <p lang="en">A stock save returns the full updated product — canonical persisted server state. Instead of invalidating and
   refetching every loaded page (which on an infinite list means a request storm), the response is applied directly to
   the caches: the detail entry is patched (preserving detail-only fields) and the matching row is patched inside every
   cached list dataset. Dataset <em>membership</em> — a product that no longer matches an active filter — is
   deliberately not corrected in place; that resolves on the next explicit refresh of that dataset, which keeps rows
   from vanishing under the user's thumb mid-interaction.</p>
+  <p lang="tr">Stok kaydı, güncellenen ürünün tamamını döndürür — kalıcılaşmış, kanonik sunucu durumu. Yüklü her sayfayı
+  geçersizleştirip yeniden çekmek yerine (sonsuz bir listede bu istek fırtınası demek), yanıt doğrudan cache'lere
+  uygulanır: detay kaydı yamalanır (yalnızca detayda bulunan alanlar korunarak) ve eşleşen satır, cache'teki her liste
+  veri kümesinde yamalanır. Veri kümesi <em>üyeliği</em> — aktif bir filtreye artık uymayan bir ürün — bilinçli olarak
+  yerinde düzeltilmez; bu, o veri kümesinin bir sonraki açık yenilemesinde çözülür ve satırların etkileşimin ortasında
+  kullanıcının parmağının altından kaybolmasını engeller.</p>
 </section>
 
 <section>
-  <h2>Product list</h2>
-  <ul class="tight">
+  <h2 lang="en">Product list</h2>
+  <h2 lang="tr">Ürün listesi</h2>
+  <ul class="tight" lang="en">
     <li><strong>Discovery-oriented rows</strong> — image, name, brand, price, and a stat rail carrying the stock state (with "Low stock"/"Out of stock" text labels, not colour alone).</li>
     <li><strong>Search</strong> — 300 ms debounce, trimmed, server-side (<code>q</code>); the same substring match the web admin uses.</li>
     <li><strong>Filters &amp; sort</strong> — bottom sheets for status/category/brand and an 8-option sort menu, all mapped to the API's own parameters; lookup lists load lazily the first time the filter sheet opens. Active filter chips carry their own labels, so they never depend on the lookup cache.</li>
@@ -164,13 +224,26 @@
     <li><strong>Refresh</strong> — pull-to-refresh and the explicit Refresh action share one protected pipeline; the freshness indicator shows the age of the visible data.</li>
     <li><strong>States</strong> — skeleton rows on first load, previous results retained while a new dataset loads, dedicated empty/zero-result and error+retry states.</li>
   </ul>
+  <ul class="tight" lang="tr">
+    <li><strong>Keşfe dönük satırlar</strong> — görsel, ad, marka, fiyat ve stok durumunu taşıyan bir bilgi şeridi ("Düşük stok"/"Stokta yok" metin etiketleriyle, yalnızca renkle değil).</li>
+    <li><strong>Arama</strong> — 300 ms debounce, kırpılmış, sunucu tarafında (<code>q</code>); web yönetim panelindeki alt dize eşleşmesinin aynısı.</li>
+    <li><strong>Filtreler ve sıralama</strong> — durum/kategori/marka için alt sheet'ler ve 8 seçenekli bir sıralama menüsü; hepsi API'nin kendi parametrelerine eşlenir. Lookup listeleri, filtre sheet'i ilk açıldığında tembel yüklenir. Aktif filtre çipleri kendi etiketlerini taşır, bu yüzden lookup cache'ine hiç bağlı değiller.</li>
+    <li><strong>Sayfalama</strong> — gerçek bir kullanıcı hareketiyle tetiklenen sonsuz kaydırma: her sürükleme/savurma başına tek bir <code>fetchNextPage</code>, böylece atalet zincirleme sayfa yükleyemez; hata olduğunda sayfalama durur ve altta açık bir Tekrar dene beklenir; listenin nerede bittiğine backend'in bildirdiği toplam karar verir ("Sona ulaştınız").</li>
+    <li><strong>Sonuç sayısı</strong>, filtrelenmiş veri kümesi için backend'in verdiği <code>total</code> değerinden gelir — asla yüklenmiş satır sayısından değil.</li>
+    <li><strong>Yenileme</strong> — pull-to-refresh ile açık Yenile eylemi tek bir korumalı hattı paylaşır; tazelik göstergesi görünen verinin yaşını gösterir.</li>
+    <li><strong>Durumlar</strong> — ilk yüklemede iskelet satırlar, yeni veri kümesi yüklenirken önceki sonuçların korunması, boş/sonuç yok ve hata+tekrar dene için ayrı durumlar.</li>
+  </ul>
 </section>
 
 <section>
-  <h2>Product detail &amp; the stock workflow</h2>
-  <p>The detail screen leads with a hero card (image, name, brand, price, status) and puts current stock immediately
+  <h2 lang="en">Product detail &amp; the stock workflow</h2>
+  <h2 lang="tr">Ürün detayı ve stok akışı</h2>
+  <p lang="en">The detail screen leads with a hero card (image, name, brand, price, status) and puts current stock immediately
   beside the editor — the one raised surface on the screen. Supporting information (SKU, barcode, category, supplier
   description, min-stock) sits below, deliberately secondary.</p>
+  <p lang="tr">Detay ekranı bir hero kartıyla başlar (görsel, ad, marka, fiyat, durum) ve mevcut stoğu doğrudan editörün
+  yanına koyar — ekrandaki tek yükseltilmiş yüzey. Destekleyici bilgiler (SKU, barkod, kategori, tedarikçi açıklaması,
+  min. stok) bilinçli olarak ikincil kalacak şekilde altta durur.</p>
   <figure class="diagram">
     <svg viewBox="0 0 900 300" role="img" aria-label="Stock editor lifecycle: local string draft, normalization, save through PATCH, success patches caches, 409 conflict refetches detail and locks the editor">
       <g font-family="-apple-system,Segoe UI,Roboto,sans-serif" font-size="12.5">
@@ -223,59 +296,96 @@
         <marker id="arrbad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b91c1c"/></marker>
       </defs>
     </svg>
-    <figcaption>The editor's whole contract in one picture: local draft until Save, a typed absolute stock value on the
-    wire, persisted server state back into the caches, and explicit handling for both failure shapes that matter.</figcaption>
+    <figcaption><span lang="en">The editor's whole contract in one picture: local draft until Save, a typed absolute stock value on the
+    wire, persisted server state back into the caches, and explicit handling for both failure shapes that matter.</span><span lang="tr">Editörün
+    tüm sözleşmesi tek bir resimde: Kaydet'e basılana kadar yerel taslak, hatta tipli ve mutlak bir stok değeri,
+    cache'lere geri yazılan kalıcı sunucu durumu ve önemli olan iki hata biçimi için açık bir karşılık.</span></figcaption>
   </figure>
-  <div class="warnbox"><strong>Discontinued products are stock-locked.</strong> The editor disables its controls and shows a
+  <div class="warnbox" lang="en"><strong>Discontinued products are stock-locked.</strong> The editor disables its controls and shows a
   localized notice — but the real protection is server-side: the backend rejects the update with <code>409</code>. A device
   that opened the product while it was Active and saves after head office discontinued it gets a definitive rejection,
   a specific message, and a detail refetch that flips the screen into the locked presentation. See the
   <a href="backend-report.html">backend report</a>.</div>
+  <div class="warnbox" lang="tr"><strong>Discontinued ürünlerde stok kilitlidir.</strong> Editör kontrollerini devre dışı
+  bırakır ve yerelleştirilmiş bir uyarı gösterir — ama asıl koruma sunucu tarafında: backend güncellemeyi
+  <code>409</code> ile reddeder. Ürünü Aktif durumdayken açan ve genel merkez ürünü Discontinued yaptıktan sonra kaydeden
+  bir cihaz kesin bir ret, ona özel bir mesaj ve ekranı kilitli görünüme çeviren bir detay yeniden çekimi alır. Bkz.
+  <a href="backend-report.html">backend raporu</a>.</div>
 </section>
 
 <section>
-  <h2>Networking</h2>
-  <ul class="tight">
+  <h2 lang="en">Networking</h2>
+  <h2 lang="tr">Ağ yapılandırması</h2>
+  <ul class="tight" lang="en">
     <li><strong>One variable</strong>: <code>EXPO_PUBLIC_API_URL</code>. Unset, it resolves to <code>http://10.0.2.2:5080</code> on Android (the emulator's alias for the host machine — Android <code>localhost</code> is the device itself) and <code>http://localhost:5080</code> elsewhere.</li>
     <li><strong>Physical devices and APKs</strong> set it explicitly to the host's LAN address; a hosted deployment would set an HTTPS URL through the same variable with no code change. There is deliberately no in-app server-settings screen.</li>
     <li><strong>Release builds bake the value in</strong> at JS-bundling time, which is why the delivered APK targets the emulator host and retargeting means a rebuild (documented in the README).</li>
     <li><strong>Cleartext HTTP</strong> is enabled via <code>expo-build-properties</code> only because the provided backend is HTTP-only; without it every network call in a release build fails.</li>
     <li>Development uses a native debug build with Metro; <code>expo-dev-client</code> is a dev-build dependency and was verified inert in the release artifact (no dev-launcher activity, zero dev-menu entries). Debugging tooling is not part of the app's architecture.</li>
   </ul>
+  <ul class="tight" lang="tr">
+    <li><strong>Tek bir değişken</strong>: <code>EXPO_PUBLIC_API_URL</code>. Tanımlı değilse Android'de <code>http://10.0.2.2:5080</code> (emulator'ün host makine için kullandığı takma ad — Android'de <code>localhost</code> cihazın kendisidir), diğer ortamlarda <code>http://localhost:5080</code> olur.</li>
+    <li><strong>Fiziksel cihazlar ve APK'lar</strong> bunu host'un LAN adresine açıkça ayarlar; barındırılan bir kurulumda da aynı değişkenle, kod değişikliği olmadan bir HTTPS URL'i verilirdi. Uygulama içinde bilinçli olarak sunucu ayarı ekranı yok.</li>
+    <li><strong>Release build'ler değeri JS paketleme sırasında gömer</strong>; teslim edilen APK'nın emulator host'unu hedeflemesinin ve hedefi değiştirmenin yeniden build gerektirmesinin sebebi bu (README'de belgelendi).</li>
+    <li><strong>Şifresiz HTTP</strong>, yalnızca verilen backend HTTP-only olduğu için <code>expo-build-properties</code> üzerinden açıldı; o olmadan release build'deki her ağ çağrısı başarısız olur.</li>
+    <li>Geliştirmede Metro ile çalışan native bir debug build kullanılır; <code>expo-dev-client</code> bir debug build bağımlılığıdır ve release çıktısında etkisiz kaldığı doğrulandı (dev-launcher activity'si yok, dev-menu girdisi sıfır). Hata ayıklama araçları uygulamanın mimarisinin bir parçası değil.</li>
+  </ul>
 </section>
 
 <section>
-  <h2>Localization</h2>
-  <p>English (default) and Turkish, switchable at runtime and persisted, via a small typed message catalog — the same
+  <h2 lang="en">Localization</h2>
+  <h2 lang="tr">Yerelleştirme</h2>
+  <p lang="en">English (default) and Turkish, switchable at runtime and persisted, via a small typed message catalog — the same
   approach as web. Chrome, states, validation, and status labels are localized; API data (product, brand, category
   names) never is. Backend error prose is never string-matched: failures are identified by status code plus request
   context and mapped to localized messages, with a generic localized fallback otherwise. Prices are always TRY,
   formatted from integer kuruş with locale-aware separators (<code>₺39,50</code> tr / <code>₺39.50</code> en) and an
   explicit ₺ prefix, because Hermes renders the currency code instead of the symbol.</p>
+  <p lang="tr">İngilizce (varsayılan) ve Türkçe; çalışma anında değiştirilebilir ve kalıcıdır, küçük ve tipli bir mesaj
+  kataloğuyla — web'dekiyle aynı yaklaşım. Arayüz metinleri, durumlar, doğrulama ve durum etiketleri yerelleştirilir;
+  API verisi (ürün, marka, kategori adları) asla yerelleştirilmez. Backend'in hata metni hiçbir zaman string olarak
+  eşleştirilmez: hatalar status kodu ve istek bağlamıyla tanınıp yerelleştirilmiş mesajlara eşlenir, kalanlar için genel
+  yerelleştirilmiş bir mesaja düşülür. Fiyatlar her zaman TRY'dir; tam sayı kuruş değerinden, yerele duyarlı
+  ayırıcılarla (<code>₺39,50</code> tr / <code>₺39.50</code> en) ve açık bir ₺ önekiyle biçimlendirilir, çünkü Hermes
+  sembol yerine para birimi kodunu basıyor.</p>
 </section>
 
 <section>
-  <h2>Why Expo (managed)</h2>
-  <p>The assignment leaves Expo vs bare React Native open. Managed Expo keeps native configuration declarative — the
+  <h2 lang="en">Why Expo (managed)</h2>
+  <h2 lang="tr">Neden Expo (managed)</h2>
+  <p lang="en">The assignment leaves Expo vs bare React Native open. Managed Expo keeps native configuration declarative — the
   cleartext-HTTP flag, icons, and build properties are config, not patched Gradle files — while
   <code>expo prebuild</code> produces a full native project on demand, so the APK is built locally with plain Gradle
   and no cloud account or build queue. Rationale, alternatives, and the signing caveat:
   <a href="development-decisions.html">engineering decisions</a>.</p>
+  <p lang="tr">Ödev, Expo ile bare React Native arasındaki seçimi serbest bırakıyor. Managed Expo native yapılandırmayı
+  bildirimsel tutar — şifresiz HTTP bayrağı, ikonlar ve build ayarları yamalanmış Gradle dosyaları değil, birer
+  konfigürasyondur — <code>expo prebuild</code> ise istendiğinde tam bir native proje üretir, böylece APK bulut hesabı
+  veya build kuyruğu olmadan, düz Gradle ile yerelde derlenir. Gerekçe, alternatifler ve imzalama uyarısı:
+  <a href="development-decisions.html">mühendislik kararları</a>.</p>
 </section>
 
 <section>
-  <h2>Mobile UI philosophy</h2>
-  <p>Surface hierarchy instead of outlines: a stone ground, borderless white content cards with faint elevation, filled
+  <h2 lang="en">Mobile UI philosophy</h2>
+  <h2 lang="tr">Mobil UI yaklaşımı</h2>
+  <p lang="en">Surface hierarchy instead of outlines: a stone ground, borderless white content cards with faint elevation, filled
   (not bordered) controls, and exactly one raised surface per screen — the stock editor, because that is the screen's
   job. One brand-ish blue reserved for primary actions; semantic colours (danger/warning/success) carry the same
   meanings as the web admin's and are never repurposed for emphasis. Every stock numeral uses tabular figures.
   Snackbars are queued and bottom-anchored; sheets keep their actions above the gesture nav bar. The full token set and
   conventions are recorded in <code>mobile/DESIGN.md</code>.</p>
+  <p lang="tr">Çerçeve yerine yüzey hiyerarşisi: taş renginde bir zemin, hafif yükseltili çerçevesiz beyaz içerik kartları,
+  çerçeveli değil dolgulu kontroller ve ekran başına tam olarak bir yükseltilmiş yüzey — stok editörü, çünkü ekranın işi
+  o. Birincil eylemlere ayrılmış tek bir marka mavisi; anlamsal renkler (danger/warning/success) web yönetim panelindeki
+  anlamların aynısını taşır ve asla vurgu için başka amaca koşulmaz. Her stok rakamı tabular rakam kullanır.
+  Snackbar'lar sıraya alınır ve alta sabitlenir; sheet'ler eylemlerini hareket çubuğunun üstünde tutar. Token setinin
+  tamamı ve kurallar <code>mobile/DESIGN.md</code> içinde kayıtlı.</p>
 </section>
 
 <section>
-  <h2>Trade-offs and limitations</h2>
-  <ul class="tight">
+  <h2 lang="en">Trade-offs and limitations</h2>
+  <h2 lang="tr">Ödünler ve sınırlar</h2>
+  <ul class="tight" lang="en">
     <li><strong>Hand-styled UI</strong> costs more styling effort than a component kit, accepted to keep the dependency set minimal — the hardest piece (queued snackbars) would have needed custom code anyway.</li>
     <li><strong>Fixed API target in the APK</strong> — by design (configuration over UI surface); retargeting is a documented rebuild.</li>
     <li><strong>Debug-keystore signing</strong> — assignment-grade, not a store-ready signature.</li>
@@ -283,16 +393,58 @@
     <li><strong>Product images require internet</strong> (the seed data points at a public placeholder service); failures degrade gracefully so they don't read as app failures.</li>
     <li><strong>Android-verified only</strong> — the assignment asks for an Android APK; iOS is unbuilt though the code paths exist.</li>
   </ul>
+  <ul class="tight" lang="tr">
+    <li><strong>Elle tasarlanmış UI</strong>, hazır bir bileşen kitine göre daha fazla stil emeği demek; bağımlılıkları en azda tutmak için kabul edildi — en zor parça (sıraya alınan snackbar'lar) zaten özel kod gerektirecekti.</li>
+    <li><strong>APK içinde sabit API hedefi</strong> — tasarım gereği (arayüz yerine konfigürasyon); hedefi değiştirmek belgelenmiş bir yeniden build.</li>
+    <li><strong>Debug keystore ile imzalama</strong> — ödev düzeyinde, mağazaya hazır bir imza değil.</li>
+    <li>Stokta <strong>son yazan kazanır</strong>, Discontinued kuralı hariç; uygulama bunu engelliyormuş gibi yapmak yerine "başka yerde değişti" uyarısını gösterir.</li>
+    <li><strong>Ürün görselleri internet gerektirir</strong> (seed verisi herkese açık bir placeholder servisini gösteriyor); hatalar zarifçe karşılanır, böylece uygulama hatası gibi okunmaz.</li>
+    <li><strong>Yalnızca Android'de doğrulandı</strong> — ödev bir Android APK istiyor; kod yolları var olsa da iOS derlenmedi.</li>
+  </ul>
 </section>
 
-<footer>
+<footer lang="en">
   <a href="index.html">← Reviewer overview</a> · Related:
   <a href="frontend-report.html">Web admin architecture</a> ·
   <a href="backend-report.html">Backend &amp; modifications</a> ·
   <a href="development-decisions.html">Engineering decisions</a> ·
   <a href="agent-workflow-report.html">AI-assisted workflow</a>
 </footer>
+<footer lang="tr">
+  <a href="index.html">← Değerlendirici özeti</a> · İlgili:
+  <a href="frontend-report.html">Web yönetim paneli mimarisi</a> ·
+  <a href="backend-report.html">Backend ve değişiklikler</a> ·
+  <a href="development-decisions.html">Mühendislik kararları</a> ·
+  <a href="agent-workflow-report.html">Yapay zekâ destekli süreç</a>
+</footer>
 
 </div>
+<script>
+(function () {
+  var KEY = 'stokmate-lang', root = document.documentElement, buttons = [];
+  function apply(lang) {
+    lang = lang === 'tr' ? 'tr' : 'en';
+    root.setAttribute('data-lang', lang);
+    root.setAttribute('lang', lang);
+    buttons.forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-set-lang') === lang));
+    });
+    try { localStorage.setItem(KEY, lang); } catch (e) {}
+  }
+  function init() {
+    buttons = Array.prototype.slice.call(document.querySelectorAll('[data-set-lang]'));
+    buttons.forEach(function (b) {
+      b.addEventListener('click', function () { apply(b.getAttribute('data-set-lang')); });
+    });
+    var initial = 'en';
+    try { var s = localStorage.getItem(KEY); if (s === 'tr' || s === 'en') initial = s; } catch (e) {}
+    var q = (location.search.match(/[?&]lang=(tr|en)(?:&|$)/) || [])[1];
+    if (q) initial = q;
+    apply(initial);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
 </body>
 </html>

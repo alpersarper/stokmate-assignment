@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -56,54 +56,107 @@
   .navgrid .t{font-weight:600;color:var(--accent);display:block;margin-bottom:4px}
   .navgrid .d{font-size:13px;color:var(--text-2)}
   footer{margin-top:48px;border-top:1px solid var(--border);padding-top:16px;font-size:13px;color:var(--text-3)}
+  /* --- EN/TR bilingual layer --- */
+  [data-lang="en"] [lang="tr"]{display:none !important}
+  [data-lang="tr"] [lang="en"]{display:none !important}
+  .langswitch{display:inline-flex;align-items:stretch;border:1px solid var(--border-strong,#d6d3d1);
+    border-radius:999px;overflow:hidden;background:var(--surface,#fff);font-size:12px;line-height:1}
+  .langswitch button{appearance:none;background:transparent;border:0;cursor:pointer;padding:7px 13px;
+    font:inherit;font-weight:700;letter-spacing:.06em;color:var(--text-3,#78716c)}
+  .langswitch button + button{border-left:1px solid var(--border,#e7e5e4)}
+  .langswitch button[aria-pressed="true"]{background:var(--accent,#1d4ed8);color:#fff}
+  .langswitch button:focus-visible{outline:2px solid var(--accent,#1d4ed8);outline-offset:2px}
+  .langbar{display:flex;justify-content:flex-end;margin:0 0 14px}
 </style>
 </head>
 <body>
 <div class="wrap">
 
+<div class="langbar">
+  <div class="langswitch" role="group" aria-label="Language / Dil">
+    <button type="button" data-set-lang="en" aria-pressed="true">EN</button>
+    <button type="button" data-set-lang="tr" aria-pressed="false">TR</button>
+  </div>
+</div>
+
 <header class="page">
-  <p class="kicker">StokMate · Take-home delivery · Reviewer overview</p>
-  <h1>One product, two operational surfaces</h1>
-  <p class="lede">A head-office <strong>web admin</strong> and a store-floor <strong>mobile app</strong> built over the provided
+  <p class="kicker" lang="en">StokMate · Take-home delivery · Reviewer overview</p>
+  <p class="kicker" lang="tr">StokMate · Değerlendirme projesi teslimi · Değerlendirici özeti</p>
+  <h1 lang="en">One product, two operational surfaces</h1>
+  <h1 lang="tr">Tek ürün, iki operasyonel yüzey</h1>
+  <p class="lede" lang="en">A head-office <strong>web admin</strong> and a store-floor <strong>mobile app</strong> built over the provided
   StokMate .NET API, sharing a single framework-free TypeScript API/auth core. Delivered as source, a verified Android APK,
   and this documentation set. How to run everything: the repository <a href="https://github.com/alpersarper/stokmate-assignment#readme">README</a>.</p>
+  <p class="lede" lang="tr">Verilen StokMate .NET API'si üzerine kurulan, genel müdürlük için bir <strong>web yönetim paneli</strong> ve
+  mağaza sahası için bir <strong>mobil uygulama</strong>; ikisi de framework içermeyen tek bir TypeScript API/auth çekirdeğini paylaşır.
+  Kaynak kod, doğrulanmış bir Android APK ve bu dokümantasyon seti olarak teslim edildi. Her şeyin nasıl çalıştırılacağı: depo
+  <a href="https://github.com/alpersarper/stokmate-assignment/blob/main/README.tr.md">README</a>'si.</p>
 </header>
 
 <section>
-  <h2 style="margin-top:0">Delivered</h2>
+  <h2 style="margin-top:0" lang="en">Delivered</h2>
+  <h2 style="margin-top:0" lang="tr">Teslim edilenler</h2>
   <div class="cards">
-    <div class="card">
+    <div class="card" lang="en">
       <h3>Web admin</h3>
       <p>Login, dense product table with search / category / brand / status filters, server-side sorting, pagination,
       guarded lossless editing, freshness &amp; refresh.</p>
       <span class="tag">web/ · Vite + React + shadcn/ui</span>
     </div>
-    <div class="card">
+    <div class="card" lang="tr">
+      <h3>Web yönetim paneli</h3>
+      <p>Giriş, arama / kategori / marka / durum filtreli yoğun ürün tablosu, sunucu tarafında sıralama, sayfalama,
+      korumalı ve kayıpsız düzenleme, veri tazeliği ve yenileme.</p>
+      <span class="tag">web/ · Vite + React + shadcn/ui</span>
+    </div>
+    <div class="card" lang="en">
       <h3>Mobile app</h3>
       <p>Customer-facing store app: login, searchable product list with filters and infinite scroll, product detail,
       stock update as the primary workflow. Shipped as a verified release APK.</p>
       <span class="tag">mobile/ · Expo + React Native</span>
     </div>
-    <div class="card">
+    <div class="card" lang="tr">
+      <h3>Mobil uygulama</h3>
+      <p>Müşteriye dönük mağaza uygulaması: giriş, filtreli ve sonsuz kaydırmalı aranabilir ürün listesi, ürün detayı,
+      birincil akış olarak stok güncelleme. Doğrulanmış bir release APK olarak teslim edildi.</p>
+      <span class="tag">mobile/ · Expo + React Native</span>
+    </div>
+    <div class="card" lang="en">
       <h3>Shared core</h3>
       <p>API/domain types, one fetch-based client with single-flight 401&nbsp;→&nbsp;refresh&nbsp;→&nbsp;retry,
       query-key factory, formatting utilities. No framework code.</p>
       <span class="tag">shared/ · TypeScript source</span>
     </div>
-    <div class="card">
+    <div class="card" lang="tr">
+      <h3>Paylaşılan çekirdek</h3>
+      <p>API/domain tipleri, single-flight 401&nbsp;→&nbsp;refresh&nbsp;→&nbsp;retry içeren tek bir fetch tabanlı client,
+      query key üreteci, biçimlendirme yardımcıları. Framework kodu yok.</p>
+      <span class="tag">shared/ · TypeScript source</span>
+    </div>
+    <div class="card" lang="en">
       <h3>Backend</h3>
       <p>The provided .NET 8 in-memory API, verified at runtime and kept intact — plus three minimal, documented
       modifications the assignment required.</p>
       <span class="tag">api/StokMate/ · .NET 8</span>
     </div>
+    <div class="card" lang="tr">
+      <h3>Backend</h3>
+      <p>Verilen .NET 8 in-memory API'si; çalışır hâlde doğrulandı ve olduğu gibi korundu — artı ödevin gerektirdiği
+      üç minimal ve belgelenmiş değişiklik.</p>
+      <span class="tag">api/StokMate/ · .NET 8</span>
+    </div>
   </div>
-  <p style="font-size:13.5px;color:var(--text-2)">Final QA: all required acceptance criteria pass with executed evidence; the submission APK
+  <p style="font-size:13.5px;color:var(--text-2)" lang="en">Final QA: all required acceptance criteria pass with executed evidence; the submission APK
   (built from <code>339d00c</code>) passed a 12-point standalone verification matrix — see
+  <a href="https://github.com/alpersarper/stokmate-assignment/blob/main/docs/IMPLEMENTATION_REPORT.md">docs/IMPLEMENTATION_REPORT.md</a>.</p>
+  <p style="font-size:13.5px;color:var(--text-2)" lang="tr">Son QA: zorunlu kabul ölçütlerinin tamamı yürütülmüş kanıtlarla geçti; teslim APK'sı
+  (<code>339d00c</code> üzerinden derlendi) 12 maddelik bağımsız doğrulama matrisini geçti — bkz.
   <a href="https://github.com/alpersarper/stokmate-assignment/blob/main/docs/IMPLEMENTATION_REPORT.md">docs/IMPLEMENTATION_REPORT.md</a>.</p>
 </section>
 
 <section>
-  <h2>System overview</h2>
+  <h2 lang="en">System overview</h2>
+  <h2 lang="tr">Sisteme genel bakış</h2>
   <figure class="diagram" style="margin-left:0;margin-right:0">
     <svg viewBox="0 0 900 500" role="img" aria-label="System architecture: web and mobile clients each own UI state and a TanStack Query cache, both call the shared API core, which talks to the provided .NET backend over HTTP">
       <!-- client boxes -->
@@ -170,62 +223,149 @@
         </marker>
       </defs>
     </svg>
-    <figcaption>Both clients keep UI state local and delegate all server communication to the shared core; the backend
+    <figcaption><span lang="en">Both clients keep UI state local and delegate all server communication to the shared core; the backend
     is the single source of truth for data. There is no realtime channel — consistency is a coordinated
-    polling/refresh model (explained in the client reports).</figcaption>
+    polling/refresh model (explained in the client reports).</span><span lang="tr">Her iki istemci de UI state'ini yerelde tutar ve
+    sunucuyla tüm iletişimi paylaşılan çekirdeğe devreder; veri için tek doğruluk kaynağı backend'dir. Realtime bir kanal
+    yok — tutarlılık, koordineli bir polling/yenileme modeliyle sağlanır (istemci raporlarında açıklanıyor).</span></figcaption>
   </figure>
 </section>
 
 <section>
-  <h2>What this delivery optimized for</h2>
+  <h2 lang="en">What this delivery optimized for</h2>
+  <h2 lang="tr">Bu teslimde neye öncelik verildi</h2>
   <div class="cards">
-    <div class="card"><h3>Assignment completeness</h3><p>Every required feature plus all three optional bonuses, verified against written acceptance criteria — never features for their own sake.</p></div>
-    <div class="card"><h3>API correctness</h3><p>The backend's real behavior was verified at runtime and recorded before client code depended on it; clients never invent API behavior.</p></div>
-    <div class="card"><h3>Admin / customer separation</h3><p>The web admin is dense and operational; the mobile app is a productized customer surface. Deliberately different designs over one shared data language.</p></div>
-    <div class="card"><h3>Predictable data flow</h3><p>One server-state layer (TanStack Query), one API client, one refresh pipeline per dataset — every data movement has a single, inspectable path.</p></div>
-    <div class="card"><h3>Data freshness</h3><p>Both clients show how old the visible data is, refresh it safely (cooldown + single-flight + server rate limit), and pick up other clients' changes.</p></div>
-    <div class="card"><h3>Pragmatic scope &amp; reviewer clarity</h3><p>Small dependency set, rejected-complexity list, documented assumptions — and this report set so the reasoning can be inspected, not guessed.</p></div>
+    <div class="card" lang="en"><h3>Assignment completeness</h3><p>Every required feature plus all three optional bonuses, verified against written acceptance criteria — never features for their own sake.</p></div>
+    <div class="card" lang="tr"><h3>Ödev bütünlüğü</h3><p>Zorunlu özelliklerin tamamı ve üç opsiyonel bonusun hepsi, yazılı kabul ölçütlerine göre doğrulandı — özellik olsun diye özellik eklenmedi.</p></div>
+    <div class="card" lang="en"><h3>API correctness</h3><p>The backend's real behavior was verified at runtime and recorded before client code depended on it; clients never invent API behavior.</p></div>
+    <div class="card" lang="tr"><h3>API doğruluğu</h3><p>Backend'in gerçek davranışı, istemci kodu ona bağımlı hâle gelmeden önce çalışır hâlde doğrulanıp kayda geçirildi; istemciler API davranışı uydurmaz.</p></div>
+    <div class="card" lang="en"><h3>Admin / customer separation</h3><p>The web admin is dense and operational; the mobile app is a productized customer surface. Deliberately different designs over one shared data language.</p></div>
+    <div class="card" lang="tr"><h3>Yönetici / müşteri ayrımı</h3><p>Web yönetim paneli yoğun ve operasyonel; mobil uygulama ürünleşmiş bir müşteri yüzeyi. Tek bir ortak veri dili üzerinde bilinçli olarak farklı tasarımlar.</p></div>
+    <div class="card" lang="en"><h3>Predictable data flow</h3><p>One server-state layer (TanStack Query), one API client, one refresh pipeline per dataset — every data movement has a single, inspectable path.</p></div>
+    <div class="card" lang="tr"><h3>Öngörülebilir veri akışı</h3><p>Tek bir server-state katmanı (TanStack Query), tek bir API client'ı, veri kümesi başına tek bir yenileme hattı — her veri hareketinin tek ve incelenebilir bir yolu var.</p></div>
+    <div class="card" lang="en"><h3>Data freshness</h3><p>Both clients show how old the visible data is, refresh it safely (cooldown + single-flight + server rate limit), and pick up other clients' changes.</p></div>
+    <div class="card" lang="tr"><h3>Veri tazeliği</h3><p>Her iki istemci de görünen verinin ne kadar eski olduğunu gösterir, güvenle yeniler (bekleme süresi + single-flight + sunucu rate limit) ve diğer istemcilerin değişikliklerini alır.</p></div>
+    <div class="card" lang="en"><h3>Pragmatic scope &amp; reviewer clarity</h3><p>Small dependency set, rejected-complexity list, documented assumptions — and this report set so the reasoning can be inspected, not guessed.</p></div>
+    <div class="card" lang="tr"><h3>Pragmatik kapsam ve değerlendiriciye açıklık</h3><p>Küçük bir bağımlılık seti, reddedilen karmaşıklıkların listesi, belgelenmiş varsayımlar — ve gerekçeler tahmin edilmesin diye bu rapor seti.</p></div>
   </div>
 </section>
 
 <section>
-  <h2>Engineering highlights</h2>
-  <ul class="tight">
+  <h2 lang="en">Engineering highlights</h2>
+  <h2 lang="tr">Öne çıkan mühendislik noktaları</h2>
+  <ul class="tight" lang="en">
     <li><strong>Single-flight token refresh with a session-epoch guard</strong> — strict refresh-token rotation makes concurrent refreshes fatal; the shared client makes them structurally impossible, and stale in-flight requests can neither resurrect a logged-out session nor tear down a new one (<code>shared/src/api/client.ts</code>).</li>
     <li><strong>A proven data-loss trap, closed at the source</strong> — the provided PUT is a full replace requiring fields no read endpoint returned; discovery proved any legal client PUT silently corrupted data, and the minimal <code>GET /products/{id}</code> addition makes edits losslessly round-trippable.</li>
     <li><strong>Coordinated freshness pipeline</strong> — manual refresh, pull-to-refresh, focus revalidation, mutation invalidation, and background polls all converge on one query fetch; polls re-anchor to the last fetch settle so triggers never stack, with backend rate limiting as the independent boundary.</li>
     <li><strong>Server-enforced domain rule for stale clients</strong> — a stock update on a Discontinued product is rejected with <code>409</code> by the backend, so a device that opened the product while it was Active cannot book stock onto it after head office discontinues it.</li>
     <li><strong>Evidence-based QA</strong> — the delivered APK itself (not a dev build) passed a 12-point standalone matrix with independent <code>curl</code> read-backs; "done" claims required executed evidence throughout.</li>
   </ul>
+  <ul class="tight" lang="tr">
+    <li><strong>Session-epoch korumalı single-flight token yenileme</strong> — katı refresh token rotasyonu eşzamanlı yenilemeleri ölümcül kılıyor; paylaşılan client bunu yapısal olarak imkânsız hâle getiriyor ve uçuştaki bayat istekler ne kapanmış bir oturumu diriltebiliyor ne de yeni bir oturumu düşürebiliyor (<code>shared/src/api/client.ts</code>).</li>
+    <li><strong>Kanıtlanmış bir veri kaybı tuzağı, kaynağında kapatıldı</strong> — verilen PUT, hiçbir okuma endpoint'inin döndürmediği alanları zorunlu kılan tam bir değiştirme işlemi; keşif aşaması, kurallara uygun her istemci PUT'unun veriyi sessizce bozduğunu kanıtladı ve minimal <code>GET /products/{id}</code> eklemesi düzenlemeleri kayıpsız gidip gelebilir hâle getirdi.</li>
+    <li><strong>Koordineli tazelik hattı</strong> — manuel yenileme, pull-to-refresh, odaklanmada yeniden doğrulama, mutation invalidasyonu ve arka plan polling'i tek bir query fetch'inde birleşiyor; polling son fetch'in tamamlanmasına yeniden bağlandığı için tetikleyiciler üst üste binmiyor, backend rate limiting ise bağımsız sınır olarak duruyor.</li>
+    <li><strong>Bayat istemciler için sunucuda zorlanan iş kuralı</strong> — Discontinued bir ürüne yapılan stok güncellemesi backend tarafından <code>409</code> ile reddediliyor; böylece ürünü Active durumdayken açmış bir cihaz, genel müdürlük ürünü durdurduktan sonra ona stok işleyemiyor.</li>
+    <li><strong>Kanıta dayalı QA</strong> — teslim edilen APK'nın kendisi (dev build değil) bağımsız <code>curl</code> okumalarıyla 12 maddelik bağımsız matrisi geçti; süreç boyunca "tamamlandı" iddiaları yürütülmüş kanıt gerektirdi.</li>
+  </ul>
 </section>
 
 <section>
-  <h2>Suggested review path</h2>
-  <ol class="path">
+  <h2 lang="en">Suggested review path</h2>
+  <h2 lang="tr">Önerilen inceleme sırası</h2>
+  <ol class="path" lang="en">
     <li>Run the stack with the <a href="https://github.com/alpersarper/stokmate-assignment#readme">README</a> quick start (backend → web → mobile) and click through both clients with the test user.</li>
     <li>Skim this overview's system diagram, then read the <a href="frontend-report.html">web admin report</a> and <a href="mobile-report.html">mobile report</a> — state ownership and data flow are the load-bearing sections.</li>
     <li>Read the <a href="backend-report.html">backend report</a> for exactly what was provided vs. modified, and why each modification exists.</li>
     <li>Read the <a href="development-decisions.html">engineering decisions</a> for rationale, alternatives, and rejected complexity.</li>
     <li>Finish with the <a href="agent-workflow-report.html">AI-assisted workflow report</a> — how the project was actually built, verified, and kept in scope.</li>
   </ol>
+  <ol class="path" lang="tr">
+    <li>Yığını <a href="https://github.com/alpersarper/stokmate-assignment/blob/main/README.tr.md">README</a> hızlı başlangıcıyla çalıştırın (backend → web → mobil) ve test kullanıcısıyla her iki istemcide de gezinin.</li>
+    <li>Buradaki sistem diyagramına göz atın, ardından <a href="frontend-report.html?lang=tr">web yönetim paneli raporunu</a> ve <a href="mobile-report.html?lang=tr">mobil raporu</a> okuyun — state sahipliği ve veri akışı taşıyıcı bölümler.</li>
+    <li>Nelerin verildiğini, nelerin değiştirildiğini ve her değişikliğin neden var olduğunu görmek için <a href="backend-report.html?lang=tr">backend raporunu</a> okuyun.</li>
+    <li>Gerekçeler, alternatifler ve reddedilen karmaşıklık için <a href="development-decisions.html?lang=tr">mühendislik kararlarını</a> okuyun.</li>
+    <li><a href="agent-workflow-report.html?lang=tr">Yapay zekâ destekli süreç raporuyla</a> bitirin — proje gerçekte nasıl inşa edildi, doğrulandı ve kapsamda tutuldu.</li>
+  </ol>
 </section>
 
 <section>
-  <h2>Reports</h2>
+  <h2 lang="en">Reports</h2>
+  <h2 lang="tr">Raporlar</h2>
   <div class="navgrid">
-    <a href="frontend-report.html"><span class="t">Web admin architecture</span><span class="d">Purpose, state ownership, data flow, list/edit flows, session lifecycle, UX philosophy.</span></a>
-    <a href="mobile-report.html"><span class="t">Mobile architecture</span><span class="d">Customer-facing product, data lifecycle, stock workflow, networking, localization.</span></a>
-    <a href="backend-report.html"><span class="t">Backend architecture &amp; modifications</span><span class="d">Provided API surface, auth lifecycle, and the three assignment modifications in detail.</span></a>
-    <a href="development-decisions.html"><span class="t">Engineering decisions</span><span class="d">Context, alternatives, trade-offs, and results for every material decision.</span></a>
-    <a href="agent-workflow-report.html"><span class="t">AI-assisted development workflow</span><span class="d">Human vs. agent responsibility, the actual workflow, verification, risks and controls.</span></a>
+    <a href="frontend-report.html" lang="en"><span class="t">Web admin architecture</span><span class="d">Purpose, state ownership, data flow, list/edit flows, session lifecycle, UX philosophy.</span></a>
+    <a href="frontend-report.html?lang=tr" lang="tr"><span class="t">Web yönetim paneli mimarisi</span><span class="d">Amaç, state sahipliği, veri akışı, liste/düzenleme akışları, oturum yaşam döngüsü, UX yaklaşımı.</span></a>
+    <a href="mobile-report.html" lang="en"><span class="t">Mobile architecture</span><span class="d">Customer-facing product, data lifecycle, stock workflow, networking, localization.</span></a>
+    <a href="mobile-report.html?lang=tr" lang="tr"><span class="t">Mobil mimari</span><span class="d">Müşteriye dönük ürün, veri yaşam döngüsü, stok akışı, ağ katmanı, yerelleştirme.</span></a>
+    <a href="backend-report.html" lang="en"><span class="t">Backend architecture &amp; modifications</span><span class="d">Provided API surface, auth lifecycle, and the three assignment modifications in detail.</span></a>
+    <a href="backend-report.html?lang=tr" lang="tr"><span class="t">Backend mimarisi ve değişiklikler</span><span class="d">Verilen API yüzeyi, auth yaşam döngüsü ve üç ödev değişikliğinin ayrıntıları.</span></a>
+    <a href="development-decisions.html" lang="en"><span class="t">Engineering decisions</span><span class="d">Context, alternatives, trade-offs, and results for every material decision.</span></a>
+    <a href="development-decisions.html?lang=tr" lang="tr"><span class="t">Mühendislik kararları</span><span class="d">Her önemli karar için bağlam, alternatifler, ödünleşimler ve sonuçlar.</span></a>
+    <a href="agent-workflow-report.html" lang="en"><span class="t">AI-assisted development workflow</span><span class="d">Human vs. agent responsibility, the actual workflow, verification, risks and controls.</span></a>
+    <a href="agent-workflow-report.html?lang=tr" lang="tr"><span class="t">Yapay zekâ destekli geliştirme süreci</span><span class="d">İnsan ve agent sorumlulukları, gerçek iş akışı, doğrulama, riskler ve kontroller.</span></a>
   </div>
 </section>
 
+<section>
+  <h2 lang="en">Delivery artifacts</h2>
+  <h2 lang="tr">Teslim edilen artefaktlar</h2>
+  <div class="tablewrap">
+  <table>
+    <tr lang="en"><th>Item</th><th>Value</th></tr>
+    <tr lang="tr"><th>Öğe</th><th>Değer</th></tr>
+    <tr lang="en"><td>Source repository</td><td><a href="https://github.com/alpersarper/stokmate-assignment">alpersarper/stokmate-assignment</a></td></tr>
+    <tr lang="tr"><td>Kaynak deposu</td><td><a href="https://github.com/alpersarper/stokmate-assignment">alpersarper/stokmate-assignment</a></td></tr>
+    <tr lang="en"><td>Release APK</td><td><a href="https://github.com/alpersarper/stokmate-assignment/releases/tag/v1.0.0"><strong>stokmate-v1.0.0-release.apk</strong></a> — release variant, 77,824,176 bytes</td></tr>
+    <tr lang="tr"><td>Release APK</td><td><a href="https://github.com/alpersarper/stokmate-assignment/releases/tag/v1.0.0"><strong>stokmate-v1.0.0-release.apk</strong></a> — release varyantı, 77.824.176 bayt</td></tr>
+    <tr lang="en"><td>Release tag</td><td><code>v1.0.0</code></td></tr>
+    <tr lang="tr"><td>Release tag'i</td><td><code>v1.0.0</code></td></tr>
+    <tr lang="en"><td>Source commit</td><td><code>339d00c</code> — the final application-source commit; later commits on <code>main</code> are documentation only</td></tr>
+    <tr lang="tr"><td>Kaynak commit</td><td><code>339d00c</code> — uygulama kaynağını değiştiren son commit; <code>main</code> üzerinde sonrakiler yalnızca dokümantasyon</td></tr>
+    <tr lang="en"><td>SHA-256</td><td><code style="word-break:break-all">a004fa9c04fa42f469073dbf256cad4a2335e73e4fadeaede3dde904ea081290</code></td></tr>
+    <tr lang="tr"><td>SHA-256</td><td><code style="word-break:break-all">a004fa9c04fa42f469073dbf256cad4a2335e73e4fadeaede3dde904ea081290</code></td></tr>
+    <tr lang="en"><td>Configured API target</td><td><code>http://10.0.2.2:5080</code> — baked in at build time; the emulator's alias for the host machine, where the backend must run. There is no hosted backend.</td></tr>
+    <tr lang="tr"><td>Yapılandırılmış API hedefi</td><td><code>http://10.0.2.2:5080</code> — build sırasında sabitlenir; emülatörün host makineye verdiği adres, backend orada çalışmalıdır. Barındırılan bir backend yoktur.</td></tr>
+  </table>
+  </div>
+  <p style="font-size:13.5px;color:var(--text-2)" lang="en">The published asset is byte-identical to the artifact that passed standalone verification (install → login → list → detail → stock write, read back independently with <code>curl</code> → restart). Run instructions are in the
+  <a href="https://github.com/alpersarper/stokmate-assignment#readme">README</a>.</p>
+  <p style="font-size:13.5px;color:var(--text-2)" lang="tr">Yayımlanan dosya, tek başına doğrulamayı geçen artefaktla bayt bayt aynıdır (kurulum → giriş → liste → detay → stok yazma, bağımsız olarak <code>curl</code> ile geri okuma → yeniden başlatma). Çalıştırma adımları
+  <a href="https://github.com/alpersarper/stokmate-assignment/blob/main/README.tr.md">README</a>'de.</p>
+</section>
+
 <footer>
-  StokMate take-home delivery · reports are self-contained HTML (work offline from a clone and on GitHub Pages) ·
-  <a href="https://github.com/alpersarper/stokmate-assignment#readme">README</a> · <a href="https://github.com/alpersarper/stokmate-assignment/blob/main/docs/IMPLEMENTATION_REPORT.md">QA report</a>
+  <span lang="en">StokMate take-home delivery · reports are self-contained HTML (work offline from a clone and on GitHub Pages) ·
+  <a href="https://github.com/alpersarper/stokmate-assignment#readme">README</a> · <a href="https://github.com/alpersarper/stokmate-assignment/blob/main/docs/IMPLEMENTATION_REPORT.md">QA report</a></span>
+  <span lang="tr">StokMate değerlendirme projesi teslimi · raporlar kendi kendine yeten HTML dosyaları (bir klondan çevrimdışı ve GitHub Pages üzerinde çalışır) ·
+  <a href="https://github.com/alpersarper/stokmate-assignment/blob/main/README.tr.md">README</a> · <a href="https://github.com/alpersarper/stokmate-assignment/blob/main/docs/IMPLEMENTATION_REPORT.md">QA raporu</a></span>
 </footer>
 
 </div>
+<script>
+(function () {
+  var KEY = 'stokmate-lang', root = document.documentElement, buttons = [];
+  function apply(lang) {
+    lang = lang === 'tr' ? 'tr' : 'en';
+    root.setAttribute('data-lang', lang);
+    root.setAttribute('lang', lang);
+    buttons.forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-set-lang') === lang));
+    });
+    try { localStorage.setItem(KEY, lang); } catch (e) {}
+  }
+  function init() {
+    buttons = Array.prototype.slice.call(document.querySelectorAll('[data-set-lang]'));
+    buttons.forEach(function (b) {
+      b.addEventListener('click', function () { apply(b.getAttribute('data-set-lang')); });
+    });
+    var initial = 'en';
+    try { var s = localStorage.getItem(KEY); if (s === 'tr' || s === 'en') initial = s; } catch (e) {}
+    var q = (location.search.match(/[?&]lang=(tr|en)(?:&|$)/) || [])[1];
+    if (q) initial = q;
+    apply(initial);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
 </body>
 </html>

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -44,35 +44,70 @@
   .note{background:var(--accent-soft);border:1px solid #bfdbfe;border-radius:10px;padding:12px 16px;margin:14px 0;font-size:14px}
   .warnbox{background:var(--warn-soft);border:1px solid #fde68a;border-radius:10px;padding:12px 16px;margin:14px 0;font-size:14px}
   footer{margin-top:48px;border-top:1px solid var(--border);padding-top:16px;font-size:13px;color:var(--text-3)}
+  /* --- EN/TR bilingual layer --- */
+  [data-lang="en"] [lang="tr"]{display:none !important}
+  [data-lang="tr"] [lang="en"]{display:none !important}
+  .langswitch{display:inline-flex;align-items:stretch;border:1px solid var(--border-strong,#d6d3d1);
+    border-radius:999px;overflow:hidden;background:var(--surface,#fff);font-size:12px;line-height:1}
+  .langswitch button{appearance:none;background:transparent;border:0;cursor:pointer;padding:7px 13px;
+    font:inherit;font-weight:700;letter-spacing:.06em;color:var(--text-3,#78716c)}
+  .langswitch button + button{border-left:1px solid var(--border,#e7e5e4)}
+  .langswitch button[aria-pressed="true"]{background:var(--accent,#1d4ed8);color:#fff}
+  .langswitch button:focus-visible{outline:2px solid var(--accent,#1d4ed8);outline-offset:2px}
+  .langbar{display:flex;justify-content:flex-end;margin:0 0 14px}
 </style>
 </head>
 <body>
 <div class="wrap">
 
-<a class="back" href="index.html">← Reviewer overview</a>
+<div class="langbar">
+  <div class="langswitch" role="group" aria-label="Language / Dil">
+    <button type="button" data-set-lang="en" aria-pressed="true">EN</button>
+    <button type="button" data-set-lang="tr" aria-pressed="false">TR</button>
+  </div>
+</div>
+
+<a class="back" href="index.html" lang="en">← Reviewer overview</a>
+<a class="back" href="index.html" lang="tr">← Değerlendirici özeti</a>
 <header class="page">
-  <p class="kicker">StokMate · Reviewer report</p>
-  <h1>Web admin architecture</h1>
-  <p class="lede">The head-office operational surface: product management over the live API — search, filter, sort,
+  <p class="kicker" lang="en">StokMate · Reviewer report</p>
+  <p class="kicker" lang="tr">StokMate · Değerlendirici raporu</p>
+  <h1 lang="en">Web admin architecture</h1>
+  <h1 lang="tr">Web yönetim paneli mimarisi</h1>
+  <p class="lede" lang="en">The head-office operational surface: product management over the live API — search, filter, sort,
   paginate, inspect, and edit. Source: <code>web/</code>. Vite + React + TypeScript (strict), React Router,
   TanStack Query v5, Tailwind CSS v4 + shadcn/ui.</p>
+  <p class="lede" lang="tr">Merkez ofisin operasyonel yüzeyi: canlı API üzerinden ürün yönetimi — arama, filtreleme,
+  sıralama, sayfalama, inceleme ve düzenleme. Kaynak: <code>web/</code>. Vite + React + TypeScript (strict),
+  React Router, TanStack Query v5, Tailwind CSS v4 + shadcn/ui.</p>
 </header>
 
 <section>
-  <h2 style="margin-top:0">Purpose</h2>
-  <p>The web app is the <strong>admin</strong> half of the product: head-office staff manage the catalog. Its job is
+  <h2 style="margin-top:0" lang="en">Purpose</h2>
+  <h2 style="margin-top:0" lang="tr">Amaç</h2>
+  <p lang="en">The web app is the <strong>admin</strong> half of the product: head-office staff manage the catalog. Its job is
   operational efficiency — many products visible at once, fast narrowing, safe edits, and confidence that what is on
   screen matches the server. It is deliberately not a consumer-styled site; density and scanability win over
   presentation.</p>
+  <p lang="tr">Web uygulaması ürünün <strong>yönetim</strong> tarafı: kataloğu merkez ofis ekibi yönetir. İşi operasyonel
+  verimlilik — aynı anda çok sayıda ürünün görünmesi, hızlı daraltma, güvenli düzenleme ve ekrandakinin sunucudakiyle
+  eşleştiğine dair güven. Bilinçli olarak tüketiciye yönelik bir site değil; yoğunluk ve göz taranabilirliği görsel
+  sunumun önünde geliyor.</p>
 </section>
 
 <section>
-  <h2>Architecture</h2>
-  <p>A three-route SPA (<code>/login</code>, <code>/products</code>, <code>/products/:id</code>) in a
+  <h2 lang="en">Architecture</h2>
+  <h2 lang="tr">Mimari</h2>
+  <p lang="en">A three-route SPA (<code>/login</code>, <code>/products</code>, <code>/products/:id</code>) in a
   feature-folder-lite layout: <code>api/</code> (client instance + storage adapter), <code>auth/</code>,
   <code>products/</code>, <code>components/</code> (shadcn primitives + freshness control), <code>lib/</code>
   (query client, refresh pipeline, currency input), <code>i18n/</code>. All server communication goes through the
   shared <code>@stokmate/shared</code> client; components never call <code>fetch</code>.</p>
+  <p lang="tr">Üç rotalı bir SPA (<code>/login</code>, <code>/products</code>, <code>/products/:id</code>), hafif bir
+  feature-folder düzeninde: <code>api/</code> (client örneği + storage adaptörü), <code>auth/</code>,
+  <code>products/</code>, <code>components/</code> (shadcn primitifleri + tazelik kontrolü), <code>lib/</code>
+  (query client, yenileme hattı, para girişi), <code>i18n/</code>. Tüm sunucu iletişimi paylaşılan
+  <code>@stokmate/shared</code> client'ı üzerinden geçer; bileşenler asla <code>fetch</code> çağırmaz.</p>
   <figure class="diagram">
     <svg viewBox="0 0 900 400" role="img" aria-label="Web admin layers: routes render pages, pages read UI state from the URL and server state from TanStack Query hooks, hooks call the shared API client, which talks to the backend">
       <g font-family="-apple-system,Segoe UI,Roboto,sans-serif">
@@ -115,33 +150,48 @@
         </marker>
       </defs>
     </svg>
-    <figcaption>Every layer has one job: the URL describes <em>what the user is looking at</em>, TanStack Query owns
-    <em>what the server said</em>, the shared client owns <em>how the server is spoken to</em>.</figcaption>
+    <figcaption><span lang="en">Every layer has one job: the URL describes <em>what the user is looking at</em>, TanStack Query owns
+    <em>what the server said</em>, the shared client owns <em>how the server is spoken to</em>.</span><span lang="tr">Her katmanın tek bir işi var: URL <em>kullanıcının neye baktığını</em> tanımlar, TanStack Query
+    <em>sunucunun ne söylediğine</em> sahiptir, paylaşılan client da <em>sunucuyla nasıl konuşulduğuna</em>.</span></figcaption>
   </figure>
 </section>
 
 <section>
-  <h2>State ownership</h2>
-  <p>The deliberate outcome is that <strong>no global state store exists</strong> — and none is missing. Every piece
+  <h2 lang="en">State ownership</h2>
+  <h2 lang="tr">State sahipliği</h2>
+  <p lang="en">The deliberate outcome is that <strong>no global state store exists</strong> — and none is missing. Every piece
   of state has exactly one owner:</p>
+  <p lang="tr">Bilinçli sonuç şu: <strong>global bir state store yok</strong> — ve eksikliği de hissedilmiyor. Her state
+  parçasının tam olarak bir sahibi var:</p>
   <div class="tablewrap">
   <table>
-    <tr><th>State</th><th>Where it lives</th><th>Why there</th></tr>
-    <tr><td><strong>Server data</strong> (products, lookups)</td><td>TanStack Query cache, keyed by the shared query-key factory</td><td>One server-state layer for the whole app; cache entries are addressable and invalidatable by key.</td></tr>
-    <tr><td><strong>List state</strong>: search, category/brand/status filters, sort, direction, page</td><td>URL search params (<code>useSearchParams</code>, <code>web/src/products/ProductListPage.tsx</code>)</td><td>Returning from detail restores the exact view; survives reload; shareable; and the parsed params <em>are</em> the query key — URL and data can never disagree.</td></tr>
-    <tr><td><strong>Search input</strong> (pre-debounce)</td><td>Local component state, 300 ms debounce to the URL</td><td>Typing feels immediate without a request per keystroke.</td></tr>
-    <tr><td><strong>Session</strong> (<code>{ user, status }</code>)</td><td><code>AuthProvider</code> React context; tokens live only in the storage adapter (<code>localStorage</code> or <code>sessionStorage</code>), never in React state</td><td>Components need "who is signed in", not tokens; keeping tokens out of React state avoids stale copies.</td></tr>
-    <tr><td><strong>Edit-form draft</strong></td><td>react-hook-form inside <code>ProductEditForm</code></td><td><code>isDirty</code> drives Save enablement and the unsaved-changes guard; <code>isSubmitting</code> prevents duplicate saves.</td></tr>
-    <tr><td><strong>Freshness metadata</strong></td><td>Derived from the query's own <code>dataUpdatedAt</code> — no stored timestamp</td><td>"Last successful fetch" is definitionally what TanStack Query already records; a failed refresh cannot move the indicator.</td></tr>
-    <tr><td><strong>Refresh cooldown / poll anchor</strong></td><td>Hooks in <code>web/src/lib/refresh.ts</code></td><td>The whole freshness policy is ~90 lines in one file, reused by list and detail.</td></tr>
-    <tr><td><strong>UI-local bits</strong> (dialogs, toasts)</td><td>Component state / sonner's queue</td><td>Nothing else needs to know about them.</td></tr>
+    <tr lang="en"><th>State</th><th>Where it lives</th><th>Why there</th></tr>
+    <tr lang="tr"><th>State</th><th>Nerede tutuluyor</th><th>Neden orada</th></tr>
+    <tr lang="en"><td><strong>Server data</strong> (products, lookups)</td><td>TanStack Query cache, keyed by the shared query-key factory</td><td>One server-state layer for the whole app; cache entries are addressable and invalidatable by key.</td></tr>
+    <tr lang="tr"><td><strong>Sunucu verisi</strong> (ürünler, lookup'lar)</td><td>TanStack Query cache'i, paylaşılan query-key factory'siyle anahtarlanır</td><td>Tüm uygulama için tek bir server-state katmanı; cache kayıtlarına anahtarla erişilebilir ve anahtarla invalidate edilebilir.</td></tr>
+    <tr lang="en"><td><strong>List state</strong>: search, category/brand/status filters, sort, direction, page</td><td>URL search params (<code>useSearchParams</code>, <code>web/src/products/ProductListPage.tsx</code>)</td><td>Returning from detail restores the exact view; survives reload; shareable; and the parsed params <em>are</em> the query key — URL and data can never disagree.</td></tr>
+    <tr lang="tr"><td><strong>Liste state'i</strong>: arama, kategori/marka/durum filtreleri, sıralama, yön, sayfa</td><td>URL search param'ları (<code>useSearchParams</code>, <code>web/src/products/ProductListPage.tsx</code>)</td><td>Detaydan dönünce tam olarak aynı görünüm geri gelir; sayfa yenilenince kaybolmaz; paylaşılabilir; ve ayrıştırılan param'lar query key'in <em>kendisidir</em> — URL ile veri asla çelişemez.</td></tr>
+    <tr lang="en"><td><strong>Search input</strong> (pre-debounce)</td><td>Local component state, 300 ms debounce to the URL</td><td>Typing feels immediate without a request per keystroke.</td></tr>
+    <tr lang="tr"><td><strong>Arama girişi</strong> (debounce öncesi)</td><td>Bileşen içi lokal state, URL'e 300 ms debounce ile yazılır</td><td>Yazmak anında hissettirir, her tuş vuruşunda istek atılmaz.</td></tr>
+    <tr lang="en"><td><strong>Session</strong> (<code>{ user, status }</code>)</td><td><code>AuthProvider</code> React context; tokens live only in the storage adapter (<code>localStorage</code> or <code>sessionStorage</code>), never in React state</td><td>Components need "who is signed in", not tokens; keeping tokens out of React state avoids stale copies.</td></tr>
+    <tr lang="tr"><td><strong>Oturum</strong> (<code>{ user, status }</code>)</td><td><code>AuthProvider</code> React context'i; token'lar yalnızca storage adaptöründe (<code>localStorage</code> ya da <code>sessionStorage</code>) durur, React state'inde asla</td><td>Bileşenlerin ihtiyacı "kim giriş yapmış" bilgisi, token değil; token'ları React state'i dışında tutmak bayat kopyaları önler.</td></tr>
+    <tr lang="en"><td><strong>Edit-form draft</strong></td><td>react-hook-form inside <code>ProductEditForm</code></td><td><code>isDirty</code> drives Save enablement and the unsaved-changes guard; <code>isSubmitting</code> prevents duplicate saves.</td></tr>
+    <tr lang="tr"><td><strong>Düzenleme formu taslağı</strong></td><td><code>ProductEditForm</code> içindeki react-hook-form</td><td><code>isDirty</code>, Kaydet'in aktifliğini ve kaydedilmemiş değişiklikler korumasını yönetir; <code>isSubmitting</code> çift kaydı engeller.</td></tr>
+    <tr lang="en"><td><strong>Freshness metadata</strong></td><td>Derived from the query's own <code>dataUpdatedAt</code> — no stored timestamp</td><td>"Last successful fetch" is definitionally what TanStack Query already records; a failed refresh cannot move the indicator.</td></tr>
+    <tr lang="tr"><td><strong>Tazelik bilgisi</strong></td><td>Query'nin kendi <code>dataUpdatedAt</code> değerinden türetilir — ayrıca saklanan bir zaman damgası yok</td><td>"Son başarılı istek" tanımı gereği zaten TanStack Query'nin tuttuğu şey; başarısız bir yenileme göstergeyi ilerletemez.</td></tr>
+    <tr lang="en"><td><strong>Refresh cooldown / poll anchor</strong></td><td>Hooks in <code>web/src/lib/refresh.ts</code></td><td>The whole freshness policy is ~90 lines in one file, reused by list and detail.</td></tr>
+    <tr lang="tr"><td><strong>Yenileme bekleme süresi / polling çıpası</strong></td><td><code>web/src/lib/refresh.ts</code> içindeki hook'lar</td><td>Tazelik politikasının tamamı tek dosyada ~90 satır; liste ve detay aynı kodu kullanır.</td></tr>
+    <tr lang="en"><td><strong>UI-local bits</strong> (dialogs, toasts)</td><td>Component state / sonner's queue</td><td>Nothing else needs to know about them.</td></tr>
+    <tr lang="tr"><td><strong>UI'a özel ufak state'ler</strong> (dialog'lar, toast'lar)</td><td>Bileşen state'i / sonner'ın kuyruğu</td><td>Başka hiçbir yerin bunlardan haberdar olmasına gerek yok.</td></tr>
   </table>
   </div>
-  <p>Shared between pages only via the URL and the query cache — which is precisely what both are for.</p>
+  <p lang="en">Shared between pages only via the URL and the query cache — which is precisely what both are for.</p>
+  <p lang="tr">Sayfalar arasında paylaşım yalnızca URL ve query cache üzerinden — ki ikisi de tam olarak bunun için var.</p>
 </section>
 
 <section>
-  <h2>Representative data flow: saving a product edit</h2>
+  <h2 lang="en">Representative data flow: saving a product edit</h2>
+  <h2 lang="tr">Örnek veri akışı: ürün düzenlemesini kaydetme</h2>
   <figure class="diagram">
     <svg viewBox="0 0 900 330" role="img" aria-label="Sequence: edit form submit builds a full PUT body from the fresh detail read, the shared client sends it, on success the detail cache is set from the response and list queries are invalidated, so the table refetches persisted state">
       <g font-family="-apple-system,Segoe UI,Roboto,sans-serif" font-size="12.5">
@@ -173,18 +223,24 @@
         <marker id="arr3b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1d4ed8"/></marker>
       </defs>
     </svg>
-    <figcaption>No optimistic updates anywhere: the UX contract requires displaying <em>persisted server state</em>
-    after a save, so the UI always re-syncs from the response and a follow-up refetch.</figcaption>
+    <figcaption><span lang="en">No optimistic updates anywhere: the UX contract requires displaying <em>persisted server state</em>
+    after a save, so the UI always re-syncs from the response and a follow-up refetch.</span><span lang="tr">Hiçbir yerde optimistic update yok: UX sözleşmesi kayıttan sonra
+    <em>kalıcılaşmış sunucu state'inin</em> gösterilmesini şart koşuyor, bu yüzden UI her zaman yanıttan ve ardından gelen refetch'ten senkronize olur.</span></figcaption>
   </figure>
-  <div class="warnbox"><strong>Why the full body matters:</strong> the API's PUT is a verified full replace — any omitted
+  <div class="warnbox" lang="en"><strong>Why the full body matters:</strong> the API's PUT is a verified full replace — any omitted
   field is silently reset to its C# default. The form therefore always initializes from a fresh
   <code>GET /products/{id}</code> and sends the complete object back. A shared unit test asserts that
   <code>barcode</code>/<code>isFeatured</code>/<code>costPrice</code>/<code>description</code> survive an edit.</div>
+  <div class="warnbox" lang="tr"><strong>Tam gövde neden önemli:</strong> API'nin PUT'u doğrulanmış şekilde tam değiştirme
+  yapıyor — gönderilmeyen her alan sessizce C# varsayılanına dönüyor. Bu yüzden form her zaman taze bir
+  <code>GET /products/{id}</code> ile başlar ve nesnenin tamamını geri gönderir. Paylaşılan bir unit test,
+  <code>barcode</code>/<code>isFeatured</code>/<code>costPrice</code>/<code>description</code> alanlarının bir düzenlemeden sağ çıktığını doğrular.</div>
 </section>
 
 <section>
-  <h2>Product list</h2>
-  <ul class="tight">
+  <h2 lang="en">Product list</h2>
+  <h2 lang="tr">Ürün listesi</h2>
+  <ul class="tight" lang="en">
     <li><strong>Search</strong> — 300 ms debounce, trimmed, sent as <code>q</code> (server-side substring match on name/SKU/barcode); input preserved on failure; clearing restores the default list.</li>
     <li><strong>Filters</strong> — category, brand, and status selects (single-value, matching the API's capability); any change resets to page 1; active filters stay visible with a reset action.</li>
     <li><strong>Sorting</strong> — clickable Name/Price/Stock/Updated headers cycle asc/desc, mapped to the API's <code>sort</code>/<code>dir</code> params; server-side, like everything else about the list.</li>
@@ -193,71 +249,150 @@
     <li><strong>States</strong> — table skeleton on first load; <code>keepPreviousData</code> + a subtle fetching indicator during narrowing (existing rows stay visible); dedicated zero-result and error+retry states; count label with correct EN pluralization.</li>
     <li><strong>Domain presentation</strong> — status as localized text badges (color as reinforcement only), stock with the API's own low-stock signal (<code>stock ≤ minStock</code>) in amber and out-of-stock in red, prices in tabular numerals via integer-kuruş formatting.</li>
   </ul>
+  <ul class="tight" lang="tr">
+    <li><strong>Arama</strong> — 300 ms debounce, baştaki/sondaki boşluklar kırpılır, <code>q</code> olarak gönderilir (sunucu tarafında ad/SKU/barkod üzerinde alt dize eşleşmesi); hata durumunda girilen metin korunur; temizlemek varsayılan listeyi geri getirir.</li>
+    <li><strong>Filtreler</strong> — kategori, marka ve durum seçimleri (API'nin desteklediği gibi tek değerli); herhangi bir değişiklik sayfa 1'e döner; aktif filtreler bir sıfırlama eylemiyle birlikte görünür kalır.</li>
+    <li><strong>Sıralama</strong> — tıklanabilir Ad/Fiyat/Stok/Güncellenme başlıkları asc/desc arasında döner, API'nin <code>sort</code>/<code>dir</code> param'larına eşlenir; listeyle ilgili her şey gibi sunucu tarafında.</li>
+    <li><strong>Sayfalama</strong> — sayfa numaraları 1'den başlar; API yalnızca <code>total</code> gönderdiği için <code>totalPages</code> istemci tarafında hesaplanır (<code>ceil(total/pageSize)</code>).</li>
+    <li><strong>Tazelik ve yenileme</strong> — <code>dataUpdatedAt</code> üzerinden "az önce / X önce güncellendi"; istek tamamlandıktan sonra 4 s bekleme süresi olan manuel bir Yenile butonu; son isteğin tamamlanmasına çıpalanan 15 s'lik polling, açık listeyi diğer istemcilerin değişikliklerine yakınsatır (opsiyonel bonus) ve manuel ya da odaklanmayla tetiklenen isteklerin üstüne asla binmez.</li>
+    <li><strong>Durumlar</strong> — ilk yüklemede tablo skeleton'ı; daraltma sırasında <code>keepPreviousData</code> + hafif bir yükleniyor göstergesi (mevcut satırlar görünür kalır); sonuç yok ve hata+tekrar dene için ayrı durumlar; İngilizcede doğru çoğullanan sayı etiketi.</li>
+    <li><strong>Alan gösterimi</strong> — durum, yerelleştirilmiş metin rozetleriyle (renk yalnızca destekleyici), stok, API'nin kendi düşük stok sinyaliyle (<code>stock ≤ minStock</code>) amber ve tükendiğinde kırmızı, fiyatlar tam sayı kuruş biçimlendirmesiyle tablo rakamlarında.</li>
+  </ul>
 </section>
 
 <section>
-  <h2>Product edit flow</h2>
-  <ol class="flow">
+  <h2 lang="en">Product edit flow</h2>
+  <h2 lang="tr">Ürün düzenleme akışı</h2>
+  <ol class="flow" lang="en">
     <li>Detail opens <strong>read-only</strong>; editing is an explicit action (UX-002).</li>
     <li>The form initializes from a fresh detail read; prices are edited in ₺ and converted exactly to integer kuruş (no floats anywhere).</li>
     <li>Client-side rules mirror the <em>verified</em> API rules (required name/SKU, non-negative numbers, valid unit/status) to prevent generic 400s; the backend stays authoritative.</li>
     <li>Save is enabled only when dirty ∧ valid ∧ not submitting. Cancel, back navigation, and logout are all guarded by an unsaved-changes confirmation (<code>useBlocker</code>).</li>
     <li>On success: exit edit mode, show the persisted server state, toast. On failure: stay in edit mode, preserve input, surface the error (known statuses map to localized messages — e.g. the SKU-conflict 409; unknown ones get a generic fallback with the server text as detail).</li>
   </ol>
+  <ol class="flow" lang="tr">
+    <li>Detay <strong>salt okunur</strong> açılır; düzenleme açık bir eylemdir (UX-002).</li>
+    <li>Form taze bir detay okumasıyla başlar; fiyatlar ₺ olarak düzenlenir ve tam olarak tam sayı kuruşa çevrilir (hiçbir yerde float yok).</li>
+    <li>İstemci tarafındaki kurallar <em>doğrulanmış</em> API kurallarını yansıtır (zorunlu ad/SKU, negatif olmayan sayılar, geçerli birim/durum) ve genel 400'leri önler; nihai otorite backend'de kalır.</li>
+    <li>Kaydet yalnızca değişmiş ∧ geçerli ∧ gönderim sürmüyor durumunda aktiftir. İptal, geri gitme ve çıkış yapma; hepsi kaydedilmemiş değişiklikler onayıyla korunur (<code>useBlocker</code>).</li>
+    <li>Başarıda: düzenleme modundan çık, kalıcılaşmış sunucu state'ini göster, toast. Başarısızlıkta: düzenleme modunda kal, girilenleri koru, hatayı göster (bilinen durum kodları yerelleştirilmiş mesajlara eşlenir — örneğin SKU çakışmasındaki 409; bilinmeyenler için sunucu metni detay olarak verilen genel bir mesaj gösterilir).</li>
+  </ol>
 </section>
 
 <section>
-  <h2>Auth &amp; session lifecycle</h2>
-  <ol class="flow">
+  <h2 lang="en">Auth &amp; session lifecycle</h2>
+  <h2 lang="tr">Kimlik doğrulama ve oturum yaşam döngüsü</h2>
+  <ol class="flow" lang="en">
     <li><strong>Login</strong> — RHF form; "Remember me" decides the token store: <code>localStorage</code> (survives the browser) vs <code>sessionStorage</code> (dies with the tab). Tokens are opaque; nothing is decoded client-side.</li>
     <li><strong>Startup restore</strong> — if a persisted session exists, <code>AuthProvider</code> validates it once via <code>GET /auth/me</code> before rendering the app (StrictMode-deduped), showing a restoring state instead of a login flash.</li>
     <li><strong>Mid-session expiry</strong> — any 401 triggers the shared client's single-flight refresh; concurrent 401s join one refresh call (strict rotation makes racing fatal); the original request retries once with the new token. Users never see a 15-minute-token hiccup.</li>
     <li><strong>Unrecoverable session</strong> — refresh fails (rotated away, revoked, or the in-memory backend restarted): storage is cleared and the app returns to login cleanly. A session <em>epoch</em> counter ensures stale in-flight requests can neither resurrect a logged-out session nor tear down a new one.</li>
     <li><strong>Logout</strong> — best-effort server revoke, always clear local state, navigate to login with history replaced. The backend drops all of the user's access tokens across clients — which is exactly the scenario the refresh interceptor exists for on the other client.</li>
   </ol>
+  <ol class="flow" lang="tr">
+    <li><strong>Giriş</strong> — RHF formu; "Beni hatırla" token'ların nerede saklanacağını belirler: <code>localStorage</code> (tarayıcı kapansa da kalır) ya da <code>sessionStorage</code> (sekmeyle birlikte gider). Token'lar opak; istemci tarafında hiçbir şey çözümlenmez.</li>
+    <li><strong>Açılışta oturum geri yükleme</strong> — saklanmış bir oturum varsa <code>AuthProvider</code>, uygulamayı render etmeden önce onu <code>GET /auth/me</code> ile bir kez doğrular (StrictMode'da tekrarı engellenir) ve giriş ekranının bir an parlaması yerine geri yükleniyor durumunu gösterir.</li>
+    <li><strong>Oturum ortasında sürenin dolması</strong> — herhangi bir 401, paylaşılan client'ın single-flight refresh'ini tetikler; eşzamanlı 401'ler tek bir refresh çağrısına katılır (katı rotasyon nedeniyle yarışmak ölümcül olur); asıl istek yeni token'la bir kez tekrarlanır. Kullanıcı 15 dakikalık token'ın takılmasını hiç görmez.</li>
+    <li><strong>Kurtarılamayan oturum</strong> — refresh başarısız olursa (rotasyonla geçersizleşmiş, iptal edilmiş ya da in-memory backend yeniden başlamış): depolama temizlenir ve uygulama temiz biçimde girişe döner. Bir oturum <em>epoch</em> sayacı sayesinde uçuştaki bayat istekler ne kapanmış bir oturumu diriltebilir ne de yeni bir oturumu düşürebilir.</li>
+    <li><strong>Çıkış</strong> — sunucuda best-effort iptal, yerel state her hâlde temizlenir, geçmiş değiştirilerek girişe yönlendirilir. Backend kullanıcının tüm istemcilerdeki access token'larını düşürür — ki diğer istemcideki refresh interceptor'ı tam da bu senaryo için var.</li>
+  </ol>
 </section>
 
 <section>
-  <h2>Library choices</h2>
+  <h2 lang="en">Library choices</h2>
+  <h2 lang="tr">Kütüphane seçimleri</h2>
   <div class="tablewrap">
   <table>
-    <tr><th>Library</th><th>Why</th></tr>
-    <tr><td>React Router (declarative)</td><td>Three routes need the boring default; <code>useSearchParams</code> gives the URL-owned list state, <code>useBlocker</code> the navigation guard.</td></tr>
-    <tr><td>TanStack Query v5</td><td>The locked server-state decision, adopted willingly: per-key caching gives stale-response protection for free, <code>keepPreviousData</code> gives calm filtering, invalidation gives "list shows persisted state after save".</td></tr>
-    <tr><td>react-hook-form</td><td><code>isDirty</code>/<code>isSubmitting</code> map 1:1 onto the UX rules for Save enablement and duplicate-save prevention. No schema library — the backend is authoritative and client-known rules are few.</td></tr>
-    <tr><td>Tailwind v4 + shadcn/ui</td><td>Primitives are vendored into <code>web/src/components/ui/</code> as owned, inspectable source; only the ~10 components the assignment needs are installed.</td></tr>
-    <tr><td>sonner</td><td>The queued toast behavior UX-004 specifies (top-right, max 3, queue) out of the box.</td></tr>
+    <tr lang="en"><th>Library</th><th>Why</th></tr>
+    <tr lang="tr"><th>Kütüphane</th><th>Neden</th></tr>
+    <tr lang="en"><td>React Router (declarative)</td><td>Three routes need the boring default; <code>useSearchParams</code> gives the URL-owned list state, <code>useBlocker</code> the navigation guard.</td></tr>
+    <tr lang="tr"><td>React Router (declarative)</td><td>Üç rota için sıkıcı varsayılan yeterli; <code>useSearchParams</code> URL'in sahip olduğu liste state'ini, <code>useBlocker</code> da navigasyon korumasını verir.</td></tr>
+    <tr lang="en"><td>TanStack Query v5</td><td>The locked server-state decision, adopted willingly: per-key caching gives stale-response protection for free, <code>keepPreviousData</code> gives calm filtering, invalidation gives "list shows persisted state after save".</td></tr>
+    <tr lang="tr"><td>TanStack Query v5</td><td>Sabitlenmiş server-state kararı, gönülden benimsendi: anahtar bazlı cache bayat yanıt korumasını bedavaya getirir, <code>keepPreviousData</code> filtrelemeyi sakinleştirir, invalidate ise "kayıttan sonra liste kalıcılaşmış state'i gösterir" davranışını sağlar.</td></tr>
+    <tr lang="en"><td>react-hook-form</td><td><code>isDirty</code>/<code>isSubmitting</code> map 1:1 onto the UX rules for Save enablement and duplicate-save prevention. No schema library — the backend is authoritative and client-known rules are few.</td></tr>
+    <tr lang="tr"><td>react-hook-form</td><td><code>isDirty</code>/<code>isSubmitting</code>, Kaydet'in aktifliği ve çift kayıt engeli için UX kurallarıyla birebir örtüşür. Şema kütüphanesi yok — nihai otorite backend'de ve istemcinin bildiği kurallar az sayıda.</td></tr>
+    <tr lang="en"><td>Tailwind v4 + shadcn/ui</td><td>Primitives are vendored into <code>web/src/components/ui/</code> as owned, inspectable source; only the ~10 components the assignment needs are installed.</td></tr>
+    <tr lang="tr"><td>Tailwind v4 + shadcn/ui</td><td>Primitifler <code>web/src/components/ui/</code> altına, sahibi olunan ve incelenebilir kaynak olarak kopyalanır; yalnızca ödevin ihtiyaç duyduğu ~10 bileşen kurulur.</td></tr>
+    <tr lang="en"><td>sonner</td><td>The queued toast behavior UX-004 specifies (top-right, max 3, queue) out of the box.</td></tr>
+    <tr lang="tr"><td>sonner</td><td>UX-004'ün tarif ettiği kuyruklu toast davranışını (sağ üst, en fazla 3, kuyruk) kutudan çıktığı gibi verir.</td></tr>
   </table>
   </div>
 </section>
 
 <section>
-  <h2>Admin UX philosophy</h2>
-  <p>Operational software for daily use: a dense, scannable table as the centerpiece; status as text labels with color
+  <h2 lang="en">Admin UX philosophy</h2>
+  <h2 lang="tr">Yönetim paneli UX yaklaşımı</h2>
+  <p lang="en">Operational software for daily use: a dense, scannable table as the centerpiece; status as text labels with color
   as reinforcement only; tabular numerals for every quantity; restrained neutral palette with one chromatic accent;
   no decoration, gradients, or hero moments. Loading feedback is layered so work is never interrupted — skeletons only
   on first load, previous data during narrowing, subtle indicators during background refresh. The design language is
   recorded in <code>web/DESIGN.md</code> and the shared <code>DESIGN.md</code>.</p>
+  <p lang="tr">Günlük kullanım için operasyonel yazılım: merkezde yoğun, göz taranabilir bir tablo; durum metin
+  etiketleriyle, renk yalnızca destekleyici; her sayı için tablo rakamları; tek bir renkli vurgu taşıyan ölçülü nötr
+  palet; süsleme, gradient ya da hero alanı yok. Yükleme geri bildirimi katmanlı, böylece iş asla kesilmez — skeleton
+  yalnızca ilk yüklemede, daraltma sırasında önceki veri, arka plan yenilemesinde hafif göstergeler. Tasarım dili
+  <code>web/DESIGN.md</code> ve paylaşılan <code>DESIGN.md</code> içinde kayıtlı.</p>
 </section>
 
 <section>
-  <h2>Trade-offs and limitations</h2>
-  <ul class="tight">
+  <h2 lang="en">Trade-offs and limitations</h2>
+  <h2 lang="tr">Ödünleşimler ve sınırlar</h2>
+  <ul class="tight" lang="en">
     <li><strong>Last-write-wins editing</strong> — the API has no concurrency mechanism (verified), so simultaneous edits overwrite; mitigated by fresh-read initialization and post-save re-sync, and documented rather than papered over with fake client-side "protection".</li>
     <li><strong>Token storage in web storage</strong> — <code>localStorage</code> carries the usual XSS caveat; an httpOnly-cookie scheme would require backend changes out of proportion for this assignment.</li>
     <li><strong>Polling, not realtime</strong> — the cross-client bonus converges within ~15 s; a push channel was deliberately rejected (see <a href="development-decisions.html">decisions</a>).</li>
     <li><strong>Single main JS chunk &gt; 500 kB</strong> — Vite's informational warning; code-splitting three routes wasn't worth the complexity here.</li>
   </ul>
+  <ul class="tight" lang="tr">
+    <li><strong>Son yazan kazanır</strong> — API'de eşzamanlılık mekanizması yok (doğrulandı), dolayısıyla aynı anda yapılan düzenlemeler birbirinin üzerine yazar; taze okumayla başlatma ve kayıt sonrası yeniden senkronizasyon bunu hafifletir, üstelik sahte bir istemci tarafı "koruma" ile örtmek yerine belgelendi.</li>
+    <li><strong>Token'ların web storage'da tutulması</strong> — <code>localStorage</code> bilindik XSS uyarısını taşır; httpOnly cookie düzeni, bu ödev için orantısız kalacak backend değişiklikleri gerektirirdi.</li>
+    <li><strong>Realtime değil, polling</strong> — istemciler arası bonus ~15 s içinde yakınsar; push kanalı bilinçli olarak elendi (bkz. <a href="development-decisions.html">kararlar</a>).</li>
+    <li><strong>Tek ana JS chunk'ı &gt; 500 kB</strong> — Vite'ın bilgilendirme amaçlı uyarısı; üç rotayı code-splitting ile ayırmak buradaki karmaşıklığa değmezdi.</li>
+  </ul>
 </section>
 
-<footer>
+<footer lang="en">
   <a href="index.html">← Reviewer overview</a> · Related:
   <a href="mobile-report.html">Mobile architecture</a> ·
   <a href="backend-report.html">Backend &amp; modifications</a> ·
   <a href="development-decisions.html">Engineering decisions</a> ·
   <a href="agent-workflow-report.html">AI-assisted workflow</a>
 </footer>
+<footer lang="tr">
+  <a href="index.html">← Değerlendirici özeti</a> · İlgili:
+  <a href="mobile-report.html">Mobil mimari</a> ·
+  <a href="backend-report.html">Backend ve değişiklikler</a> ·
+  <a href="development-decisions.html">Mühendislik kararları</a> ·
+  <a href="agent-workflow-report.html">Yapay zekâ destekli süreç</a>
+</footer>
 
 </div>
+<script>
+(function () {
+  var KEY = 'stokmate-lang', root = document.documentElement, buttons = [];
+  function apply(lang) {
+    lang = lang === 'tr' ? 'tr' : 'en';
+    root.setAttribute('data-lang', lang);
+    root.setAttribute('lang', lang);
+    buttons.forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-set-lang') === lang));
+    });
+    try { localStorage.setItem(KEY, lang); } catch (e) {}
+  }
+  function init() {
+    buttons = Array.prototype.slice.call(document.querySelectorAll('[data-set-lang]'));
+    buttons.forEach(function (b) {
+      b.addEventListener('click', function () { apply(b.getAttribute('data-set-lang')); });
+    });
+    var initial = 'en';
+    try { var s = localStorage.getItem(KEY); if (s === 'tr' || s === 'en') initial = s; } catch (e) {}
+    var q = (location.search.match(/[?&]lang=(tr|en)(?:&|$)/) || [])[1];
+    if (q) initial = q;
+    apply(initial);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
 </body>
 </html>

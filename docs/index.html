@@ -1,12 +1,12 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>StokMate — Documentation</title>
 <style>
   :root{
-    --bg:#fafaf9; --surface:#ffffff; --border:#e7e5e4;
+    --bg:#fafaf9; --surface:#ffffff; --border:#e7e5e4; --border-strong:#d6d3d1;
     --text:#1c1917; --text-2:#57534e; --text-3:#78716c; --accent:#1d4ed8;
     --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   }
@@ -27,23 +27,51 @@
   ul{padding-left:20px;margin:10px 0 0}
   li{margin-bottom:6px;font-size:14px}
   .foot{margin-top:36px;border-top:1px solid var(--border);padding-top:16px;font-size:13px;color:var(--text-3)}
+  /* --- EN/TR bilingual layer --- */
+  [data-lang="en"] [lang="tr"]{display:none !important}
+  [data-lang="tr"] [lang="en"]{display:none !important}
+  .langswitch{display:inline-flex;align-items:stretch;border:1px solid var(--border-strong,#d6d3d1);
+    border-radius:999px;overflow:hidden;background:var(--surface,#fff);font-size:12px;line-height:1}
+  .langswitch button{appearance:none;background:transparent;border:0;cursor:pointer;padding:7px 13px;
+    font:inherit;font-weight:700;letter-spacing:.06em;color:var(--text-3,#78716c)}
+  .langswitch button + button{border-left:1px solid var(--border,#e7e5e4)}
+  .langswitch button[aria-pressed="true"]{background:var(--accent,#1d4ed8);color:#fff}
+  .langswitch button:focus-visible{outline:2px solid var(--accent,#1d4ed8);outline-offset:2px}
+  .langbar{display:flex;justify-content:flex-end;margin:0 0 14px}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <p class="kicker">StokMate · Take-home delivery</p>
-  <h1>Project documentation</h1>
-  <p>Web admin and mobile clients over the provided StokMate .NET API. Setup and run instructions live in the
-  repository <a href="https://github.com/alpersarper/stokmate-assignment#readme">README</a>.</p>
+  <div class="langbar">
+    <div class="langswitch" role="group" aria-label="Language / Dil">
+      <button type="button" data-set-lang="en" aria-pressed="true">EN</button>
+      <button type="button" data-set-lang="tr" aria-pressed="false">TR</button>
+    </div>
+  </div>
 
-  <a class="cta" href="reviewer/">
+  <p class="kicker" lang="en">StokMate · Take-home delivery</p>
+  <p class="kicker" lang="tr">StokMate · Değerlendirme projesi teslimi</p>
+  <h1 lang="en">Project documentation</h1>
+  <h1 lang="tr">Proje dokümantasyonu</h1>
+  <p lang="en">Web admin and mobile clients over the provided StokMate .NET API. Setup and run instructions live in the
+  repository <a href="https://github.com/alpersarper/stokmate-assignment#readme">README</a>.</p>
+  <p lang="tr">Verilen StokMate .NET API'si üzerine kurulu web yönetim paneli ve mobil istemci. Kurulum ve çalıştırma
+  adımları depo <a href="https://github.com/alpersarper/stokmate-assignment/blob/main/README.tr.md">README</a>'sinde.</p>
+
+  <a class="cta" href="reviewer/" lang="en">
     <span class="t">Reviewer overview →</span>
     <span class="d">Architecture, state and data flow, backend modifications, engineering decisions, and the
     AI-assisted development workflow.</span>
   </a>
+  <a class="cta" href="reviewer/?lang=tr" lang="tr">
+    <span class="t">Değerlendirici özeti →</span>
+    <span class="d">Mimari, state ve veri akışı, backend değişiklikleri, mühendislik kararları ve
+    yapay zekâ destekli geliştirme süreci.</span>
+  </a>
 
-  <p>Source documents in this directory (Markdown, on GitHub):</p>
-  <ul>
+  <p lang="en">Source documents in this directory (Markdown, on GitHub):</p>
+  <p lang="tr">Bu dizindeki kaynak belgeler (Markdown, GitHub üzerinde):</p>
+  <ul lang="en">
     <li><a href="https://github.com/alpersarper/stokmate-assignment/blob/main/docs/API_CONTRACT.md">API_CONTRACT.md</a> — verified backend behavior</li>
     <li><a href="https://github.com/alpersarper/stokmate-assignment/blob/main/docs/ARCHITECTURE.md">ARCHITECTURE.md</a> — approved technical architecture</li>
     <li><a href="https://github.com/alpersarper/stokmate-assignment/blob/main/docs/DECISIONS.md">DECISIONS.md</a> — engineering decision records</li>
@@ -51,9 +79,46 @@
     <li><a href="https://github.com/alpersarper/stokmate-assignment/blob/main/docs/ACCEPTANCE_CRITERIA.md">ACCEPTANCE_CRITERIA.md</a> — completion criteria</li>
     <li><a href="https://github.com/alpersarper/stokmate-assignment/blob/main/docs/IMPLEMENTATION_REPORT.md">IMPLEMENTATION_REPORT.md</a> — verified status and evidence</li>
   </ul>
+  <ul lang="tr">
+    <li><a href="https://github.com/alpersarper/stokmate-assignment/blob/main/docs/API_CONTRACT.md">API_CONTRACT.md</a> — doğrulanmış backend davranışı</li>
+    <li><a href="https://github.com/alpersarper/stokmate-assignment/blob/main/docs/ARCHITECTURE.md">ARCHITECTURE.md</a> — onaylanmış teknik mimari</li>
+    <li><a href="https://github.com/alpersarper/stokmate-assignment/blob/main/docs/DECISIONS.md">DECISIONS.md</a> — mühendislik karar kayıtları</li>
+    <li><a href="https://github.com/alpersarper/stokmate-assignment/blob/main/docs/UX_DECISIONS.md">UX_DECISIONS.md</a> — onaylanmış ürün davranışı</li>
+    <li><a href="https://github.com/alpersarper/stokmate-assignment/blob/main/docs/ACCEPTANCE_CRITERIA.md">ACCEPTANCE_CRITERIA.md</a> — tamamlanma ölçütleri</li>
+    <li><a href="https://github.com/alpersarper/stokmate-assignment/blob/main/docs/IMPLEMENTATION_REPORT.md">IMPLEMENTATION_REPORT.md</a> — doğrulanmış durum ve kanıtlar</li>
+  </ul>
 
-  <p class="foot">The reviewer reports are self-contained HTML — they also open directly from a clone under
-  <code>docs/reviewer/</code>.</p>
+  <p class="foot" lang="en">The reviewer reports are self-contained HTML — they also open directly from a clone under
+  <code>docs/reviewer/</code>, and each one carries its own EN/TR switch.</p>
+  <p class="foot" lang="tr">Değerlendirici raporları kendi kendine yeten HTML dosyalarıdır — bir klondan
+  <code>docs/reviewer/</code> altından doğrudan açılır ve her biri kendi EN/TR anahtarını taşır.</p>
 </div>
+<script>
+(function () {
+  var KEY = 'stokmate-lang', root = document.documentElement, buttons = [];
+  function apply(lang) {
+    lang = lang === 'tr' ? 'tr' : 'en';
+    root.setAttribute('data-lang', lang);
+    root.setAttribute('lang', lang);
+    buttons.forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-set-lang') === lang));
+    });
+    try { localStorage.setItem(KEY, lang); } catch (e) {}
+  }
+  function init() {
+    buttons = Array.prototype.slice.call(document.querySelectorAll('[data-set-lang]'));
+    buttons.forEach(function (b) {
+      b.addEventListener('click', function () { apply(b.getAttribute('data-set-lang')); });
+    });
+    var initial = 'en';
+    try { var s = localStorage.getItem(KEY); if (s === 'tr' || s === 'en') initial = s; } catch (e) {}
+    var q = (location.search.match(/[?&]lang=(tr|en)(?:&|$)/) || [])[1];
+    if (q) initial = q;
+    apply(initial);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
 </body>
 </html>
