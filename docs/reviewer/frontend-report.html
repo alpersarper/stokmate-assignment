@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StokMate — Web Admin Architecture</title>
+<style>
+  :root{
+    --bg:#fafaf9; --surface:#ffffff; --border:#e7e5e4; --border-strong:#d6d3d1;
+    --text:#1c1917; --text-2:#57534e; --text-3:#78716c;
+    --accent:#1d4ed8; --accent-soft:#eff6ff;
+    --ok:#15803d; --ok-soft:#f0fdf4; --warn:#a16207; --warn-soft:#fefce8;
+    --danger:#b91c1c; --danger-soft:#fef2f2;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:980px;margin:0 auto;padding:40px 24px 80px}
+  .back{font-size:13.5px;display:inline-block;margin-bottom:18px}
+  header.page{border-bottom:1px solid var(--border);padding-bottom:20px;margin-bottom:28px}
+  .kicker{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:0 0 6px}
+  h1{font-size:28px;line-height:1.2;margin:0 0 8px}
+  .lede{color:var(--text-2);font-size:16px;margin:0;max-width:72ch}
+  h2{font-size:20px;margin:40px 0 12px}
+  h3{font-size:16px;margin:24px 0 8px}
+  p{margin:0 0 12px;max-width:78ch}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  code{font-family:var(--mono);font-size:13px;background:#f5f5f4;border:1px solid var(--border);border-radius:4px;padding:1px 5px}
+  .diagram{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin:16px 0;overflow-x:auto}
+  .diagram svg{display:block;min-width:640px;width:100%;height:auto}
+  .diagram figcaption{font-size:13px;color:var(--text-3);margin-top:10px}
+  .tablewrap{overflow-x:auto;margin:14px 0}
+  table{border-collapse:collapse;width:100%;background:var(--surface);
+    border:1px solid var(--border);font-size:14px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{background:#f5f5f4;font-size:12.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-2)}
+  tr:last-child td{border-bottom:none}
+  ul.tight{margin:8px 0 16px;padding-left:20px}
+  ul.tight li{margin-bottom:6px;max-width:78ch}
+  ol.flow{margin:8px 0 16px;padding-left:22px}
+  ol.flow li{margin-bottom:6px;max-width:78ch}
+  .note{background:var(--accent-soft);border:1px solid #bfdbfe;border-radius:10px;padding:12px 16px;margin:14px 0;font-size:14px}
+  .warnbox{background:var(--warn-soft);border:1px solid #fde68a;border-radius:10px;padding:12px 16px;margin:14px 0;font-size:14px}
+  footer{margin-top:48px;border-top:1px solid var(--border);padding-top:16px;font-size:13px;color:var(--text-3)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<a class="back" href="index.html">← Reviewer overview</a>
+<header class="page">
+  <p class="kicker">StokMate · Reviewer report</p>
+  <h1>Web admin architecture</h1>
+  <p class="lede">The head-office operational surface: product management over the live API — search, filter, sort,
+  paginate, inspect, and edit. Source: <code>web/</code>. Vite + React + TypeScript (strict), React Router,
+  TanStack Query v5, Tailwind CSS v4 + shadcn/ui.</p>
+</header>
+
+<section>
+  <h2 style="margin-top:0">Purpose</h2>
+  <p>The web app is the <strong>admin</strong> half of the product: head-office staff manage the catalog. Its job is
+  operational efficiency — many products visible at once, fast narrowing, safe edits, and confidence that what is on
+  screen matches the server. It is deliberately not a consumer-styled site; density and scanability win over
+  presentation.</p>
+</section>
+
+<section>
+  <h2>Architecture</h2>
+  <p>A three-route SPA (<code>/login</code>, <code>/products</code>, <code>/products/:id</code>) in a
+  feature-folder-lite layout: <code>api/</code> (client instance + storage adapter), <code>auth/</code>,
+  <code>products/</code>, <code>components/</code> (shadcn primitives + freshness control), <code>lib/</code>
+  (query client, refresh pipeline, currency input), <code>i18n/</code>. All server communication goes through the
+  shared <code>@stokmate/shared</code> client; components never call <code>fetch</code>.</p>
+  <figure class="diagram">
+    <svg viewBox="0 0 900 400" role="img" aria-label="Web admin layers: routes render pages, pages read UI state from the URL and server state from TanStack Query hooks, hooks call the shared API client, which talks to the backend">
+      <g font-family="-apple-system,Segoe UI,Roboto,sans-serif">
+        <rect x="30" y="24" width="840" height="86" rx="10" fill="#ffffff" stroke="#d6d3d1"/>
+        <text x="50" y="50" font-size="14" font-weight="700" fill="#1c1917">Routes &amp; pages — React Router</text>
+        <rect x="50" y="62" width="230" height="34" rx="6" fill="#f5f5f4" stroke="#e7e5e4"/>
+        <text x="62" y="84" font-size="12.5" fill="#44403c">/login · LoginPage (RHF form)</text>
+        <rect x="300" y="62" width="270" height="34" rx="6" fill="#f5f5f4" stroke="#e7e5e4"/>
+        <text x="312" y="84" font-size="12.5" fill="#44403c">/products · ProductListPage (table)</text>
+        <rect x="590" y="62" width="260" height="34" rx="6" fill="#f5f5f4" stroke="#e7e5e4"/>
+        <text x="602" y="84" font-size="12.5" fill="#44403c">/products/:id · Detail + EditForm</text>
+
+        <line x1="450" y1="110" x2="450" y2="140" stroke="#a8a29e" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+        <rect x="30" y="144" width="410" height="96" rx="10" fill="#eff6ff" stroke="#93c5fd"/>
+        <text x="50" y="170" font-size="14" font-weight="700" fill="#1d4ed8">UI state</text>
+        <text x="50" y="192" font-size="12.5" fill="#44403c">URL search params (q, category, brand, status,</text>
+        <text x="50" y="208" font-size="12.5" fill="#44403c">sort, dir, page) · RHF form state · auth context</text>
+        <text x="50" y="228" font-size="12" fill="#78716c">RequireAuth guards · useBlocker for unsaved changes</text>
+
+        <rect x="460" y="144" width="410" height="96" rx="10" fill="#eff6ff" stroke="#93c5fd"/>
+        <text x="480" y="170" font-size="14" font-weight="700" fill="#1d4ed8">Server state — TanStack Query v5</text>
+        <text x="480" y="192" font-size="12.5" fill="#44403c">products.list(params) · products.detail(id) · lookups</text>
+        <text x="480" y="208" font-size="12.5" fill="#44403c">keepPreviousData · anchored 15 s list poll · mutations</text>
+        <text x="480" y="228" font-size="12" fill="#78716c">retry ≤ 1, never on 4xx · staleTime 30 s · focus refetch</text>
+
+        <line x1="450" y1="240" x2="450" y2="270" stroke="#a8a29e" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+        <rect x="30" y="274" width="840" height="52" rx="10" fill="#ffffff" stroke="#93c5fd"/>
+        <text x="50" y="300" font-size="14" font-weight="700" fill="#1d4ed8">@stokmate/shared api-core</text>
+        <text x="330" y="300" font-size="12.5" fill="#44403c">typed endpoints · Bearer injection · error normalization · single-flight 401 → refresh → retry</text>
+
+        <line x1="450" y1="326" x2="450" y2="352" stroke="#a8a29e" stroke-width="1.5" marker-end="url(#arr2)"/>
+        <rect x="30" y="356" width="840" height="34" rx="10" fill="#f5f5f4" stroke="#d6d3d1"/>
+        <text x="450" y="378" font-size="13" font-weight="600" fill="#44403c" text-anchor="middle">StokMate .NET API — http://localhost:5080 (VITE_API_URL)</text>
+      </g>
+      <defs>
+        <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#a8a29e"/>
+        </marker>
+      </defs>
+    </svg>
+    <figcaption>Every layer has one job: the URL describes <em>what the user is looking at</em>, TanStack Query owns
+    <em>what the server said</em>, the shared client owns <em>how the server is spoken to</em>.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>State ownership</h2>
+  <p>The deliberate outcome is that <strong>no global state store exists</strong> — and none is missing. Every piece
+  of state has exactly one owner:</p>
+  <div class="tablewrap">
+  <table>
+    <tr><th>State</th><th>Where it lives</th><th>Why there</th></tr>
+    <tr><td><strong>Server data</strong> (products, lookups)</td><td>TanStack Query cache, keyed by the shared query-key factory</td><td>One server-state layer for the whole app; cache entries are addressable and invalidatable by key.</td></tr>
+    <tr><td><strong>List state</strong>: search, category/brand/status filters, sort, direction, page</td><td>URL search params (<code>useSearchParams</code>, <code>web/src/products/ProductListPage.tsx</code>)</td><td>Returning from detail restores the exact view; survives reload; shareable; and the parsed params <em>are</em> the query key — URL and data can never disagree.</td></tr>
+    <tr><td><strong>Search input</strong> (pre-debounce)</td><td>Local component state, 300 ms debounce to the URL</td><td>Typing feels immediate without a request per keystroke.</td></tr>
+    <tr><td><strong>Session</strong> (<code>{ user, status }</code>)</td><td><code>AuthProvider</code> React context; tokens live only in the storage adapter (<code>localStorage</code> or <code>sessionStorage</code>), never in React state</td><td>Components need "who is signed in", not tokens; keeping tokens out of React state avoids stale copies.</td></tr>
+    <tr><td><strong>Edit-form draft</strong></td><td>react-hook-form inside <code>ProductEditForm</code></td><td><code>isDirty</code> drives Save enablement and the unsaved-changes guard; <code>isSubmitting</code> prevents duplicate saves.</td></tr>
+    <tr><td><strong>Freshness metadata</strong></td><td>Derived from the query's own <code>dataUpdatedAt</code> — no stored timestamp</td><td>"Last successful fetch" is definitionally what TanStack Query already records; a failed refresh cannot move the indicator.</td></tr>
+    <tr><td><strong>Refresh cooldown / poll anchor</strong></td><td>Hooks in <code>web/src/lib/refresh.ts</code></td><td>The whole freshness policy is ~90 lines in one file, reused by list and detail.</td></tr>
+    <tr><td><strong>UI-local bits</strong> (dialogs, toasts)</td><td>Component state / sonner's queue</td><td>Nothing else needs to know about them.</td></tr>
+  </table>
+  </div>
+  <p>Shared between pages only via the URL and the query cache — which is precisely what both are for.</p>
+</section>
+
+<section>
+  <h2>Representative data flow: saving a product edit</h2>
+  <figure class="diagram">
+    <svg viewBox="0 0 900 330" role="img" aria-label="Sequence: edit form submit builds a full PUT body from the fresh detail read, the shared client sends it, on success the detail cache is set from the response and list queries are invalidated, so the table refetches persisted state">
+      <g font-family="-apple-system,Segoe UI,Roboto,sans-serif" font-size="12.5">
+        <!-- lanes -->
+        <text x="80" y="30" font-weight="700" fill="#1c1917" text-anchor="middle">Edit form (RHF)</text>
+        <text x="300" y="30" font-weight="700" fill="#1c1917" text-anchor="middle">useUpdateProduct</text>
+        <text x="520" y="30" font-weight="700" fill="#1c1917" text-anchor="middle">shared api-core</text>
+        <text x="740" y="30" font-weight="700" fill="#1c1917" text-anchor="middle">Backend</text>
+        <line x1="80" y1="40" x2="80" y2="300" stroke="#e7e5e4"/>
+        <line x1="300" y1="40" x2="300" y2="300" stroke="#e7e5e4"/>
+        <line x1="520" y1="40" x2="520" y2="300" stroke="#e7e5e4"/>
+        <line x1="740" y1="40" x2="740" y2="300" stroke="#e7e5e4"/>
+        <!-- messages -->
+        <line x1="80" y1="66" x2="296" y2="66" stroke="#57534e" stroke-width="1.5" marker-end="url(#arr3)"/>
+        <text x="90" y="58" fill="#57534e">submit: full body = fresh GET /products/{id} + edits (₺ → int kuruş)</text>
+        <line x1="300" y1="106" x2="516" y2="106" stroke="#57534e" stroke-width="1.5" marker-end="url(#arr3)"/>
+        <text x="310" y="98" fill="#57534e">updateProduct(id, completeBody)</text>
+        <line x1="520" y1="146" x2="736" y2="146" stroke="#57534e" stroke-width="1.5" marker-end="url(#arr3)"/>
+        <text x="530" y="138" fill="#57534e">PUT /products/{id} · Bearer</text>
+        <line x1="736" y1="186" x2="524" y2="186" stroke="#1d4ed8" stroke-width="1.5" marker-end="url(#arr3b)"/>
+        <text x="530" y="178" fill="#1d4ed8">200 · full updated ProductDto</text>
+        <line x1="516" y1="226" x2="304" y2="226" stroke="#1d4ed8" stroke-width="1.5" marker-end="url(#arr3b)"/>
+        <text x="310" y="218" fill="#1d4ed8">setQueryData(detail) from response · invalidate detail + lists</text>
+        <line x1="296" y1="266" x2="84" y2="266" stroke="#1d4ed8" stroke-width="1.5" marker-end="url(#arr3b)"/>
+        <text x="90" y="258" fill="#1d4ed8">exit edit mode · success toast · table refetches persisted state</text>
+      </g>
+      <defs>
+        <marker id="arr3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#57534e"/></marker>
+        <marker id="arr3b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1d4ed8"/></marker>
+      </defs>
+    </svg>
+    <figcaption>No optimistic updates anywhere: the UX contract requires displaying <em>persisted server state</em>
+    after a save, so the UI always re-syncs from the response and a follow-up refetch.</figcaption>
+  </figure>
+  <div class="warnbox"><strong>Why the full body matters:</strong> the API's PUT is a verified full replace — any omitted
+  field is silently reset to its C# default. The form therefore always initializes from a fresh
+  <code>GET /products/{id}</code> and sends the complete object back. A shared unit test asserts that
+  <code>barcode</code>/<code>isFeatured</code>/<code>costPrice</code>/<code>description</code> survive an edit.</div>
+</section>
+
+<section>
+  <h2>Product list</h2>
+  <ul class="tight">
+    <li><strong>Search</strong> — 300 ms debounce, trimmed, sent as <code>q</code> (server-side substring match on name/SKU/barcode); input preserved on failure; clearing restores the default list.</li>
+    <li><strong>Filters</strong> — category, brand, and status selects (single-value, matching the API's capability); any change resets to page 1; active filters stay visible with a reset action.</li>
+    <li><strong>Sorting</strong> — clickable Name/Price/Stock/Updated headers cycle asc/desc, mapped to the API's <code>sort</code>/<code>dir</code> params; server-side, like everything else about the list.</li>
+    <li><strong>Pagination</strong> — 1-based pages; <code>totalPages</code> computed client-side (<code>ceil(total/pageSize)</code>) because the API sends only <code>total</code>.</li>
+    <li><strong>Freshness &amp; refresh</strong> — "Updated just now / X ago" from <code>dataUpdatedAt</code>; a manual Refresh button with a 4 s post-settle cooldown; a 15 s poll anchored to the last fetch settle keeps the open list converging on other clients' changes (the optional bonus) without ever stacking on manual or focus-triggered fetches.</li>
+    <li><strong>States</strong> — table skeleton on first load; <code>keepPreviousData</code> + a subtle fetching indicator during narrowing (existing rows stay visible); dedicated zero-result and error+retry states; count label with correct EN pluralization.</li>
+    <li><strong>Domain presentation</strong> — status as localized text badges (color as reinforcement only), stock with the API's own low-stock signal (<code>stock ≤ minStock</code>) in amber and out-of-stock in red, prices in tabular numerals via integer-kuruş formatting.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Product edit flow</h2>
+  <ol class="flow">
+    <li>Detail opens <strong>read-only</strong>; editing is an explicit action (UX-002).</li>
+    <li>The form initializes from a fresh detail read; prices are edited in ₺ and converted exactly to integer kuruş (no floats anywhere).</li>
+    <li>Client-side rules mirror the <em>verified</em> API rules (required name/SKU, non-negative numbers, valid unit/status) to prevent generic 400s; the backend stays authoritative.</li>
+    <li>Save is enabled only when dirty ∧ valid ∧ not submitting. Cancel, back navigation, and logout are all guarded by an unsaved-changes confirmation (<code>useBlocker</code>).</li>
+    <li>On success: exit edit mode, show the persisted server state, toast. On failure: stay in edit mode, preserve input, surface the error (known statuses map to localized messages — e.g. the SKU-conflict 409; unknown ones get a generic fallback with the server text as detail).</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Auth &amp; session lifecycle</h2>
+  <ol class="flow">
+    <li><strong>Login</strong> — RHF form; "Remember me" decides the token store: <code>localStorage</code> (survives the browser) vs <code>sessionStorage</code> (dies with the tab). Tokens are opaque; nothing is decoded client-side.</li>
+    <li><strong>Startup restore</strong> — if a persisted session exists, <code>AuthProvider</code> validates it once via <code>GET /auth/me</code> before rendering the app (StrictMode-deduped), showing a restoring state instead of a login flash.</li>
+    <li><strong>Mid-session expiry</strong> — any 401 triggers the shared client's single-flight refresh; concurrent 401s join one refresh call (strict rotation makes racing fatal); the original request retries once with the new token. Users never see a 15-minute-token hiccup.</li>
+    <li><strong>Unrecoverable session</strong> — refresh fails (rotated away, revoked, or the in-memory backend restarted): storage is cleared and the app returns to login cleanly. A session <em>epoch</em> counter ensures stale in-flight requests can neither resurrect a logged-out session nor tear down a new one.</li>
+    <li><strong>Logout</strong> — best-effort server revoke, always clear local state, navigate to login with history replaced. The backend drops all of the user's access tokens across clients — which is exactly the scenario the refresh interceptor exists for on the other client.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Library choices</h2>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Library</th><th>Why</th></tr>
+    <tr><td>React Router (declarative)</td><td>Three routes need the boring default; <code>useSearchParams</code> gives the URL-owned list state, <code>useBlocker</code> the navigation guard.</td></tr>
+    <tr><td>TanStack Query v5</td><td>The locked server-state decision, adopted willingly: per-key caching gives stale-response protection for free, <code>keepPreviousData</code> gives calm filtering, invalidation gives "list shows persisted state after save".</td></tr>
+    <tr><td>react-hook-form</td><td><code>isDirty</code>/<code>isSubmitting</code> map 1:1 onto the UX rules for Save enablement and duplicate-save prevention. No schema library — the backend is authoritative and client-known rules are few.</td></tr>
+    <tr><td>Tailwind v4 + shadcn/ui</td><td>Primitives are vendored into <code>web/src/components/ui/</code> as owned, inspectable source; only the ~10 components the assignment needs are installed.</td></tr>
+    <tr><td>sonner</td><td>The queued toast behavior UX-004 specifies (top-right, max 3, queue) out of the box.</td></tr>
+  </table>
+  </div>
+</section>
+
+<section>
+  <h2>Admin UX philosophy</h2>
+  <p>Operational software for daily use: a dense, scannable table as the centerpiece; status as text labels with color
+  as reinforcement only; tabular numerals for every quantity; restrained neutral palette with one chromatic accent;
+  no decoration, gradients, or hero moments. Loading feedback is layered so work is never interrupted — skeletons only
+  on first load, previous data during narrowing, subtle indicators during background refresh. The design language is
+  recorded in <code>web/DESIGN.md</code> and the shared <code>DESIGN.md</code>.</p>
+</section>
+
+<section>
+  <h2>Trade-offs and limitations</h2>
+  <ul class="tight">
+    <li><strong>Last-write-wins editing</strong> — the API has no concurrency mechanism (verified), so simultaneous edits overwrite; mitigated by fresh-read initialization and post-save re-sync, and documented rather than papered over with fake client-side "protection".</li>
+    <li><strong>Token storage in web storage</strong> — <code>localStorage</code> carries the usual XSS caveat; an httpOnly-cookie scheme would require backend changes out of proportion for this assignment.</li>
+    <li><strong>Polling, not realtime</strong> — the cross-client bonus converges within ~15 s; a push channel was deliberately rejected (see <a href="development-decisions.html">decisions</a>).</li>
+    <li><strong>Single main JS chunk &gt; 500 kB</strong> — Vite's informational warning; code-splitting three routes wasn't worth the complexity here.</li>
+  </ul>
+</section>
+
+<footer>
+  <a href="index.html">← Reviewer overview</a> · Related:
+  <a href="mobile-report.html">Mobile architecture</a> ·
+  <a href="backend-report.html">Backend &amp; modifications</a> ·
+  <a href="development-decisions.html">Engineering decisions</a> ·
+  <a href="agent-workflow-report.html">AI-assisted workflow</a>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StokMate — Documentation</title>
+<style>
+  :root{
+    --bg:#fafaf9; --surface:#ffffff; --border:#e7e5e4;
+    --text:#1c1917; --text-2:#57534e; --text-3:#78716c; --accent:#1d4ed8;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:760px;margin:0 auto;padding:56px 24px 80px}
+  .kicker{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:0 0 6px}
+  h1{font-size:28px;line-height:1.2;margin:0 0 10px}
+  p{color:var(--text-2);margin:0 0 14px;max-width:70ch}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .cta{display:block;background:var(--surface);border:1px solid var(--border);border-radius:10px;
+    padding:18px 20px;margin:22px 0;color:var(--text)}
+  .cta:hover{border-color:var(--accent);text-decoration:none}
+  .cta .t{font-size:17px;font-weight:600;color:var(--accent);display:block;margin-bottom:4px}
+  .cta .d{font-size:14px;color:var(--text-2)}
+  ul{padding-left:20px;margin:10px 0 0}
+  li{margin-bottom:6px;font-size:14px}
+  .foot{margin-top:36px;border-top:1px solid var(--border);padding-top:16px;font-size:13px;color:var(--text-3)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="kicker">StokMate · Take-home delivery</p>
+  <h1>Project documentation</h1>
+  <p>Web admin and mobile clients over the provided StokMate .NET API. Setup and run instructions live in the
+  repository <a href="https://github.com/alpersarper/stokmate-assignment#readme">README</a>.</p>
+
+  <a class="cta" href="reviewer/">
+    <span class="t">Reviewer overview →</span>
+    <span class="d">Architecture, state and data flow, backend modifications, engineering decisions, and the
+    AI-assisted development workflow.</span>
+  </a>
+
+  <p>Source documents in this directory (Markdown, on GitHub):</p>
+  <ul>
+    <li><a href="https://github.com/alpersarper/stokmate-assignment/blob/main/docs/API_CONTRACT.md">API_CONTRACT.md</a> — verified backend behavior</li>
+    <li><a href="https://github.com/alpersarper/stokmate-assignment/blob/main/docs/ARCHITECTURE.md">ARCHITECTURE.md</a> — approved technical architecture</li>
+    <li><a href="https://github.com/alpersarper/stokmate-assignment/blob/main/docs/DECISIONS.md">DECISIONS.md</a> — engineering decision records</li>
+    <li><a href="https://github.com/alpersarper/stokmate-assignment/blob/main/docs/UX_DECISIONS.md">UX_DECISIONS.md</a> — approved product behavior</li>
+    <li><a href="https://github.com/alpersarper/stokmate-assignment/blob/main/docs/ACCEPTANCE_CRITERIA.md">ACCEPTANCE_CRITERIA.md</a> — completion criteria</li>
+    <li><a href="https://github.com/alpersarper/stokmate-assignment/blob/main/docs/IMPLEMENTATION_REPORT.md">IMPLEMENTATION_REPORT.md</a> — verified status and evidence</li>
+  </ul>
+
+  <p class="foot">The reviewer reports are self-contained HTML — they also open directly from a clone under
+  <code>docs/reviewer/</code>.</p>
+</div>
+</body>
+</html>
