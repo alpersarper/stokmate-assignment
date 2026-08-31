@@ -12,8 +12,22 @@ import {
 import { PrimaryButton } from '../components/ui';
 import { useI18n } from '../i18n';
 import { describeFailure } from '../lib/errors';
-import { colors, radius } from '../lib/theme';
+import { colors, elevation, radius, spacing } from '../lib/theme';
 import { useAuth } from './AuthContext';
+
+/**
+ * StokMate brand mark: three ascending stock bars on a primary tile.
+ * Mirrors web/public/favicon.svg — plain Views, no image/icon dependency.
+ */
+function BrandMark() {
+  return (
+    <View style={styles.brandTile} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+      <View style={[styles.brandBar, { height: 10 }]} />
+      <View style={[styles.brandBar, { height: 17 }]} />
+      <View style={[styles.brandBar, { height: 24 }]} />
+    </View>
+  );
+}
 
 /**
  * UX-007 login. On failure: email preserved, password cleared, clear
@@ -66,8 +80,13 @@ export function LoginScreen() {
         bounces={false}
       >
         <View style={styles.card}>
-          <Text style={styles.title}>{t('appTitle')}</Text>
-          <Text style={styles.subtitle}>{t('loginSubtitle')}</Text>
+          <View style={styles.brandRow}>
+            <BrandMark />
+            <View style={styles.brandTextBlock}>
+              <Text style={styles.title}>{t('appTitle')}</Text>
+              <Text style={styles.subtitle}>{t('loginSubtitle')}</Text>
+            </View>
+          </View>
 
           {formError ? (
             <View style={styles.errorBanner} accessibilityRole="alert">
@@ -198,17 +217,30 @@ function LanguageSwitch() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1, backgroundColor: colors.background },
-  scroll: { flexGrow: 1, justifyContent: 'center', padding: 20, gap: 24 },
+  scroll: { flexGrow: 1, justifyContent: 'center', padding: spacing.xl, gap: spacing.xxl },
   card: {
     backgroundColor: colors.surface,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: 24,
-    gap: 16,
+    borderRadius: radius.lg + 2,
+    padding: spacing.xxl,
+    gap: spacing.lg,
+    ...elevation.card,
   },
-  title: { fontSize: 26, fontWeight: '700', color: colors.text },
-  subtitle: { fontSize: 14, color: colors.textMuted, marginTop: -10 },
+  brandRow: { flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: spacing.xs },
+  brandTile: {
+    width: 52,
+    height: 52,
+    borderRadius: radius.lg,
+    backgroundColor: colors.primary,
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    gap: 4,
+    paddingBottom: 13,
+  },
+  brandBar: { width: 6, borderRadius: 3, backgroundColor: colors.onPrimary },
+  brandTextBlock: { flex: 1, gap: 2 },
+  title: { fontSize: 24, fontWeight: '700', letterSpacing: -0.3, color: colors.text },
+  subtitle: { fontSize: 14, color: colors.textMuted },
 
   errorBanner: {
     backgroundColor: colors.dangerSurface,
@@ -224,25 +256,25 @@ const styles = StyleSheet.create({
   field: { gap: 6 },
   label: { fontSize: 13, fontWeight: '600', color: colors.textSecondary },
   input: {
-    borderWidth: 1,
-    borderColor: colors.borderStrong,
+    borderWidth: 1.5,
+    borderColor: colors.surfaceMuted,
     borderRadius: radius.md,
-    paddingHorizontal: 12,
+    paddingHorizontal: spacing.md,
     paddingVertical: 10,
     fontSize: 16,
     color: colors.text,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceMuted,
   },
-  inputInvalid: { borderColor: colors.danger },
+  inputInvalid: { borderColor: colors.danger, backgroundColor: colors.dangerSurface },
   fieldError: { color: colors.danger, fontSize: 12 },
-  passwordRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  passwordRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   passwordInput: { flex: 1 },
   eyeButton: {
-    borderWidth: 1,
-    borderColor: colors.borderStrong,
     borderRadius: radius.md,
-    paddingVertical: 10,
-    paddingHorizontal: 10,
+    paddingVertical: 11,
+    paddingHorizontal: spacing.md,
+    backgroundColor: colors.surfaceMuted,
+    overflow: 'hidden',
   },
   eyeButtonText: { fontSize: 12, color: colors.textSecondary, fontWeight: '600' },
 
@@ -269,14 +301,12 @@ const styles = StyleSheet.create({
   },
   languageLabel: { color: colors.textMuted, fontSize: 13 },
   languageChip: {
-    borderWidth: 1,
-    borderColor: colors.borderStrong,
-    borderRadius: 999,
-    paddingVertical: 6,
+    borderRadius: radius.pill,
+    paddingVertical: 7,
     paddingHorizontal: 14,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceMuted,
   },
-  languageChipActive: { backgroundColor: colors.text, borderColor: colors.text },
+  languageChipActive: { backgroundColor: colors.text },
   languageChipText: { fontSize: 13, color: colors.textSecondary, fontWeight: '600' },
   languageChipTextActive: { color: colors.surface },
   pressed: { opacity: 0.7 },
