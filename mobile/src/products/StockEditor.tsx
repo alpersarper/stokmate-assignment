@@ -13,7 +13,7 @@ import { useSnackbar } from '../components/Snackbar';
 import { PrimaryButton } from '../components/ui';
 import { useI18n } from '../i18n';
 import { describeFailure } from '../lib/errors';
-import { colors, radius } from '../lib/theme';
+import { colors, elevation, numeral, radius, spacing, type } from '../lib/theme';
 import { applyProductToCaches } from './product-cache';
 
 /**
@@ -115,18 +115,24 @@ export function StockEditor({
 
   return (
     <View style={styles.card}>
-      <Text style={styles.title}>{t('stockEditorTitle')}</Text>
-      <Text style={styles.current}>
-        {t('currentStockLabel')}: <Text style={styles.currentValue}>{product.stock}</Text>
-      </Text>
+      <View style={styles.titleRow}>
+        <Text style={styles.title}>{t('stockEditorTitle')}</Text>
+        <Text style={styles.current}>
+          {t('currentStockLabel')}: <Text style={styles.currentValue}>{product.stock}</Text>
+        </Text>
+      </View>
 
       {discontinued ? (
-        <Text style={styles.discontinuedNotice}>{t('stockDiscontinuedNotice')}</Text>
+        <View style={[styles.notice, styles.noticeDanger]}>
+          <Text style={styles.noticeDangerText}>{t('stockDiscontinuedNotice')}</Text>
+        </View>
       ) : null}
       {!discontinued && externalChange && changed ? (
-        <Text style={styles.externalChangeNotice}>
-          {t('externalStockChange', { stock: product.stock })}
-        </Text>
+        <View style={[styles.notice, styles.noticeWarning]}>
+          <Text style={styles.noticeWarningText}>
+            {t('externalStockChange', { stock: product.stock })}
+          </Text>
+        </View>
       ) : null}
 
       <View style={styles.editorRow}>
@@ -135,6 +141,7 @@ export function StockEditor({
           accessibilityLabel={t('decreaseStock')}
           onPress={() => step(-1)}
           disabled={stepDisabledDown}
+          android_ripple={stepDisabledDown ? undefined : { color: colors.ripple }}
           style={({ pressed }) => [
             styles.stepButton,
             pressed && styles.stepButtonPressed,
@@ -166,6 +173,7 @@ export function StockEditor({
           accessibilityLabel={t('increaseStock')}
           onPress={() => step(1)}
           disabled={stepDisabledUp}
+          android_ripple={stepDisabledUp ? undefined : { color: colors.ripple }}
           style={({ pressed }) => [
             styles.stepButton,
             pressed && styles.stepButtonPressed,
@@ -191,48 +199,67 @@ export function StockEditor({
 }
 
 const styles = StyleSheet.create({
+  // The screen's single raised surface — stock update is the primary
+  // workflow (UX-005), so this card leads the depth hierarchy.
   card: {
     backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: radius.lg,
-    padding: 16,
-    gap: 12,
+    padding: spacing.lg,
+    gap: spacing.md,
+    ...elevation.raised,
   },
-  title: { fontSize: 16, fontWeight: '700', color: colors.text },
-  current: { fontSize: 14, color: colors.textSecondary },
-  currentValue: { fontWeight: '700', color: colors.text },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'space-between',
+    gap: spacing.md,
+  },
+  title: { ...type.title },
+  current: { fontSize: 13, color: colors.textSecondary },
+  currentValue: { fontWeight: '700', color: colors.text, ...numeral },
 
-  discontinuedNotice: { fontSize: 13, color: colors.danger },
-  externalChangeNotice: { fontSize: 13, color: colors.warning },
+  notice: {
+    borderRadius: radius.md,
+    borderWidth: 1,
+    paddingVertical: 10,
+    paddingHorizontal: spacing.md,
+  },
+  noticeDanger: { backgroundColor: colors.dangerSurface, borderColor: colors.dangerBorder },
+  noticeDangerText: { fontSize: 13, color: colors.danger, lineHeight: 18 },
+  noticeWarning: { backgroundColor: colors.warningSurface, borderColor: colors.warningBorder },
+  noticeWarningText: { fontSize: 13, color: colors.warning, lineHeight: 18 },
 
   editorRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   stepButton: {
-    width: 52,
-    height: 52,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.borderStrong,
-    backgroundColor: colors.surface,
+    width: 54,
+    height: 54,
+    borderRadius: radius.md + 2,
+    backgroundColor: colors.surfaceMuted,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
   },
-  stepButtonPressed: { backgroundColor: colors.border },
+  stepButtonPressed: { backgroundColor: colors.surfacePressed },
   stepButtonDisabled: { opacity: 0.4 },
-  stepButtonText: { fontSize: 26, color: colors.text, lineHeight: 30 },
+  stepButtonText: { fontSize: 28, color: colors.text, lineHeight: 32 },
   input: {
     flex: 1,
-    borderWidth: 1,
-    borderColor: colors.borderStrong,
-    borderRadius: radius.md,
+    borderWidth: 1.5,
+    borderColor: colors.surfaceMuted,
+    borderRadius: radius.md + 2,
     paddingVertical: 12,
-    fontSize: 20,
-    fontWeight: '600',
+    fontSize: 24,
+    fontWeight: '700',
     color: colors.text,
     textAlign: 'center',
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceMuted,
+    ...numeral,
   },
-  inputInvalid: { borderColor: colors.danger },
-  inputDisabled: { color: colors.disabledText, backgroundColor: colors.disabledSurface },
+  inputInvalid: { borderColor: colors.danger, backgroundColor: colors.dangerSurface },
+  inputDisabled: {
+    color: colors.disabledText,
+    backgroundColor: colors.disabledSurface,
+    borderColor: colors.disabledSurface,
+  },
   validationError: { color: colors.danger, fontSize: 13 },
 });

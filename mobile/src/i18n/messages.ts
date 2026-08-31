@@ -89,6 +89,7 @@ const en = {
   // Product detail
   productDetailTitle: 'Product detail',
   detailErrorTitle: 'Product could not be loaded.',
+  productInfoSection: 'Product info',
   skuLabel: 'SKU',
   barcodeLabel: 'Barcode',
   categoryLabel: 'Category',
@@ -201,6 +202,7 @@ const tr: Record<MessageKey, string> = {
 
   productDetailTitle: 'Ürün detayı',
   detailErrorTitle: 'Ürün yüklenemedi.',
+  productInfoSection: 'Ürün bilgileri',
   skuLabel: 'SKU',
   barcodeLabel: 'Barkod',
   categoryLabel: 'Kategori',
