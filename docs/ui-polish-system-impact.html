@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StokMate — UI Polish System Impact Report</title>
+<style>
+  :root{
+    --bg:#fafaf9; --surface:#ffffff; --border:#e7e5e4; --border-strong:#d6d3d1;
+    --text:#1c1917; --text-2:#57534e; --text-3:#78716c;
+    --accent:#1d4ed8; --accent-soft:#eff6ff;
+    --ok:#15803d; --ok-soft:#f0fdf4; --warn:#a16207; --warn-soft:#fefce8;
+    --danger:#b91c1c; --danger-soft:#fef2f2;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:960px;margin:0 auto;padding:40px 24px 80px}
+  header.page{border-bottom:1px solid var(--border);padding-bottom:20px;margin-bottom:32px}
+  .eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  h1{font-size:26px;margin:6px 0 4px;letter-spacing:-.01em}
+  .sub{color:var(--text-2);margin:0}
+  h2{font-size:19px;margin:40px 0 12px;padding-top:24px;border-top:1px solid var(--border);letter-spacing:-.01em}
+  h2:first-of-type{border-top:none;padding-top:0;margin-top:24px}
+  h3{font-size:15px;margin:20px 0 8px}
+  p{margin:8px 0}
+  ul{margin:8px 0;padding-left:22px}
+  li{margin:4px 0}
+  code{font-family:var(--mono);font-size:13px;background:#f5f5f4;border:1px solid var(--border);
+    border-radius:4px;padding:1px 5px;white-space:nowrap}
+  pre{background:#1c1917;color:#e7e5e4;border-radius:8px;padding:14px 16px;overflow-x:auto;
+    font-family:var(--mono);font-size:13px;line-height:1.5}
+  pre code{background:none;border:none;color:inherit;padding:0;white-space:pre}
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:14px}
+  th{text-align:left;font-weight:600;color:var(--text-2);font-size:12px;letter-spacing:.04em;
+    text-transform:uppercase;padding:8px 10px;border-bottom:1.5px solid var(--border-strong)}
+  td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+  td code{white-space:normal;word-break:break-word}
+  .scroll{overflow-x:auto}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin:12px 0}
+  .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+  .tag{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.04em;border-radius:999px;
+    padding:2px 9px;border:1px solid;vertical-align:1px}
+  .tag.new{color:var(--ok);background:var(--ok-soft);border-color:#bbf7d0}
+  .tag.mod{color:var(--warn);background:var(--warn-soft);border-color:#fde68a}
+  .tag.dev{color:var(--accent);background:var(--accent-soft);border-color:#bfdbfe}
+  .tag.none{color:var(--text-3);background:#f5f5f4;border-color:var(--border)}
+  .callout{border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 8px 8px 0;
+    padding:10px 14px;margin:12px 0}
+  .callout.ok{border-color:var(--ok);background:var(--ok-soft)}
+  .callout.warn{border-color:var(--warn);background:var(--warn-soft)}
+  figure{margin:16px 0}
+  figcaption{font-size:13px;color:var(--text-3);margin-top:6px;text-align:center}
+  svg text{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+  .filetree{font-family:var(--mono);font-size:12.5px;line-height:1.7;white-space:pre;overflow-x:auto;
+    background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin:0}
+  .add{color:var(--ok);font-weight:600}
+  .chg{color:var(--warn);font-weight:600}
+  .dim{color:var(--text-3)}
+  footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--border);color:var(--text-3);font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="page">
+  <div class="eyebrow">StokMate · tooling &amp; documentation PR</div>
+  <h1>Agentic UI Polish System — Impact Report</h1>
+  <p class="sub">What this change adds, what it touches, what it deliberately does not touch, and how to use and undo it. Branch <code>fm/ui-polish-system</code> · 2026-08-31.</p>
+</header>
+
+<h2>1 · Executive summary</h2>
+<p>This PR introduces a <strong>repeatable, documented UI-polish workflow for Claude Code</strong> into the StokMate repository. It combines Anthropic's official <code>frontend-design</code> skill (general design judgment) with a repository-specific <code>product-ui-polish</code> skill (product constraints, inspection workflow, implementation discipline, verification), persistent design documentation (<code>DESIGN.md</code> at root, <code>web/</code>, and <code>mobile/</code>), and project-scoped inspection tooling (Chrome DevTools MCP for the rendered web app, the shadcn registry MCP, and the already-present official Expo plugin for mobile).</p>
+<div class="callout ok"><strong>Zero product change.</strong> This PR adds tooling, configuration, and documentation only. No product screen, style, component, API, or behavior was modified. The full verification suite (typecheck, lint, tests, production web build) passes unchanged.</div>
+<p>End state: a future session can be asked <code>/product-ui-polish products web table</code> and Claude will inspect the real rendered UI, critique it against StokMate's recorded design language, implement the smallest coherent improvement, and verify the result visually and behaviorally.</p>
+
+<h2>2 · Architecture</h2>
+<figure>
+<svg viewBox="0 0 900 340" role="img" aria-label="UI polish system architecture: skills and docs feed a workflow that drives inspection tooling, implementation and verification" style="width:100%;height:auto">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#a8a29e"/>
+    </marker>
+  </defs>
+  <!-- inputs column -->
+  <rect x="20" y="20" width="250" height="66" rx="8" fill="#eff6ff" stroke="#bfdbfe"/>
+  <text x="145" y="46" text-anchor="middle" font-size="14" font-weight="600" fill="#1e40af">frontend-design</text>
+  <text x="145" y="66" text-anchor="middle" font-size="11.5" fill="#57534e">official plugin · general design taste</text>
+
+  <rect x="20" y="106" width="250" height="66" rx="8" fill="#eff6ff" stroke="#bfdbfe"/>
+  <text x="145" y="132" text-anchor="middle" font-size="14" font-weight="600" fill="#1e40af">product-ui-polish</text>
+  <text x="145" y="152" text-anchor="middle" font-size="11.5" fill="#57534e">repo skill · rules + workflow + refs</text>
+
+  <rect x="20" y="192" width="250" height="66" rx="8" fill="#fefce8" stroke="#fde68a"/>
+  <text x="145" y="218" text-anchor="middle" font-size="14" font-weight="600" fill="#854d0e">DESIGN.md ×3 + UX_DECISIONS</text>
+  <text x="145" y="238" text-anchor="middle" font-size="11.5" fill="#57534e">recorded design language · constraints</text>
+
+  <!-- workflow center -->
+  <rect x="340" y="88" width="220" height="112" rx="10" fill="#ffffff" stroke="#d6d3d1" stroke-width="1.5"/>
+  <text x="450" y="116" text-anchor="middle" font-size="14" font-weight="600" fill="#1c1917">/product-ui-polish</text>
+  <text x="450" y="140" text-anchor="middle" font-size="12" fill="#57534e">understand → inspect →</text>
+  <text x="450" y="158" text-anchor="middle" font-size="12" fill="#57534e">critique → implement →</text>
+  <text x="450" y="176" text-anchor="middle" font-size="12" fill="#57534e">verify (visual + behavior)</text>
+
+  <!-- tooling column -->
+  <rect x="630" y="20" width="250" height="60" rx="8" fill="#f0fdf4" stroke="#bbf7d0"/>
+  <text x="755" y="44" text-anchor="middle" font-size="13.5" font-weight="600" fill="#166534">Chrome DevTools MCP</text>
+  <text x="755" y="62" text-anchor="middle" font-size="11.5" fill="#57534e">rendered web UI · screenshots · viewports</text>
+
+  <rect x="630" y="96" width="250" height="60" rx="8" fill="#f0fdf4" stroke="#bbf7d0"/>
+  <text x="755" y="120" text-anchor="middle" font-size="13.5" font-weight="600" fill="#166534">Expo plugin + emulator/adb</text>
+  <text x="755" y="138" text-anchor="middle" font-size="11.5" fill="#57534e">rendered mobile UI on Android</text>
+
+  <rect x="630" y="172" width="250" height="60" rx="8" fill="#f0fdf4" stroke="#bbf7d0"/>
+  <text x="755" y="196" text-anchor="middle" font-size="13.5" font-weight="600" fill="#166534">shadcn MCP</text>
+  <text x="755" y="214" text-anchor="middle" font-size="11.5" fill="#57534e">registry discovery · reference patterns</text>
+
+  <!-- output -->
+  <rect x="340" y="256" width="540" height="60" rx="8" fill="#ffffff" stroke="#d6d3d1"/>
+  <text x="610" y="280" text-anchor="middle" font-size="13.5" font-weight="600" fill="#1c1917">Smallest coherent change → before/after screenshots → checks green</text>
+  <text x="610" y="300" text-anchor="middle" font-size="11.5" fill="#57534e">new conventions recorded back into DESIGN.md for future sessions</text>
+
+  <!-- arrows -->
+  <line x1="270" y1="53" x2="340" y2="110" stroke="#a8a29e" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="270" y1="139" x2="340" y2="141" stroke="#a8a29e" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="270" y1="225" x2="340" y2="172" stroke="#a8a29e" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="560" y1="110" x2="630" y2="55" stroke="#a8a29e" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="560" y1="130" x2="630" y2="126" stroke="#a8a29e" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="560" y1="168" x2="630" y2="196" stroke="#a8a29e" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="450" y1="200" x2="450" y2="256" stroke="#a8a29e" stroke-width="1.5" marker-end="url(#arr)"/>
+</svg>
+<figcaption>Skills and recorded design language feed the workflow; the workflow drives real-UI inspection tooling; every pass ends in verification and documentation.</figcaption>
+</figure>
+<p>Division of labor: <code>frontend-design</code> brings general visual judgment (typography, hierarchy, restraint, self-critique). <code>product-ui-polish</code> overrides its "distinctive identity / aesthetic risk" framing with StokMate's operational-software rules, and adds everything the official skill cannot know: the recorded design language, the approved UX decisions, the inspection tooling, and the verification bar.</p>
+
+<h2>3 · Repository changes</h2>
+<div class="scroll"><table>
+<tr><th>File</th><th></th><th>Purpose / why</th></tr>
+<tr><td><code>.claude/settings.json</code></td><td><span class="tag new">new</span></td><td>Project-scoped enablement of the official <code>frontend-design@claude-plugins-official</code> plugin (the currently supported <code>enabledPlugins</code> mechanism). Uses the official implementation rather than copying its contents into the repo.</td></tr>
+<tr><td><code>.mcp.json</code></td><td><span class="tag new">new</span></td><td>Project-scoped MCP servers: <code>chrome-devtools</code> (pinned <code>chrome-devtools-mcp@1.8.0</code>) for inspecting the rendered web app, and <code>shadcn</code> (runs the workspace's own lockfile-pinned <code>shadcn</code> 4.19.0 dependency) for registry discovery. No credentials.</td></tr>
+<tr><td><code>.claude/skills/product-ui-polish/SKILL.md</code></td><td><span class="tag new">new</span></td><td>The polish skill: ground rules, the A–H workflow (understand → context → inspect → diagnose → references → implement → visual verify → behavior verify), and pointers to on-demand references. Explicitly user-invoked only.</td></tr>
+<tr><td><code>…/references/admin.md</code></td><td><span class="tag new">new</span></td><td>Web admin rules: operational software, density/scanability principles, both failure directions to avoid, where polish actually comes from.</td></tr>
+<tr><td><code>…/references/mobile.md</code></td><td><span class="tag new">new</span></td><td>Mobile rules: touch-first for store staff, one-handed use, shared-meaning/adapted-form relationship to the admin.</td></tr>
+<tr><td><code>…/references/data-tables.md</code></td><td><span class="tag new">new</span></td><td>Table rules for the admin's primary working surface: hierarchy, vertical scanning, formatting, restraint, states.</td></tr>
+<tr><td><code>…/references/data-visualization.md</code></td><td><span class="tag new">new</span></td><td>Chart rules for any future visualization: question-first, semantic colors, labeling, no decoration.</td></tr>
+<tr><td><code>…/references/data-freshness.md</code></td><td><span class="tag new">new</span></td><td>The freshness indicator + refresh coordination pattern (timestamp = last successful fetch; context-preserving revalidation; dedup/cooldown/backoff). Documents the pattern generically; defers to the product's actual implementation if one ships.</td></tr>
+<tr><td><code>DESIGN.md</code></td><td><span class="tag new">new</span></td><td>Shared product design language, <em>extracted</em> from the shipped product (status semantics, stock emphasis, ₺ formatting, EN/TR, interaction tone). No invented brand identity.</td></tr>
+<tr><td><code>web/DESIGN.md</code></td><td><span class="tag new">new</span></td><td>Web tokens and conventions: shadcn radix-nova + Tailwind v4 tokens, Geist, status/stock tint pairings, layout and state conventions.</td></tr>
+<tr><td><code>mobile/DESIGN.md</code></td><td><span class="tag new">new</span></td><td>Mobile tokens and conventions: hand-styled theme palette, semantic triads, typography scale, interaction and state patterns.</td></tr>
+<tr><td><code>AGENTS.md</code></td><td><span class="tag mod">modified</span></td><td>One bullet added to "Local development quick facts" pointing future agents at the skill, the DESIGN.md files, and this report.</td></tr>
+<tr><td><code>docs/ui-polish-system-impact.html</code></td><td><span class="tag new">new</span></td><td>This report.</td></tr>
+</table></div>
+
+<h2>4 · Repository structure, before → after</h2>
+<div class="cols">
+<pre class="filetree">stokmate-assignment/          <span class="dim">before</span>
+├── .claude/
+│   <span class="dim">└── settings.local.json (gitignored)</span>
+├── AGENTS.md
+├── CLAUDE.md
+├── README.md
+├── api/StokMate/
+├── docs/ (7 project docs)
+├── shared/
+├── web/
+└── mobile/
+    └── .claude/settings.json
+        <span class="dim">(expo plugin, pre-existing)</span></pre>
+<pre class="filetree">stokmate-assignment/          <span class="dim">after</span>
+├── .claude/
+│   ├── <span class="add">settings.json</span>
+│   └── <span class="add">skills/product-ui-polish/</span>
+│       ├── <span class="add">SKILL.md</span>
+│       └── <span class="add">references/ (5 files)</span>
+├── <span class="add">.mcp.json</span>
+├── <span class="chg">AGENTS.md</span>  <span class="dim">(+1 bullet)</span>
+├── <span class="add">DESIGN.md</span>
+├── docs/
+│   └── <span class="add">ui-polish-system-impact.html</span>
+├── web/<span class="add">DESIGN.md</span>
+└── mobile/<span class="add">DESIGN.md</span></pre>
+</div>
+
+<h2>5 · Tooling installed / configured</h2>
+<div class="scroll"><table>
+<tr><th>Tool</th><th>Vendor</th><th>Scope</th><th>How Claude uses it</th><th>Credentials</th><th>Runtime vs dev</th></tr>
+<tr><td><code>frontend-design</code> plugin</td><td>Anthropic (official marketplace)</td><td>Project (<code>.claude/settings.json</code>)</td><td>General design judgment loaded alongside the repo skill during polish passes</td><td>None</td><td><span class="tag dev">dev-tooling only</span></td></tr>
+<tr><td>Chrome DevTools MCP</td><td>Google (ChromeDevTools)</td><td>Project (<code>.mcp.json</code>), pinned 1.8.0</td><td>Open the dev server, screenshot, resize viewports, exercise interactions, read console/network</td><td>None</td><td><span class="tag dev">dev-tooling only</span></td></tr>
+<tr><td>shadcn MCP</td><td>shadcn (already a <code>web/</code> dependency)</td><td>Project (<code>.mcp.json</code>), lockfile-pinned 4.19.0</td><td>Registry/component discovery as reference material; installs still go through the CLI deliberately</td><td>None for the public registry</td><td><span class="tag dev">dev-tooling only</span></td></tr>
+<tr><td>Expo plugin</td><td>Expo (official marketplace)</td><td><strong>Pre-existing</strong> — <code>mobile/.claude/settings.json</code>, applies when launched from <code>mobile/</code></td><td>Expo skills + Expo MCP for mobile inspection/debugging; emulator screenshots also via <code>adb</code></td><td>Expo MCP offers optional sign-in via <code>/mcp</code>; not required for local inspection</td><td><span class="tag dev">dev-tooling only</span></td></tr>
+</table></div>
+<p><strong>Note for teammates:</strong> plugins declared in <code>enabledPlugins</code> come from the official marketplace, which Claude Code registers automatically; on a fresh machine the first session may prompt to install <code>frontend-design@claude-plugins-official</code> (one confirmation, no global side effects beyond the user's plugin cache). MCP servers in <code>.mcp.json</code> prompt for per-project approval on first use — the standard trust flow.</p>
+
+<h3>Evaluated but <em>not</em> installed</h3>
+<ul>
+  <li><strong>21st.dev MCP</strong> — optional reference-discovery source; requires a paid API key (<code>x-api-key</code> header / <code>TWENTY_FIRST_API_KEY</code>). Deliberately not configured: no committed secrets, and the first version prioritizes a reliable feedback loop over tool accumulation. Manual setup: generate a key at 21st.dev/mcp, add an HTTP server entry to <code>.mcp.json</code> using <code>${TWENTY_FIRST_API_KEY}</code> env expansion.</li>
+  <li><strong>Figma / Stitch</strong> — no design-file source of truth exists for this product; listed as future options (§17).</li>
+  <li><strong>superdesign / canvas-style redesign tools</strong> — redesign-oriented; conflicts with the polish-not-redesign discipline.</li>
+  <li><strong>Device-agent tooling beyond Expo/adb</strong> — not meaningfully additive: the emulator + Expo plugin + adb already cover mobile render inspection.</li>
+</ul>
+
+<h2>6 · What is affected immediately</h2>
+<ul>
+  <li>Claude Code sessions in this repo gain the <code>/product-ui-polish</code> skill and the two project MCP servers (after the standard first-use approval).</li>
+  <li>The <code>frontend-design</code> plugin is enabled project-wide.</li>
+  <li>Future agents see one new pointer bullet in <code>AGENTS.md</code>.</li>
+</ul>
+
+<h2>7 · What is NOT affected</h2>
+<div class="callout ok">
+<ul style="margin:4px 0">
+  <li><strong>No production UI change</strong> — no screen, component, style, or token was touched.</li>
+  <li><strong>No API change</strong> — backend (<code>api/StokMate</code>) untouched.</li>
+  <li><strong>No dependency change</strong> — <code>package.json</code>/<code>package-lock.json</code> untouched; no new runtime or dev dependency (MCP servers run via <code>npx</code> / existing workspace deps).</li>
+  <li><strong>No build, deploy, or CI change</strong> — no scripts or pipelines modified (the repo has no CI; none added).</li>
+  <li><strong>No database or data change</strong> — the backend is in-memory seeded; irrelevant here and untouched.</li>
+  <li><strong>No global machine config change</strong> — everything is project-scoped and committed.</li>
+</ul>
+</div>
+
+<h2>8 · Future workflow (how a polish pass runs)</h2>
+<pre><code>/product-ui-polish products web table</code></pre>
+<ol>
+  <li><strong>Understand:</strong> the target is the admin product table — head-office operators scanning/comparing inventory; primary info per UX-006 hierarchy.</li>
+  <li><strong>Context:</strong> read root + <code>web/DESIGN.md</code>, <code>docs/UX_DECISIONS.md</code>, <code>references/admin.md</code> + <code>data-tables.md</code>.</li>
+  <li><strong>Inspect:</strong> start backend + <code>npm run dev:web</code>; use the Chrome DevTools MCP to screenshot the table at ~1440 / 768 / 375&nbsp;px, in loading, loaded, filtered, empty, and error states, EN and TR.</li>
+  <li><strong>Diagnose:</strong> written critique separating usability problems from aesthetic preference, ranked comprehension-first.</li>
+  <li><strong>References (optional):</strong> a few shadcn registry table patterns as anatomy reference — never a template.</li>
+  <li><strong>Implement:</strong> smallest coherent change with existing tokens/components.</li>
+  <li><strong>Verify:</strong> same screenshots re-taken and compared ("clearly better" or revise); keyboard/responsive/state behavior re-checked; <code>typecheck</code>/<code>lint</code>/<code>build:web</code> run.</li>
+  <li><strong>Record:</strong> any new convention written back into the relevant <code>DESIGN.md</code>.</li>
+</ol>
+<p>Mobile targets run the same loop against the Android emulator dev build (Metro 8082, quick facts in <code>AGENTS.md</code>) with Expo tooling and <code>adb</code> screenshots.</p>
+
+<h2>9 · Admin design rules (summary)</h2>
+<p>Operational software for long sessions: useful density, repeated-use optimization, minimal cognitive load, scanability, recognition over recall, progressive disclosure, preserved context, error prevention, clear feedback. Avoid both dated-enterprise and artistic-SaaS styling — no giant type, decorative dashboards, card nesting, gradients, glassmorphism, glow, heavy shadows, badge excess. Polish comes from precision: spacing rhythm, alignment, type scale, component anatomy, complete interaction states, cross-screen consistency. Full text: <code>references/admin.md</code>, <code>references/data-tables.md</code>, <code>references/data-visualization.md</code>.</p>
+
+<h2>10 · Mobile design rules (summary)</h2>
+<p>Touch-first for store staff, not a compressed admin: shortest path to find-product-and-update-stock, one-handed reach, ≥44pt targets with press feedback, shallow navigation, name+stock-first hierarchy, immediate feedback, safe areas and keyboard correctness. Same product family as the admin — share color semantics, terminology, status language, ₺ formatting, interaction tone; adapt density, navigation, anatomy, type scale, layout. Full text: <code>references/mobile.md</code>.</p>
+
+<h2>11 · Data freshness policy (summary)</h2>
+<p>Server-backed screens may show "Updated <em>n</em> ago · Refresh" (customer-calm wording — never "Hard refresh"). The timestamp is the last <em>successful</em> fetch; failures never advance it. Manual refresh revalidates through TanStack Query, preserving search/filters/sort/pagination/scroll, keeping data visible while loading. All refresh sources (button, pull-to-refresh, focus, reconnect, polling, invalidation) coordinate into one in-flight request with dedup, short cooldown, bounded backoff retries; client throttling is UX, not a security boundary — expensive endpoints need backend rate limiting. Full text: <code>references/data-freshness.md</code>. A parallel product PR may implement freshness UI; the reference documents the pattern and defers to the shipped implementation.</p>
+
+<h2>12 · Context / token implications</h2>
+<ul>
+  <li><strong>Always loaded:</strong> only the skill's name + one-line description (skill listing) and the single new <code>AGENTS.md</code> bullet. A few hundred tokens.</li>
+  <li><strong>Loaded on invocation:</strong> <code>SKILL.md</code> (~1.3k words) plus only the relevant reference file(s). <code>DESIGN.md</code> files are read on demand during step B.</li>
+  <li><strong>MCP servers:</strong> tool schemas load per session where supported on demand; the chrome-devtools toolset is the largest single addition when actually used.</li>
+  <li><strong>frontend-design:</strong> a skill in the official plugin; loads when design work triggers it, not on every prompt.</li>
+</ul>
+
+<h2>13 · Security / privacy implications</h2>
+<ul>
+  <li><strong>No secrets committed.</strong> Nothing in this PR contains or requires a credential. The only credentialed option (21st.dev) was documented, not configured.</li>
+  <li><strong>Chrome DevTools MCP</strong> exposes the controlled browser's content to the agent (upstream's own warning). Usage here targets localhost dev servers with seeded test data; avoid pointing it at sessions containing personal data.</li>
+  <li><strong>shadcn MCP</strong> talks to the public shadcn registry; no source code leaves the machine beyond ordinary registry queries.</li>
+  <li><strong>Expo MCP</strong> (pre-existing) is a remote server with optional account sign-in via <code>/mcp</code>; no credentials stored in the repo.</li>
+  <li>MCP servers and plugins run with developer-level local permissions — the standard Claude Code per-project trust prompts remain the gate.</li>
+</ul>
+
+<h2>14 · Build / runtime / CI impact</h2>
+<p><span class="tag none">none</span> &nbsp;No change to <code>package.json</code> scripts, dependencies, lockfile, Vite/Expo/Gradle configuration, or any build artifact. The repo has no CI pipeline; none was added. Production bundles are byte-identical in content terms (verified: full check suite green, see §18).</p>
+
+<h2>15 · Risks and mitigations</h2>
+<div class="scroll"><table>
+<tr><th>Risk</th><th>Mitigation</th></tr>
+<tr><td>A future session "polishes" screens uninvited</td><td>Skill description and ground rules make it explicitly user-invoked; <code>AGENTS.md</code> bullet says never restyle ad hoc.</td></tr>
+<tr><td>Generic aesthetics override product rules (frontend-design's "distinctive identity" bias)</td><td><code>SKILL.md</code> states the precedence explicitly; admin/mobile references define the anti-goals.</td></tr>
+<tr><td>Polish drifts into redesign</td><td>Workflow mandates smallest-coherent-change, before/after comparison with a "clearly better or revert" bar, and escalation when restructuring seems needed.</td></tr>
+<tr><td>MCP versions drift or break</td><td>chrome-devtools pinned to 1.8.0; shadcn runs the lockfile-pinned workspace dependency.</td></tr>
+<tr><td>Freshness reference diverges from the shipped product feature (parallel PR)</td><td>The reference defers to the shipped implementation by construction; reconcile wording at merge time.</td></tr>
+<tr><td>Doc rot in DESIGN.md</td><td>Workflow step: record new conventions back into DESIGN.md after each pass; docs point at canonical source files rather than duplicating widely.</td></tr>
+</table></div>
+
+<h2>16 · Rollback</h2>
+<p>The system is additive; removal is one revert of the PR's commit(s):</p>
+<pre><code>git revert &lt;merge-commit-sha&gt;   # or: git revert &lt;commit-sha&gt;</code></pre>
+<p>Manual equivalent: delete <code>.mcp.json</code>, <code>.claude/settings.json</code>, <code>.claude/skills/product-ui-polish/</code>, <code>DESIGN.md</code>, <code>web/DESIGN.md</code>, <code>mobile/DESIGN.md</code>, <code>docs/ui-polish-system-impact.html</code>, and remove the one added bullet in <code>AGENTS.md</code>. Nothing else references these files; no state is left behind (any plugin caches live outside the repo and expire harmlessly).</p>
+
+<h2>17 · Optional future additions</h2>
+<ul>
+  <li><strong>21st.dev MCP</strong> as a reference-discovery source once a key exists (env-expansion config documented in §5).</li>
+  <li><strong>Figma MCP</strong> if the product ever gains a design-file source of truth.</li>
+  <li><strong>Google Stitch</strong> or similar generative-mock tools for explorations — kept out of the polish loop by policy.</li>
+  <li><strong>Dark mode pass</strong> — web tokens already define <code>.dark</code>; a polish pass could productize it.</li>
+  <li><strong>Visual regression snapshots</strong> (e.g. stored before/after screenshot baselines) if polish passes become frequent.</li>
+</ul>
+
+<h2>18 · Verification results (checks actually run)</h2>
+<div class="scroll"><table>
+<tr><th>Check</th><th>Command</th><th>Result</th></tr>
+<tr><td>TypeScript, all workspaces</td><td><code>npm run typecheck</code></td><td><span class="tag new">pass</span></td></tr>
+<tr><td>Lint, all workspaces</td><td><code>npm run lint</code></td><td><span class="tag new">pass</span></td></tr>
+<tr><td>Shared unit tests</td><td><code>npm run test</code></td><td><span class="tag new">pass</span> 22/22 (3 files)</td></tr>
+<tr><td>Production web build</td><td><code>npm run build:web</code></td><td><span class="tag new">pass</span> (pre-existing informational chunk-size warning, unchanged)</td></tr>
+<tr><td>Config parses</td><td><code>python3 -m json.tool</code> on <code>.mcp.json</code>, <code>.claude/settings.json</code></td><td><span class="tag new">pass</span></td></tr>
+<tr><td>shadcn MCP binary resolves from workspace</td><td><code>node_modules/.bin/shadcn --version</code> → 4.19.0</td><td><span class="tag new">pass</span></td></tr>
+<tr><td>Skill link integrity</td><td>all 5 <code>references/*.md</code> named in <code>SKILL.md</code> exist; names match</td><td><span class="tag new">pass</span></td></tr>
+<tr><td>Mechanism verification</td><td><code>enabledPlugins</code>/<code>.mcp.json</code> schemas, official marketplace, shadcn/Chrome DevTools/Expo MCP docs verified against live official documentation</td><td><span class="tag new">done</span></td></tr>
+<tr><td>Self-diff review</td><td><code>git diff</code> reviewed file-by-file before commit (no product changes, no secrets, no global config)</td><td><span class="tag new">done</span></td></tr>
+</table></div>
+<p>Not run (not applicable to a docs/tooling PR): mobile emulator runtime, APK build, live API flows — no product code changed.</p>
+
+<footer>StokMate · UI Polish System impact report · branch <code>fm/ui-polish-system</code> · standalone file, no external resources.</footer>
+</div>
+</body>
+</html>
