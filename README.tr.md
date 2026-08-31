@@ -124,12 +124,25 @@ Alternatifler ve ödünleşimlerle birlikte tam gerekçe: [Mühendislik kararlar
 
 ## Varsayımlar
 
+### Ortam ve API gerçekleri
+
 - **Bellek içi backend**: yeniden başlatma veriyi ve tüm oturumları siler; refresh başarısız olduğunda istemciler giriş ekranına döner.
 - **Son yazan kazanır**: API'de eşzamanlılık mekanizması yok (doğrulandı); yalnızca UX düzeyinde hafifletildi (taze okumayla düzenleme, yazma sonrası refetch). Discontinued-stok 409'u bir alan kuralıdır, sürüm kontrolü değil.
 - **Tek değerli filtreler** (bir kategori, bir marka) — API'de çoklu seçim yok.
 - **Arama/sıralama karşılaştırması sunucu tarafından belirlenir** (Türkçe i/ı davranışı backend host'unun locale'ini izler); girdi olduğu gibi geçirilir.
 - Verilen alan dokümantasyonu uyarınca **TRY (₺)**; tam sayı kuruş aritmetiğiyle açıkça biçimlendirilir.
 - Varsayılan arayüz dili İngilizce, çalışma zamanında EN/TR anahtarı var; API verisi (ürün/marka adları) hiçbir zaman çevrilmez.
+
+### Ürün tasarımı inisiyatifleri
+
+Bunlar ödevin davranışı açık bıraktığı noktalarda alınan bilinçli kararlardır; gerekçelerin tamamı [`docs/DECISIONS.md`](docs/DECISIONS.md), UX ve wire-level sınırlar ise [`docs/UX_DECISIONS.md`](docs/UX_DECISIONS.md) ile [`docs/API_CONTRACT.md`](docs/API_CONTRACT.md) içindedir.
+
+- **Operasyonel durum sınırı**: eski veriyle çalışan mağaza istemcilerini korumak için Discontinued durumunda stok terminaldir (`409` ve mobil kilit); Pasif değiştirilebilir, Discontinued ise listelenebilir ve diğer yönleriyle düzenlenebilir kalır çünkü görünürlük ve durum yönetimi bilinçli olarak kısıtlanmadı.
+- **Kitleye özgü varsayılanlar**: mobil mağaza çalışanları için Aktif ürünlerle, web ise genel müdürlük gözetimi için Tüm durumlarla açılır; iki yüzey de bütün durum seçeneklerini sunmaya devam eder.
+- **Kayıpsız detay okuması**: tümünü değiştiren PUT, hiçbir okumanın döndürmediği alanları gerektirdiği için yalnızca `GET /products/{id}` eklendi; değerler tahmin edilmedi, liste DTO'su genişletilmedi ve PUT semantiği değiştirilmedi.
+- **Bağımsız okuma hız sınırı**: istemci bekleme süreleri bir güvenlik sınırı olmadığı için sunucu ürün okumalarını sınırlar; olağan yenileme/polling ve tüm yazmalar etkilenmez.
+- **Doğrulanmış düşük stok semantiği**: aynı alan kuralını iki istemcide de göstermek için vurgu API'nin `minStock` sinyalini izler; yalnızca istemcide yaşayan bir eşik uydurulmadı.
+- **Realtime olmadan tazelik**: koordineli polling/refetch, tek veri yolunu korurken istemciler arası değişiklikleri makul sürede görünür kılar; WebSocket/SSE veya ikinci bir senkronizasyon sistemi eklenmedi.
 
 ## Başlıca kütüphaneler
 

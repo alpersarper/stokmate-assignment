@@ -135,14 +135,14 @@
     </div>
     <div class="card" lang="en">
       <h3>Backend</h3>
-      <p>The provided .NET 8 in-memory API, verified at runtime and kept intact — plus three minimal, documented
-      modifications the assignment required.</p>
+      <p>The provided .NET 8 in-memory API, verified at runtime and otherwise kept intact — plus three minimal,
+      documented additions: one closed an API gap; two were explicit product/operational initiatives.</p>
       <span class="tag">api/StokMate/ · .NET 8</span>
     </div>
     <div class="card" lang="tr">
       <h3>Backend</h3>
-      <p>Verilen .NET 8 in-memory API'si; çalışır hâlde doğrulandı ve olduğu gibi korundu — artı ödevin gerektirdiği
-      üç minimal ve belgelenmiş değişiklik.</p>
+      <p>Verilen .NET 8 in-memory API'si çalışır hâlde doğrulandı ve bunun dışında olduğu gibi korundu — ayrıca üç minimal,
+      belgelenmiş ek yapıldı: biri API açığını kapattı, ikisi açık ürün/operasyon inisiyatifiydi.</p>
       <span class="tag">api/StokMate/ · .NET 8</span>
     </div>
   </div>
@@ -215,7 +215,7 @@
         <rect x="140" y="408" width="620" height="72" rx="10" fill="#ffffff" stroke="#d6d3d1"/>
         <text x="160" y="434" font-size="15" font-weight="700" fill="#1c1917">Provided .NET 8 API — in-memory, port 5080</text>
         <text x="160" y="456" font-size="12.5" fill="#57534e">auth (opaque rotating tokens) · products · lookups · re-seeds on restart</text>
-        <text x="160" y="472" font-size="12" fill="#a16207">+ 3 assignment modifications: GET /products/{id} · Discontinued-stock 409 · read rate-limit</text>
+        <text x="160" y="472" font-size="12" fill="#a16207">+ 3 documented additions: lossless detail read · Discontinued-stock 409 · read rate-limit</text>
       </g>
       <defs>
         <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -243,10 +243,10 @@
     <div class="card" lang="tr"><h3>Yönetici / müşteri ayrımı</h3><p>Web yönetim paneli yoğun ve operasyonel; mobil uygulama ürünleşmiş bir müşteri yüzeyi. Tek bir ortak veri dili üzerinde bilinçli olarak farklı tasarımlar.</p></div>
     <div class="card" lang="en"><h3>Predictable data flow</h3><p>One server-state layer (TanStack Query), one API client, one refresh pipeline per dataset — every data movement has a single, inspectable path.</p></div>
     <div class="card" lang="tr"><h3>Öngörülebilir veri akışı</h3><p>Tek bir server-state katmanı (TanStack Query), tek bir API client'ı, veri kümesi başına tek bir yenileme hattı — her veri hareketinin tek ve incelenebilir bir yolu var.</p></div>
-    <div class="card" lang="en"><h3>Data freshness</h3><p>Both clients show how old the visible data is, refresh it safely (cooldown + single-flight + server rate limit), and pick up other clients' changes.</p></div>
-    <div class="card" lang="tr"><h3>Veri tazeliği</h3><p>Her iki istemci de görünen verinin ne kadar eski olduğunu gösterir, güvenle yeniler (bekleme süresi + single-flight + sunucu rate limit) ve diğer istemcilerin değişikliklerini alır.</p></div>
-    <div class="card" lang="en"><h3>Pragmatic scope &amp; reviewer clarity</h3><p>Small dependency set, rejected-complexity list, documented assumptions — and this report set so the reasoning can be inspected, not guessed.</p></div>
-    <div class="card" lang="tr"><h3>Pragmatik kapsam ve değerlendiriciye açıklık</h3><p>Küçük bir bağımlılık seti, reddedilen karmaşıklıkların listesi, belgelenmiş varsayımlar — ve gerekçeler tahmin edilmesin diye bu rapor seti.</p></div>
+    <div class="card" lang="en"><h3>Data freshness</h3><p>The brief left the mechanism open: coordinated polling/refetch exposes cross-client changes through one data path; no realtime transport was added, and the server independently limits reads.</p></div>
+    <div class="card" lang="tr"><h3>Veri tazeliği</h3><p>Ödev mekanizmayı açık bıraktı: koordineli polling/refetch, istemciler arası değişiklikleri tek veri yolunda gösterir; realtime taşıma eklenmedi ve sunucu okumaları bağımsız olarak sınırlar.</p></div>
+    <div class="card" lang="en"><h3>Explicit product assumptions</h3><p>Where the brief was silent: Discontinued is terminal for stock (Passive is not), mobile defaults to Active while web defaults to All, low-stock cues use only <code>minStock</code>, and the lossless detail read plus read limit are deliberately narrow additions.</p></div>
+    <div class="card" lang="tr"><h3>Açık ürün varsayımları</h3><p>Ödevin sustuğu noktalarda: stok için Discontinued terminaldir (Pasif değil), mobil Aktif web Tümü ile açılır, düşük stok yalnızca <code>minStock</code> ile gösterilir; kayıpsız detay okuması ve okuma limiti bilinçli olarak dar eklerdir.</p></div>
   </div>
 </section>
 
@@ -296,8 +296,8 @@
     <a href="frontend-report.html?lang=tr" lang="tr"><span class="t">Web yönetim paneli mimarisi</span><span class="d">Amaç, state sahipliği, veri akışı, liste/düzenleme akışları, oturum yaşam döngüsü, UX yaklaşımı.</span></a>
     <a href="mobile-report.html" lang="en"><span class="t">Mobile architecture</span><span class="d">Customer-facing product, data lifecycle, stock workflow, networking, localization.</span></a>
     <a href="mobile-report.html?lang=tr" lang="tr"><span class="t">Mobil mimari</span><span class="d">Müşteriye dönük ürün, veri yaşam döngüsü, stok akışı, ağ katmanı, yerelleştirme.</span></a>
-    <a href="backend-report.html" lang="en"><span class="t">Backend architecture &amp; modifications</span><span class="d">Provided API surface, auth lifecycle, and the three assignment modifications in detail.</span></a>
-    <a href="backend-report.html?lang=tr" lang="tr"><span class="t">Backend mimarisi ve değişiklikler</span><span class="d">Verilen API yüzeyi, auth yaşam döngüsü ve üç ödev değişikliğinin ayrıntıları.</span></a>
+    <a href="backend-report.html" lang="en"><span class="t">Backend architecture &amp; modifications</span><span class="d">Provided API surface, auth lifecycle, and the three documented additions in detail.</span></a>
+    <a href="backend-report.html?lang=tr" lang="tr"><span class="t">Backend mimarisi ve değişiklikler</span><span class="d">Verilen API yüzeyi, auth yaşam döngüsü ve belgelenmiş üç ekin ayrıntıları.</span></a>
     <a href="development-decisions.html" lang="en"><span class="t">Engineering decisions</span><span class="d">Context, alternatives, trade-offs, and results for every material decision.</span></a>
     <a href="development-decisions.html?lang=tr" lang="tr"><span class="t">Mühendislik kararları</span><span class="d">Her önemli karar için bağlam, alternatifler, ödünleşimler ve sonuçlar.</span></a>
     <a href="agent-workflow-report.html" lang="en"><span class="t">AI-assisted development workflow</span><span class="d">Human vs. agent responsibility, the actual workflow, verification, risks and controls.</span></a>

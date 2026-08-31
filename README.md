@@ -124,12 +124,25 @@ Full rationale with alternatives and trade-offs: [Engineering decisions](https:/
 
 ## Assumptions
 
+### Environment and API facts
+
 - **In-memory backend**: restarts wipe data and all sessions; clients recover to login when refresh fails.
 - **Last-write-wins**: the API has no concurrency mechanism (verified); mitigated at UX level only (fresh-read edits, refetch after writes). The Discontinued-stock 409 is a domain rule, not a version check.
 - **Single-value filters** (one category, one brand) — the API has no multi-select.
 - **Search/sort collation is server-defined** (Turkish dotted/dotless-I behavior follows the backend host's locale); input is passed through untouched.
 - **TRY (₺)** per the provided domain documentation; rendered explicitly with integer-kuruş math.
 - English default chrome with a runtime EN/TR switch; API data (product/brand names) is never translated.
+
+### Product-design initiatives
+
+These are deliberate choices where the assignment left behavior open; [`docs/DECISIONS.md`](docs/DECISIONS.md) owns the full rationale, with UX and wire-level boundaries in [`docs/UX_DECISIONS.md`](docs/UX_DECISIONS.md) and [`docs/API_CONTRACT.md`](docs/API_CONTRACT.md).
+
+- **Operational status boundary**: Discontinued is terminal for stock (`409` plus a mobile lock) to protect stale store clients; Passive stays mutable, and Discontinued stays listable and otherwise editable because visibility and status administration were deliberately not restricted.
+- **Audience-specific defaults**: mobile opens on Active products for store staff while web opens on All statuses for head-office oversight; both surfaces still expose every status choice.
+- **Lossless detail read**: only `GET /products/{id}` was added because the full-replace PUT required fields no read returned; values were not guessed, the list DTO was not widened, and PUT semantics were not changed.
+- **Independent read-rate limit**: the server caps product reads because client cooldowns are not a security boundary; legitimate refresh/polling and all writes remain unaffected.
+- **Verified low-stock semantics**: emphasis follows the API's `minStock` signal so the same domain rule appears on both clients; no client-only threshold was invented.
+- **Freshness without realtime**: coordinated polling/refetch makes cross-client changes visible within a reasonable time while preserving one data path; no WebSocket/SSE or second synchronization system was added.
 
 ## Main libraries
 
