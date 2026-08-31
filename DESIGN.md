@@ -78,6 +78,14 @@ currently uses text glyphs (chevron `›`) and typography instead of an icon
 set. Both apps signal row navigation with a trailing chevron. Don't add
 decorative icons; an icon must disambiguate or compress meaning.
 
+## Brand mark
+
+The product mark is three ascending stock bars on a rounded tile in the
+product blue `#1d4ed8`: `web/public/favicon.svg` and the mobile login
+`BrandMark` (`mobile/src/auth/LoginScreen.tsx`) render the same motif.
+It appears only where a product identity is expected (favicon, sign-in) —
+never as in-app decoration. Don't introduce alternative logos.
+
 ## Typography philosophy
 
 Quiet and functional. One typeface family per app (web: Geist Variable;
