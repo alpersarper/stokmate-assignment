@@ -154,7 +154,7 @@ Bunlar ödevin davranışı açık bıraktığı noktalarda alınan bilinçli ka
 ## Notlar
 
 - Realtime kanal yok (WebSocket/SSE) — istemciler arası tutarlılık tasarım gereği polling + koordineli yenileme ile sağlanıyor; raporların tazelik bölümlerine bakın.
-- **Açık kıdemli inceleme bulgusu**: sürükleme ve momentum sayfalamayı ayrı ayrı tetiklediği için tek bir mobil sürükleme/savurma şu anda birden fazla sayfa isteyebilir; ürün kodu düzeltilene veya açıkça kabul edilene kadar onay beklemede. Stok sıralı cache satırlarının değeri de yenilenir ama sırası refresh'e kadar değişmez. Bkz. `docs/IMPLEMENTATION_REPORT.md`.
+- **Kıdemli inceleme bulguları çözüldü**: YÜKSEK öncelikli mobil sayfalama bulgusu düzeltildi — sayfalama artık fiziksel hareket başına bir kez kurulur (yalnızca sürükleme başlangıcında; momentum artık yeniden kurmaz) ve ağ kanıtı, arama/filtre/sıralama veri kümelerinde sürükleme/savurma başına tek istek davranışını yeniden doğruladı. Stok sıralı cache sırası sınırlaması açıkça kabul edildi: güncellenen stok değeri doğrudur ve normal bir yenileme kanonik sıralamayı geri getirir. Bkz. `docs/IMPLEMENTATION_REPORT.md`.
 - Teslim edilen APK'nın API hedefi build sırasında sabitlenir; farklı bir hedef belgelenmiş yeniden build'i gerektirir.
 - Assignment odaklı altyapı: CI hattı veya E2E framework'ü yok — doğrulama, script'lenmiş kontroller artı `docs/IMPLEMENTATION_REPORT.md` içinde kayıtlı QA sürecidir.
 - Doğrulama komutları: `npm run typecheck`, `npm run lint`, `npm run test` (çevrimdışı birim), `npm run test:live --workspace shared` (çalışan backend'e karşı), `npm run build:web`.

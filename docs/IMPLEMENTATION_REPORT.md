@@ -10,12 +10,13 @@ Four verification passes back this report:
 - **Prior final pass** (2026-08-28, `main` at `d81e1ef`): baseline re-validation, README execution, first release-APK end-to-end verification — evidence F0–F6 (retained).
 - **This pass** (2026-08-31, `main` at `339d00c`): re-verified by execution everything the post-`1fcb4fb` PRs (#1–#7) changed — mobile list/detail query architecture with server search/filters/sort, the Discontinued 409 stock rule, freshness indicators + protected manual refresh on both clients, the mobile visual redesign, web status filter and header sorting — plus a **new release APK built from `339d00c` and verified standalone end-to-end (12-point matrix)**, full baseline re-validation, and a fresh README execution check. Evidence G0–G7 below. Evidence from earlier passes is carried forward, with its date, only where the implementing code is genuinely unchanged since.
 - **Senior pre-merge review** (2026-09-01, `main` at `7818a49` + PR #11): full post-`1fcb4fb` source/diff inspection, baseline and live checks, exact web polling/rate-limit/Turkish-query/Discontinued probes, and a timestamped-proxy mobile session. Evidence H0–H6 below.
+- **Pagination fix pass** (2026-09-01, branch `fm/pagination-fix`): coordinator-ordered fix of the HIGH mobile pagination re-arm defect (D3). Reproduced the defect on unfixed code with event-level instrumentation, applied a one-line guard change (arm only in `onScrollBeginDrag`), and re-verified one-gesture/one-page behavior empirically over a timestamped proxy across plain, search, filtered, sorted, and combined datasets, plus pull-to-refresh, footer error + Retry, pure-drag pagination, end-of-list, and scroll-stability regressions. Evidence I0–I5 below.
 
 Source delta covered by this pass: `git diff 1fcb4fb..339d00c` — 31 files, ~2 300 insertions across `api/` (Discontinued 409, read rate-limit), `shared/` (freshness descriptor, new tests), `web/src/products/` (status filter, header sorting, freshness/refresh, table polish), `mobile/src/` (query architecture rework, freshness/refresh, full visual redesign), plus docs/tooling.
 
 ## Status
 
-**SENIOR REVIEW: approval held. No BLOCKER was found, but one HIGH product defect is open: mobile pagination can issue multiple page requests for one physical gesture because drag-start and momentum-start both re-arm the guard. Fresh proxy evidence reproduced page 2 and page 3 requests 441 ms apart without a deliberate second fling. One MEDIUM limitation is also open: mobile stock success patches values without re-sorting/re-paging stock- or updated-time-sorted datasets. The published APK identity and the historical 12-point matrix remain valid; they do not override this later evidence.**
+**SENIOR REVIEW FOLLOW-UP: the HIGH mobile pagination defect is FIXED with evidence (2026-09-01, branch `fm/pagination-fix`). The guard now arms exactly once per physical gesture, in `onScrollBeginDrag` only; `onMomentumScrollBegin` no longer re-arms the same gesture. Empirical re-verification over a timestamped proxy confirmed one request per gesture across plain, search, filtered, sorted, and combined datasets, zero requests after the final page, and intact pull-to-refresh / footer-retry / pure-drag behavior (evidence I0–I5). The MEDIUM stock-sort ordering limitation (D4) is explicitly accepted by the coordinator: the updated stock value is correct, and normal refresh/freshness restores canonical server ordering. The published APK identity and the historical 12-point matrix remain valid; the APK predates this fix and would pick it up on the next release build.**
 
 ---
 
@@ -124,7 +125,7 @@ Checkpoint-pass verdict summary (unchanged surfaces): search debounce/trim/reset
 | Feature | Verdict | Evidence |
 | --- | --- | --- |
 | Web cross-client refresh | Pass (executed) | G2 — an external curl stock change surfaced via the refresh pipeline this pass; E5 (2026-08-28) verified the 15 s poll picking up external changes without interaction |
-| Mobile pagination | **Fail — HIGH** | H5 — source shows both drag-start and momentum-start re-arm one guard; the timestamped proxy recorded page 2 then page 3 only 441 ms apart without a deliberate second fling. Earlier end-of-list checks did not prove one-gesture/one-page behavior. |
+| Mobile pagination | **Pass (fixed + executed)** | I0–I5 — the H5 re-arm defect is fixed (`onScrollBeginDrag`-only arming); timestamped-proxy re-verification showed exactly one page request per gesture on plain/search/filtered/sorted/combined datasets, no auto-request from momentum or content-size changes after an append, and zero requests once `hasNextPage` is false. |
 | Mobile pull-to-refresh | Pass (executed) | E4.6 (2026-08-28); shares the G4.10-verified refresh pipeline (`753fed2` unified them) |
 
 ---
@@ -179,8 +180,8 @@ The delivery mechanism is now a public GitHub Release rather than a machine-loca
 
 ## Known Defects
 
-- **D3 (HIGH, mobile pagination; open)** — one physical gesture can request multiple pages. `ProductListScreen` arms the pagination ref from both `onScrollBeginDrag` and `onMomentumScrollBegin`; runtime proxy evidence reproduced chained page requests. Recommended product fix: arm once per physical gesture (or track a gesture identifier) and retain the existing placeholder/end/in-flight/retry guards. Not changed in documentation-only PR #11.
-- **D4 (MEDIUM, stock-sorted cache order; open)** — mobile stock success patches the canonical value into detail and existing list rows with no GET, but does not reorder/re-page stock- or updated-time-sorted infinite datasets. Values are current; ordering can stay stale until explicit refresh.
+- **D3 (HIGH, mobile pagination) — FIXED with evidence (2026-09-01, branch `fm/pagination-fix`).** Root cause: `ProductListScreen` armed the pagination guard in both `onScrollBeginDrag` and `onMomentumScrollBegin`, so the drag→momentum hand-off of one physical gesture re-armed the guard after the first `onEndReached` had consumed it. Fix: arm exactly once per gesture in `onScrollBeginDrag` only (every user scroll begins with a drag); the momentum arm was removed and all placeholder/end/in-flight/retry guards were retained. Before-fix instrumentation reproduced the defect ordering on-device (dragBegin → endReached consumes + fetches → momentumBegin re-arms → a second *armed* `onEndReached` in the same gesture, stopped only by the in-flight guard's timing). After-fix proxy evidence (I0–I5): exactly one request per gesture everywhere, no request from momentum/append re-fires, a genuinely new gesture required for each next page. **Closed.**
+- **D4 (MEDIUM, stock-sorted cache order; accepted)** — mobile stock success patches the canonical value into detail and existing list rows with no GET, but does not reorder/re-page stock- or updated-time-sorted infinite datasets. Values are current; ordering can stay stale until explicit refresh. **Explicitly accepted by the coordinator (2026-09-01): acceptable because the updated stock value is correct and normal refresh/freshness restores canonical server ordering.**
 
 - **D1 (cosmetic, EN product-count pluralization)** — fixed in `f40a6d3` (2026-08-28); still correct this pass (G2). **Closed.**
 - **D2 (documentation, found this pass)** — README's mobile dev-workflow note claimed the DevTools Network panel cannot capture app traffic because expo-dev-client is not included; stale since PR #2 added expo-dev-client (`a6c50b3`). Corrected in this change set (README updated; no code impact). **Closed.**
@@ -196,13 +197,13 @@ The delivery mechanism is now a public GitHub Release rather than a machine-loca
 
 ## Architecture Deviations
 
-No product-architecture deviation from the locked TanStack Query decision. The post-checkpoint additions (freshness descriptor in shared, rate-limit + Discontinued rule in the backend, native-debug-build dev workflow) are recorded in `docs/DECISIONS.md` / `docs/API_CONTRACT.md` / README rather than silently introduced. D3 is an implementation defect in the pagination guard, not an approved architecture change.
+No product-architecture deviation from the locked TanStack Query decision. The post-checkpoint additions (freshness descriptor in shared, rate-limit + Discontinued rule in the backend, native-debug-build dev workflow) are recorded in `docs/DECISIONS.md` / `docs/API_CONTRACT.md` / README rather than silently introduced. D3 was an implementation defect in the pagination guard, not an approved architecture change; it is now fixed (see Known Defects).
 
 ## Remaining Work
 
-1. Fix D3 in product code, or have the coordinator explicitly accept its impact before approval.
-2. Decide whether D4 warrants targeted invalidation of only stock/updated-time-sorted datasets; otherwise retain it as an explicit limitation.
-3. Re-run the focused mobile one-fling/one-page and stock-save network-footprint checks on a stable emulator after any product fix. The 2026-09-01 emulator repeatedly exited, so the exact 10 s mobile-detail cadence and stock-save request footprint were source-verified but not freshly re-measured.
+1. ~~Fix D3 in product code~~ — **done** (branch `fm/pagination-fix`, evidence I0–I5).
+2. ~~Decide on D4~~ — **decided**: explicitly accepted by the coordinator as a documented limitation (values correct; refresh restores canonical ordering). No invalidation added.
+3. Re-run the focused stock-save network-footprint check on a stable emulator. The one-fling/one-page check was freshly re-measured in the pagination fix pass (I1–I2); the exact 10 s mobile-detail cadence and stock-save request footprint remain source-verified but not freshly re-measured.
 
 ---
 
@@ -217,6 +218,15 @@ No product-architecture deviation from the locked TanStack Query decision. The p
 - **H4 — Contract edges:** Discontinued stock PATCH returned the documented 409 and left stock/`updatedAt` unchanged; Passive stock PATCH succeeded. UTF-8 Turkish query encoding was preserved. Common case pairs matched, while dotted/dotless-I variants differed, confirming the documented host-defined casing limitation.
 - **H5 — Mobile:** debug build succeeded and the app reached the default Active list (backend total 75). Proxy logs then reproduced chained page requests without a deliberate second fling: page 2 at `21:28:36.337`, page 3 at `21:28:36.778`. The emulator later exited repeatedly; fresh exact measurements of detail cadence, background/refocus behavior, and stock-save footprint are therefore **Not verified in this pass**, not counted as new runtime passes.
 - **H6 — Source-backed mobile behavior:** current detail alone is scheduled at ~10 s only while focused + foregrounded; lifecycle return targets that detail. Stock PATCH sends one absolute integer value, applies the canonical response to detail and existing list rows, and does no success-path invalidation/refetch. A Discontinued 409 invalidates only detail.
+
+Pagination fix pass (2026-09-01, branch `fm/pagination-fix`, dev-client debug build + timestamped 5081→5080 proxy):
+
+- **I0 — Before-fix reproduction (unfixed code):** temporary event instrumentation captured the defect ordering on-device in the same physical gesture: `dragBegin` (arm) → `onEndReached` armed=true (consume + fetch page 2, request visible in proxy) → `momentumBegin` (re-arm) → a second `onEndReached` with armed=true while the first fetch was still in flight — i.e. the double-fetch precondition, blocked only by in-flight timing on the emulator (observed twice: q=t and q=k datasets). This matches the review's H5 network capture, where the same race lost and pages 2/3 were requested 441 ms apart.
+- **I1 — One gesture, one page (after fix):** q=l search dataset: one strong flick → exactly one request (`page=2` 10:21:42.296), then 7 s of momentum/append/content-size settling → no page 3. A new distinct flick → exactly one `page=3` request (10:21:59.536). Three further flicks at the final page → **zero** requests; "You've reached the end" footer rendered.
+- **I2 — Dataset matrix (after fix):** the same one-request-per-gesture behavior held on filtered (status=All: `page=2` 10:27:08.912, `page=3` 10:27:17.918), sorted (stock asc: `page=2` 10:28:11.938, `page=3` 10:28:28.346), and combined search+filter+sort (q=a + All + stock asc: `page=2` 10:31:00.286, `page=3` 10:31:17.057, `page=4` via footer Retry) datasets, each request carrying the full query state.
+- **I3 — Pure drag (no momentum):** a slow 900 ms drag-release into the threshold paginated exactly once (q=r `page=2` 10:23:55.195) — arming in `onScrollBeginDrag` alone does not require a fling.
+- **I4 — Regressions:** every dataset change issued a fresh `page=1` request; scroll position stayed continuous across appends (no jump); footer states verified (loading, error + Retry after killing the proxy — "More products could not be loaded." with loaded rows retained — and exactly one request on Retry after proxy restart, `page=4` 10:32:31.741); pull-to-refresh at top refetched the loaded pages sequentially through the protected pipeline (pages 1–4, 10:34:59–10:35:03) and pagination remained correct afterwards.
+- **I5 — Baseline after fix:** `npm run typecheck` ✅; `npm run lint` ✅; `npm run test` ✅ 27/27; `npm run build:web` ✅ (known informational chunk warning only).
 
 ### This pass (G0–G7) — `main` @ `339d00c`, 2026-08-31
 

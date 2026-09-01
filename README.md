@@ -154,7 +154,7 @@ These are deliberate choices where the assignment left behavior open; [`docs/DEC
 ## Notes
 
 - No realtime channel (WebSocket/SSE) — cross-client consistency is polling + coordinated refresh by design; see the freshness sections of the reports.
-- **Open senior-review finding**: one mobile drag/fling can currently request multiple pages because drag and momentum both arm pagination; approval is held pending a product-code fix or explicit acceptance. Stock-sorted cached rows also update their value without reordering until refresh. See `docs/IMPLEMENTATION_REPORT.md`.
+- **Senior-review findings resolved**: the HIGH mobile pagination finding is fixed — pagination now arms once per physical gesture (drag start only, momentum no longer re-arms), and network evidence re-verified one request per drag/fling across search/filter/sort datasets. The stock-sorted cache-order limitation is explicitly accepted: the updated stock value is correct and a normal refresh restores canonical ordering. See `docs/IMPLEMENTATION_REPORT.md`.
 - The delivered APK's API target is fixed at build time; other targets require the documented rebuild.
 - Assignment-focused infrastructure: no CI pipeline or E2E framework — verification is scripted checks plus the QA process recorded in `docs/IMPLEMENTATION_REPORT.md`.
 - Verification commands: `npm run typecheck`, `npm run lint`, `npm run test` (offline unit), `npm run test:live --workspace shared` (against the running backend), `npm run build:web`.
