@@ -113,12 +113,18 @@ export function ProductListScreen({ navigation }: Props) {
   const listRef = useRef<FlatList<Product>>(null);
 
   /**
-   * MOB-002: one fetchNextPage per genuine user gesture. Armed when the user
-   * starts a drag or a fling; consumed by the first onEndReached it produces.
-   * A page appended mid-momentum can re-trigger onEndReached, but the arm is
-   * already consumed, so page N+2 never starts from the same gesture — the
-   * user must scroll again. Query-level guards keep at most one request in
-   * flight and stop at the backend-reported end.
+   * MOB-002: one fetchNextPage per genuine user gesture. Armed exactly once
+   * per physical gesture, in onScrollBeginDrag only — every user scroll,
+   * slow drag or strong flick, begins with a drag, and the momentum phase
+   * that may follow belongs to that same gesture. Consumed by the first
+   * onEndReached the gesture produces. onMomentumScrollBegin deliberately
+   * does NOT arm: it fires mid-gesture at drag→momentum hand-off, so arming
+   * there re-opened the guard after the first fetch had consumed it, and the
+   * appended page re-triggering onEndReached (content growth keeps the offset
+   * near the threshold) could request a second page from the same flick — the
+   * reproduced senior-review HIGH defect. A new page now requires a new drag.
+   * Query-level guards keep at most one request in flight and stop at the
+   * backend-reported end.
    */
   const scrollArmedRef = useRef(false);
   const armScroll = () => {
@@ -220,7 +226,6 @@ export function ProductListScreen({ navigation }: Props) {
           />
         }
         onScrollBeginDrag={armScroll}
-        onMomentumScrollBegin={armScroll}
         onEndReached={onEndReached}
         onEndReachedThreshold={0.4}
         ListEmptyComponent={
