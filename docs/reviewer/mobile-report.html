@@ -79,9 +79,9 @@
   TypeScript, React Navigation native stack, TanStack Query v5, hand-styled UI. Delivered as a verified
   release APK.</p>
   <p class="lede" lang="tr">Mağaza sahasının uygulaması: birincil işi <strong>stok güncellemeyi</strong> hızlı ve
-  güvenli yapmak olan, müşteriye dönük ürünleşmiş bir uygulama. Kaynak: <code>mobile/</code>. Expo (managed) +
+  güvenli yapmak olan, müşteri uygulaması kalitesinde ürünleşmiş bir uygulama. Kaynak: <code>mobile/</code>. Expo (managed) +
   React Native + TypeScript, React Navigation native stack, TanStack Query v5, elle tasarlanmış UI. Doğrulanmış bir
-  release APK olarak teslim edildi.</p>
+  release APK'sı olarak teslim edildi.</p>
 </header>
 
 <section>
@@ -92,11 +92,11 @@
   (image, name, brand, price, stock state), and the detail screen makes the current stock and the editor the
   visual centre of gravity. The web admin's density conventions were deliberately <em>not</em> carried over;
   what is shared is the data language (status semantics, ₺ formatting, low-stock rules), not the styling.</p>
-  <p lang="tr">Bu, küçültülmüş bir yönetim paneli değil. Mağaza personeli telefonu tek eliyle tutar, bir ürünü bulur ve
-  stoğunu düzeltir — bu yüzden uygulama keşif ve tek bir kararlı yazma işlemi etrafında kuruldu. Ürünler göz atılabilir
+  <p lang="tr">Bu, küçültülmüş bir admin paneli değil. Mağaza personeli telefonu tek eliyle tutar, bir ürünü bulur ve
+  stoğunu düzeltir — bu yüzden uygulama, keşif ve tek bir güvenli yazma işlemi etrafında kuruldu. Ürünler göz atılabilir
   bir katalog olarak sunulur (görsel, ad, marka, fiyat, stok durumu); detay ekranında ise görsel ağırlık merkezi mevcut
-  stok ile editördür. Web yönetim panelinin yoğunluk alışkanlıkları bilinçli olarak <em>taşınmadı</em>; paylaşılan şey
-  stil değil, veri dilidir (durum anlamları, ₺ biçimlendirme, düşük stok kuralları).</p>
+  stok ile editördür. Web admin'in yoğunluk alışkanlıkları bilinçli olarak <em>taşınmadı</em>; paylaşılan şey
+  stil değil, veri dilidir (durum semantiği, ₺ formatı, düşük stok kuralları).</p>
 </section>
 
 <section>
@@ -160,21 +160,21 @@
     <tr lang="en"><th>State</th><th>Where it lives</th><th>Why there</th></tr>
     <tr lang="tr"><th>State</th><th>Nerede tutulur</th><th>Neden orada</th></tr>
     <tr lang="en"><td><strong>Server data</strong></td><td>TanStack Query cache: one infinite query per dataset identity, one detail entry per product, lazily-fetched lookups</td><td>Same server-state layer as web, same query-key factory — identical cache semantics on both platforms.</td></tr>
-    <tr lang="tr"><td><strong>Sunucu verisi</strong></td><td>TanStack Query cache: her veri kümesi kimliği için bir infinite query, her ürün için bir detay kaydı, tembel çekilen lookup listeleri</td><td>Web ile aynı server-state katmanı, aynı query key üreticisi — iki platformda da özdeş cache semantiği.</td></tr>
+    <tr lang="tr"><td><strong>Sunucu verisi</strong></td><td>TanStack Query cache: her veri kümesi kimliği için bir infinite query, her ürün için bir detay kaydı, lazy yüklenen lookup listeleri</td><td>Web ile aynı server-state katmanı, aynı query key factory'si — iki platformda da özdeş cache semantiği.</td></tr>
     <tr lang="en"><td><strong>Dataset identity</strong> (search, category, brand, status, sort, direction)</td><td>Screen state in <code>ProductListScreen</code>, composed into <code>listParams</code> → the query key</td><td>There is no URL on mobile, so the screen owns it; making it the query key means switching filters starts a clean page-1 dataset instead of mutating one.</td></tr>
     <tr lang="tr"><td><strong>Veri kümesi kimliği</strong> (arama, kategori, marka, durum, sıralama, yön)</td><td><code>ProductListScreen</code> içindeki ekran state'i; <code>listParams</code> olarak birleşip query key'e dönüşür</td><td>Mobilde URL yok, o yüzden sahibi ekran; bunu query key yapmak, filtre değiştirmenin mevcut veri kümesini bozmak yerine temiz bir 1. sayfa veri kümesi başlatması demek.</td></tr>
     <tr lang="en"><td><strong>Pagination position</strong></td><td>Inside the infinite query's page progression (<code>getNextPageParam</code>)</td><td>Page number is a property of the loaded dataset, not user intent — it never needs separate state.</td></tr>
-    <tr lang="tr"><td><strong>Sayfalama konumu</strong></td><td>Infinite query'nin sayfa ilerleyişinin içinde (<code>getNextPageParam</code>)</td><td>Sayfa numarası kullanıcı niyetinin değil, yüklenmiş veri kümesinin bir özelliği — ayrı bir state'e hiç ihtiyacı yok.</td></tr>
+    <tr lang="tr"><td><strong>Pagination konumu</strong></td><td>Infinite query'nin sayfa ilerleyişinin içinde (<code>getNextPageParam</code>)</td><td>Sayfa numarası kullanıcı niyetinin değil, yüklenmiş veri kümesinin bir özelliği — ayrı bir state'e hiç ihtiyacı yok.</td></tr>
     <tr lang="en"><td><strong>Session</strong> (<code>{ user, status }</code>)</td><td><code>AuthContext</code>; tokens in <code>expo-secure-store</code> (only when "remember" is chosen, otherwise memory-only)</td><td>The navigator renders from <code>status</code>, so session state drives navigation directly.</td></tr>
     <tr lang="tr"><td><strong>Oturum</strong> (<code>{ user, status }</code>)</td><td><code>AuthContext</code>; token'lar <code>expo-secure-store</code> içinde (yalnızca "beni hatırla" seçiliyse, aksi hâlde sadece bellekte)</td><td>Navigator <code>status</code> değerine göre render eder; yani oturum state'i doğrudan navigasyonu sürer.</td></tr>
     <tr lang="en"><td><strong>Navigation</strong></td><td>React Navigation native stack</td><td>Two app screens; a plain stack is less machinery than file-based routing.</td></tr>
     <tr lang="tr"><td><strong>Navigasyon</strong></td><td>React Navigation native stack</td><td>İki uygulama ekranı; düz bir stack, dosya tabanlı yönlendirmeye göre daha az mekanizma.</td></tr>
     <tr lang="en"><td><strong>Stock draft</strong></td><td>Local <strong>string</strong> state inside <code>StockEditor</code></td><td>Text input is a string until the user commits; normalization to a valid non-negative integer happens through the shared utility, so partial input never becomes a bogus number.</td></tr>
-    <tr lang="tr"><td><strong>Stok taslağı</strong></td><td><code>StockEditor</code> içinde yerel <strong>string</strong> state'i</td><td>Metin girdisi, kullanıcı onaylayana kadar bir string; geçerli ve negatif olmayan bir tam sayıya normalleştirme paylaşılan yardımcıyla yapılır, böylece yarım girdi asla uyduruk bir sayıya dönüşmez.</td></tr>
+    <tr lang="tr"><td><strong>Stok taslağı</strong></td><td><code>StockEditor</code> içinde yerel <strong>string</strong> state'i</td><td>Metin girdisi, kullanıcı onaylayana kadar bir string'dir; geçerli ve negatif olmayan bir tam sayıya normalize etme işi paylaşılan yardımcıya aittir — yarım kalmış girdi asla geçersiz bir sayıya dönüşmez.</td></tr>
     <tr lang="en"><td><strong>Freshness metadata</strong></td><td>Derived from the query's <code>dataUpdatedAt</code></td><td>Same rule as web: only a <em>successful</em> fetch moves the indicator.</td></tr>
     <tr lang="tr"><td><strong>Veri tazeliği bilgisi</strong></td><td>Query'nin <code>dataUpdatedAt</code> değerinden türetilir</td><td>Web'dekiyle aynı kural: göstergeyi yalnızca <em>başarılı</em> bir fetch ilerletir.</td></tr>
     <tr lang="en"><td><strong>Interaction guards</strong> (scroll-arm ref, sheet visibility, pull state)</td><td>Component refs/state</td><td>Purely local concerns; nothing outside the screen depends on them.</td></tr>
-    <tr lang="tr"><td><strong>Etkileşim korumaları</strong> (kaydırma tetikleme ref'i, sheet görünürlüğü, çekme durumu)</td><td>Bileşen ref'leri/state'i</td><td>Tamamen yerel meseleler; ekranın dışında bunlara bağlı hiçbir şey yok.</td></tr>
+    <tr lang="tr"><td><strong>Etkileşim korumaları</strong> (scroll-arm ref'i, sheet görünürlüğü, pull state'i)</td><td>Bileşen ref'leri/state'i</td><td>Tamamen ekrana özel detaylar; ekranın dışında bunlara bağlı hiçbir şey yok.</td></tr>
   </table>
   </div>
 </section>
@@ -191,23 +191,23 @@
     <li>Scrolling appends pages; changing search/filters/sort creates a new dataset under a new key, with the previous results kept on screen until the new ones arrive.</li>
   </ol>
   <ol class="flow" lang="tr">
-    <li>Uygulama <code>status: 'restoring'</code> ile açılır ve güvenli depolamadaki token çiftini okur.</li>
-    <li>Çift varsa <code>GET /auth/me</code> ile doğrulanır. Başarılıysa → <code>signedIn</code>; ölü bir oturumda (ör. in-memory backend yeniden başlamıştır) → sessizce <code>signedOut</code>, kullanıcının hiç görmediği bir ekranda hata yığmadan.</li>
-    <li>Liste ekranı mount olur ve varsayılan veri kümesinin 1. sayfasını çeker (Aktif ürünler, ada göre artan).</li>
-    <li>Kaydırma yeni sayfalar ekler; arama/filtre/sıralama değişince yeni bir key altında yeni bir veri kümesi doğar ve yenileri gelene kadar önceki sonuçlar ekranda kalır.</li>
+    <li>Uygulama <code>status: 'restoring'</code> ile açılır ve secure storage'daki token çiftini okur.</li>
+    <li>Çift varsa <code>GET /auth/me</code> ile doğrulanır. Başarılıysa → <code>signedIn</code>; oturum ölmüşse (ör. in-memory backend yeniden başlamıştır) → sessizce <code>signedOut</code> — kullanıcının hiç görmediği bir ekran için hata mesajı basılmaz.</li>
+    <li>Liste ekranı mount olur ve varsayılan veri kümesinin 1. sayfasını çeker (Active ürünler, ada göre artan).</li>
+    <li>Kaydırdıkça yeni sayfalar eklenir; arama/filtre/sıralama değişince yeni bir key altında yeni bir veri kümesi başlar ve yenisi gelene kadar önceki sonuçlar ekranda kalır.</li>
   </ol>
   <h3 lang="en">Mutation → cache</h3>
-  <h3 lang="tr">Mutasyon → cache</h3>
+  <h3 lang="tr">Mutation → cache</h3>
   <p lang="en">A stock save returns the full updated product — canonical persisted server state. Instead of invalidating and
   refetching every loaded page (which on an infinite list means a request storm), the response is applied directly to
   the caches: the detail entry is patched (preserving detail-only fields) and the matching row is patched inside every
   cached list dataset. No success-path GET follows. This keeps values current, but a dataset sorted by stock or
   updated time is not re-sorted or re-paged locally; its order can remain stale until an explicit refresh.</p>
-  <p lang="tr">Stok kaydı, güncellenen ürünün tamamını döndürür — kalıcılaşmış, kanonik sunucu durumu. Yüklü her sayfayı
-  geçersizleştirip yeniden çekmek yerine (sonsuz bir listede bu istek fırtınası demek), yanıt doğrudan cache'lere
-  uygulanır: detay kaydı yamalanır (yalnızca detayda bulunan alanlar korunarak) ve eşleşen satır, cache'teki her liste
-  veri kümesinde yamalanır. Başarı yolunda ardından GET gelmez. Bu, değerleri güncel tutar; ancak stoğa veya güncelleme
-  zamanına göre sıralanan veri kümesi yerelde yeniden sıralanıp sayfalanmaz ve açık bir yenilemeye kadar sırası bayat kalabilir.</p>
+  <p lang="tr">Stok kaydı, güncellenen ürünün tamamını döndürür — sunucuda kalıcı hâle gelmiş kanonik state. Yüklü her
+  sayfayı invalidate edip yeniden çekmek yerine (infinite bir listede bu bir istek fırtınası demek), yanıt doğrudan
+  cache'lere uygulanır: detay kaydı yamalanır (yalnızca detayda bulunan alanlar korunarak) ve eşleşen satır, cache'teki
+  her liste veri kümesinde güncellenir. Başarı yolunda ek bir GET atılmaz. Bu, değerleri güncel tutar; ancak stoğa veya
+  güncelleme zamanına göre sıralanan bir veri kümesi yerelde yeniden sıralanıp sayfalanmaz — açık bir yenilemeye kadar sırası stale kalabilir.</p>
 </section>
 
 <section>
@@ -224,12 +224,12 @@
   </ul>
   <ul class="tight" lang="tr">
     <li><strong>Keşfe dönük satırlar</strong> — görsel, ad, marka, fiyat ve stok durumunu taşıyan bir bilgi şeridi ("Düşük stok"/"Stokta yok" metin etiketleriyle, yalnızca renkle değil).</li>
-    <li><strong>Arama</strong> — 300 ms debounce, kırpılmış, sunucu tarafında (<code>q</code>); web yönetim panelindeki alt dize eşleşmesinin aynısı.</li>
-    <li><strong>Filtreler ve sıralama</strong> — durum/kategori/marka için alt sheet'ler ve 8 seçenekli bir sıralama menüsü; hepsi API'nin kendi parametrelerine eşlenir. Lookup listeleri, filtre sheet'i ilk açıldığında tembel yüklenir. Aktif filtre çipleri kendi etiketlerini taşır, bu yüzden lookup cache'ine hiç bağlı değiller.</li>
-    <li><strong>Sayfalama</strong> — sonsuz kaydırma; hareket, veri sonu, uçuştaki istek, placeholder ve retry korumalarını kullanır. Kıdemli incelemenin bulduğu yeniden kurma hatası (sürükleme başlangıcı ile momentum başlangıcının aynı ref'i kurması, tek güçlü savurmanın 441 ms arayla iki sayfa istemesine yol açıyordu) <strong>düzeltildi</strong>: koruma artık fiziksel hareket başına tam bir kez, yalnızca sürükleme başlangıcında kurulur ve momentum onu yeniden kurmaz. Zaman damgalı proxy ile yeniden doğrulama; düz, arama, filtreli, sıralı ve birleşik veri kümelerinde hareket başına tek istek davranışını onayladı. Listenin nerede bittiğine yine backend'in bildirdiği toplam karar verir ("Sona ulaştınız").</li>
+    <li><strong>Arama</strong> — 300 ms debounce, boşlukları kırpılmış, sunucu tarafında (<code>q</code>); web admin'deki alt dize eşleşmesinin aynısı.</li>
+    <li><strong>Filtreler ve sıralama</strong> — durum/kategori/marka için bottom sheet'ler ve 8 seçenekli bir sıralama menüsü; hepsi API'nin kendi parametrelerine eşlenir. Lookup listeleri, filtre sheet'i ilk açıldığında lazy yüklenir. Aktif filtre çipleri kendi etiketlerini taşır, bu yüzden lookup cache'ine bağımlı değiller.</li>
+    <li><strong>Pagination</strong> — infinite scroll; jest, veri sonu, in-flight istek, placeholder ve retry korumalarıyla çalışır. Senior review'ın bulduğu yeniden kurulma hatası (drag başlangıcı ile momentum başlangıcının aynı ref'i kurması, tek güçlü bir fling'in 441 ms arayla iki sayfa istemesine yol açıyordu) <strong>düzeltildi</strong>: koruma artık fiziksel hareket başına tam bir kez, yalnızca drag başlangıcında kurulur ve momentum onu yeniden kurmaz. Zaman damgalı proxy ile yapılan yeniden doğrulama; düz, aramalı, filtreli, sıralı ve birleşik veri kümelerinde hareket başına tek istek davranışını teyit etti. Listenin nerede bittiğine yine backend'in bildirdiği toplam karar verir ("Sona ulaştınız").</li>
     <li><strong>Sonuç sayısı</strong>, filtrelenmiş veri kümesi için backend'in verdiği <code>total</code> değerinden gelir — asla yüklenmiş satır sayısından değil.</li>
     <li><strong>Yenileme</strong> — pull-to-refresh ile açık Yenile eylemi tek bir korumalı hattı paylaşır; tazelik göstergesi görünen verinin yaşını gösterir.</li>
-    <li><strong>Durumlar</strong> — ilk yüklemede iskelet satırlar, yeni veri kümesi yüklenirken önceki sonuçların korunması, boş/sonuç yok ve hata+tekrar dene için ayrı durumlar.</li>
+    <li><strong>Durumlar</strong> — ilk yüklemede skeleton satırlar, yeni veri kümesi yüklenirken önceki sonuçların korunması, boş/sonuç yok ve hata+tekrar dene için ayrı durumlar.</li>
   </ul>
 </section>
 
@@ -246,10 +246,10 @@
   while this screen is focused and the app is active. Backgrounding or leaving the screen stops the timer;
   foreground/refocus triggers targeted detail revalidation. Incoming data follows the server when the stock draft is
   clean and shows a “changed elsewhere” notice without overwriting a dirty draft.</p>
-  <p lang="tr">Yalnızca açık ürün detayı poll edilir: bu ekran odaktayken ve uygulama aktifken, son isteğin tamamlanmasına
-  sabitlenmiş biçimde yaklaşık her 10 sn. Arka plana geçmek veya ekrandan ayrılmak zamanlayıcıyı durdurur;
-  ön plana/odağa dönüş yalnızca bu detayı yeniden doğrular. Gelen veri stok taslağı temizse sunucuyu izler, kirliyse
-  taslağı ezmeden “başka yerde değişti” uyarısını gösterir.</p>
+  <p lang="tr">Yalnızca açık ürünün detayı poll edilir: bu ekran odaktayken ve uygulama aktifken, son fetch'in bitişine
+  hizalanmış biçimde yaklaşık 10 saniyede bir. Arka plana geçmek veya ekrandan ayrılmak zamanlayıcıyı durdurur;
+  ön plana/odağa dönüş yalnızca bu detayı yeniden doğrular. Stok taslağı temizse gelen veri sunucuyu izler; taslak
+  kirliyse üzerine yazılmaz, bunun yerine “başka yerde değişti” uyarısı gösterilir.</p>
   <figure class="diagram">
     <svg viewBox="0 0 900 300" role="img" aria-label="Stock editor lifecycle: local string draft, normalization, save through PATCH, success patches caches, 409 conflict refetches detail and locks the editor">
       <g font-family="-apple-system,Segoe UI,Roboto,sans-serif" font-size="12.5">
@@ -304,8 +304,8 @@
     </svg>
     <figcaption><span lang="en">The editor's whole contract in one picture: local draft until Save, a typed absolute stock value on the
     wire, persisted server state back into the caches, and explicit handling for both failure shapes that matter.</span><span lang="tr">Editörün
-    tüm sözleşmesi tek bir resimde: Kaydet'e basılana kadar yerel taslak, hatta tipli ve mutlak bir stok değeri,
-    cache'lere geri yazılan kalıcı sunucu durumu ve önemli olan iki hata biçimi için açık bir karşılık.</span></figcaption>
+    tüm kontratı tek resimde: Kaydet'e basılana kadar yerel taslak, wire üzerinde tipli ve mutlak bir stok değeri,
+    cache'lere geri yazılan kalıcı sunucu state'i ve önemli iki hata biçiminin her biri için açık bir karşılık.</span></figcaption>
   </figure>
   <div class="warnbox" lang="en"><strong>Discontinued products are stock-locked.</strong> The editor disables its controls and shows a
   localized notice — but the real protection is server-side: the backend rejects the update with <code>409</code>. A device
@@ -314,9 +314,9 @@
   <a href="backend-report.html">backend report</a>.</div>
   <div class="warnbox" lang="tr"><strong>Discontinued ürünlerde stok kilitlidir.</strong> Editör kontrollerini devre dışı
   bırakır ve yerelleştirilmiş bir uyarı gösterir — ama asıl koruma sunucu tarafında: backend güncellemeyi
-  <code>409</code> ile reddeder. Ürünü Aktif durumdayken açan ve genel merkez ürünü Discontinued yaptıktan sonra kaydeden
-  bir cihaz kesin bir ret, ona özel bir mesaj ve ekranı kilitli görünüme çeviren bir detay yeniden çekimi alır. Bkz.
-  <a href="backend-report.html">backend raporu</a>.</div>
+  <code>409</code> ile reddeder. Ürünü Active durumdayken açan ve genel merkez ürünü Discontinued yaptıktan sonra kaydeden
+  bir cihaz kesin bir ret, duruma özel bir mesaj ve ekranı kilitli görünüme geçiren bir detay refetch'i alır. Bkz.
+  <a href="backend-report.html?lang=tr">backend raporu</a>.</div>
 </section>
 
 <section>
@@ -330,11 +330,11 @@
     <li>Development uses a native debug build with Metro; <code>expo-dev-client</code> is a dev-build dependency and was verified inert in the release artifact (no dev-launcher activity, zero dev-menu entries). Debugging tooling is not part of the app's architecture.</li>
   </ul>
   <ul class="tight" lang="tr">
-    <li><strong>Tek bir değişken</strong>: <code>EXPO_PUBLIC_API_URL</code>. Tanımlı değilse Android'de <code>http://10.0.2.2:5080</code> (emulator'ün host makine için kullandığı takma ad — Android'de <code>localhost</code> cihazın kendisidir), diğer ortamlarda <code>http://localhost:5080</code> olur.</li>
-    <li><strong>Fiziksel cihazlar ve APK'lar</strong> bunu host'un LAN adresine açıkça ayarlar; barındırılan bir kurulumda da aynı değişkenle, kod değişikliği olmadan bir HTTPS URL'i verilirdi. Uygulama içinde bilinçli olarak sunucu ayarı ekranı yok.</li>
-    <li><strong>Release build'ler değeri JS paketleme sırasında gömer</strong>; teslim edilen APK'nın emulator host'unu hedeflemesinin ve hedefi değiştirmenin yeniden build gerektirmesinin sebebi bu (README'de belgelendi).</li>
-    <li><strong>Şifresiz HTTP</strong>, yalnızca verilen backend HTTP-only olduğu için <code>expo-build-properties</code> üzerinden açıldı; o olmadan release build'deki her ağ çağrısı başarısız olur.</li>
-    <li>Geliştirmede Metro ile çalışan native bir debug build kullanılır; <code>expo-dev-client</code> bir debug build bağımlılığıdır ve release çıktısında etkisiz kaldığı doğrulandı (dev-launcher activity'si yok, dev-menu girdisi sıfır). Hata ayıklama araçları uygulamanın mimarisinin bir parçası değil.</li>
+    <li><strong>Tek bir değişken</strong>: <code>EXPO_PUBLIC_API_URL</code>. Tanımlı değilse Android'de <code>http://10.0.2.2:5080</code> (emülatörün host makine için kullandığı adres — Android'de <code>localhost</code> cihazın kendisidir), diğer ortamlarda <code>http://localhost:5080</code> olur.</li>
+    <li><strong>Fiziksel cihazlar ve APK'lar</strong> bunu host'un LAN adresine açıkça ayarlar; hosted bir deployment'ta da aynı değişkenle, kod değişikliği olmadan bir HTTPS URL'i verilirdi. Uygulama içinde bilinçli olarak bir sunucu ayarları ekranı yok.</li>
+    <li><strong>Release build'ler değeri JS bundle'lama sırasında gömer</strong>; teslim edilen APK'nın emülatör host'unu hedeflemesinin ve hedef değiştirmenin yeniden build gerektirmesinin sebebi bu (README'de belgelendi).</li>
+    <li><strong>Cleartext HTTP</strong>, yalnızca verilen backend HTTP-only olduğu için <code>expo-build-properties</code> üzerinden açıldı; o olmadan release build'deki her ağ çağrısı başarısız olur.</li>
+    <li>Geliştirmede Metro ile çalışan native bir debug build kullanılır; <code>expo-dev-client</code> bir dev build bağımlılığıdır ve release çıktısında etkisiz kaldığı doğrulandı (dev-launcher activity'si yok, dev-menu girdisi sıfır). Debug araçları uygulama mimarisinin parçası değil.</li>
   </ul>
 </section>
 
@@ -348,12 +348,12 @@
   formatted from integer kuruş with locale-aware separators (<code>₺39,50</code> tr / <code>₺39.50</code> en) and an
   explicit ₺ prefix, because Hermes renders the currency code instead of the symbol.</p>
   <p lang="tr">İngilizce (varsayılan) ve Türkçe; çalışma anında değiştirilebilir ve kalıcıdır, küçük ve tipli bir mesaj
-  kataloğuyla — web'dekiyle aynı yaklaşım. Arayüz metinleri, durumlar, doğrulama ve durum etiketleri yerelleştirilir;
+  kataloğuyla — web'dekiyle aynı yaklaşım. Arayüz metinleri, durumlar, validasyon ve durum etiketleri yerelleştirilir;
   API verisi (ürün, marka, kategori adları) asla yerelleştirilmez. Backend'in hata metni hiçbir zaman string olarak
-  eşleştirilmez: hatalar status kodu ve istek bağlamıyla tanınıp yerelleştirilmiş mesajlara eşlenir, kalanlar için genel
-  yerelleştirilmiş bir mesaja düşülür. Fiyatlar her zaman TRY'dir; tam sayı kuruş değerinden, yerele duyarlı
-  ayırıcılarla (<code>₺39,50</code> tr / <code>₺39.50</code> en) ve açık bir ₺ önekiyle biçimlendirilir, çünkü Hermes
-  sembol yerine para birimi kodunu basıyor.</p>
+  eşleştirilmez: hatalar status kodu ve istek bağlamıyla tanınıp yerelleştirilmiş mesajlara eşlenir; kalanlar genel,
+  yerelleştirilmiş bir mesaja düşer. Fiyatlar her zaman TRY'dir; tam sayı kuruş değerinden, locale'e duyarlı
+  ayırıcılarla (<code>₺39,50</code> tr / <code>₺39.50</code> en) ve açık bir ₺ önekiyle formatlanır — Hermes, sembol
+  yerine para birimi kodunu bastığı için.</p>
 </section>
 
 <section>
@@ -364,11 +364,11 @@
   <code>expo prebuild</code> produces a full native project on demand, so the APK is built locally with plain Gradle
   and no cloud account or build queue. Rationale, alternatives, and the signing caveat:
   <a href="development-decisions.html">engineering decisions</a>.</p>
-  <p lang="tr">Ödev, Expo ile bare React Native arasındaki seçimi serbest bırakıyor. Managed Expo native yapılandırmayı
-  bildirimsel tutar — şifresiz HTTP bayrağı, ikonlar ve build ayarları yamalanmış Gradle dosyaları değil, birer
-  konfigürasyondur — <code>expo prebuild</code> ise istendiğinde tam bir native proje üretir, böylece APK bulut hesabı
-  veya build kuyruğu olmadan, düz Gradle ile yerelde derlenir. Gerekçe, alternatifler ve imzalama uyarısı:
-  <a href="development-decisions.html">mühendislik kararları</a>.</p>
+  <p lang="tr">Assignment, Expo ile bare React Native arasındaki seçimi açık bırakıyor. Managed Expo, native
+  yapılandırmayı declarative tutar — cleartext HTTP bayrağı, ikonlar ve build ayarları yamalanmış Gradle dosyaları
+  değil, birer config'dir — <code>expo prebuild</code> ise istendiğinde tam bir native proje üretir; böylece APK, cloud
+  hesabı veya build kuyruğu olmadan düz Gradle ile lokalde derlenir. Gerekçe, alternatifler ve imzalama uyarısı:
+  <a href="development-decisions.html?lang=tr">mühendislik kararları</a>.</p>
 </section>
 
 <section>
@@ -382,15 +382,15 @@
   conventions are recorded in <code>mobile/DESIGN.md</code>.</p>
   <p lang="tr">Çerçeve yerine yüzey hiyerarşisi: taş renginde bir zemin, hafif yükseltili çerçevesiz beyaz içerik kartları,
   çerçeveli değil dolgulu kontroller ve ekran başına tam olarak bir yükseltilmiş yüzey — stok editörü, çünkü ekranın işi
-  o. Birincil eylemlere ayrılmış tek bir marka mavisi; anlamsal renkler (danger/warning/success) web yönetim panelindeki
-  anlamların aynısını taşır ve asla vurgu için başka amaca koşulmaz. Her stok rakamı tabular rakam kullanır.
-  Snackbar'lar sıraya alınır ve alta sabitlenir; sheet'ler eylemlerini hareket çubuğunun üstünde tutar. Token setinin
-  tamamı ve kurallar <code>mobile/DESIGN.md</code> içinde kayıtlı.</p>
+  o. Birincil eylemlere ayrılmış tek bir marka mavisi; semantik renkler (danger/warning/success) web admin'deki
+  anlamların aynısını taşır ve asla vurgu amacıyla kullanılmaz. Her stok rakamı tabular rakamla dizilir.
+  Snackbar'lar kuyruğa alınır ve alta sabitlenir; sheet'ler eylemlerini gesture nav bar'ının üstünde tutar. Token
+  setinin tamamı ve kurallar <code>mobile/DESIGN.md</code> içinde kayıtlı.</p>
 </section>
 
 <section>
   <h2 lang="en">Trade-offs and limitations</h2>
-  <h2 lang="tr">Ödünler ve sınırlar</h2>
+  <h2 lang="tr">Trade-off'lar ve sınırlar</h2>
   <ul class="tight" lang="en">
     <li><strong>Hand-styled UI</strong> costs more styling effort than a component kit, accepted to keep the dependency set minimal — the hardest piece (queued snackbars) would have needed custom code anyway.</li>
     <li><strong>Fixed API target in the APK</strong> — by design (configuration over UI surface); retargeting is a documented rebuild.</li>
@@ -402,14 +402,14 @@
     <li><strong>Android-verified only</strong> — the assignment asks for an Android APK; iOS is unbuilt though the code paths exist.</li>
   </ul>
   <ul class="tight" lang="tr">
-    <li><strong>Elle tasarlanmış UI</strong>, hazır bir bileşen kitine göre daha fazla stil emeği demek; bağımlılıkları en azda tutmak için kabul edildi — en zor parça (sıraya alınan snackbar'lar) zaten özel kod gerektirecekti.</li>
-    <li><strong>APK içinde sabit API hedefi</strong> — tasarım gereği (arayüz yerine konfigürasyon); hedefi değiştirmek belgelenmiş bir yeniden build.</li>
-    <li><strong>Debug keystore ile imzalama</strong> — ödev düzeyinde, mağazaya hazır bir imza değil.</li>
-    <li>Stokta <strong>son yazan kazanır</strong>, Discontinued kuralı hariç; uygulama bunu engelliyormuş gibi yapmak yerine "başka yerde değişti" uyarısını gösterir.</li>
-    <li><strong>YÜKSEK sayfalama hatası — düzeltildi</strong> — koruma artık fiziksel hareket başına bir kez kurulur (yalnızca sürükleme başlangıcında; momentum yeniden kurmaz) ve proxy ile yeniden doğrulama, hareket başına tek sayfa isteğini onayladı; kanıt zinciri için uygulama raporuna bakın.</li>
-    <li><strong>Stok sıralı cache düzeni — kabul edildi</strong> — başarılı kayıt değerleri refetch yapmadan yamalar; bu nedenle stok/güncelleme zamanı sıralı listeler yenilemeye kadar yanlış sırada kalabilir. Koordinatör tarafından açıkça kabul edildi: gösterilen değer doğrudur ve normal bir yenileme kanonik sıralamayı geri getirir.</li>
-    <li><strong>Ürün görselleri internet gerektirir</strong> (seed verisi herkese açık bir placeholder servisini gösteriyor); hatalar zarifçe karşılanır, böylece uygulama hatası gibi okunmaz.</li>
-    <li><strong>Yalnızca Android'de doğrulandı</strong> — ödev bir Android APK istiyor; kod yolları var olsa da iOS derlenmedi.</li>
+    <li><strong>Elle tasarlanmış UI</strong>, hazır bir bileşen kitine göre daha fazla stil emeği demek; bağımlılıkları en azda tutmak için kabul edildi — en zor parça (kuyruğa alınan snackbar'lar) zaten özel kod gerektirecekti.</li>
+    <li><strong>APK içinde sabit API hedefi</strong> — tasarım gereği (ayar ekranı yerine konfigürasyon); hedef değiştirmek, belgelenmiş bir yeniden build.</li>
+    <li><strong>Debug keystore ile imzalama</strong> — assignment düzeyinde, mağazaya hazır bir imza değil.</li>
+    <li>Stokta <strong>last-write-wins</strong>, Discontinued kuralı hariç; uygulama bunu engelliyormuş gibi yapmak yerine "başka yerde değişti" uyarısını gösterir.</li>
+    <li><strong>YÜKSEK öncelikli pagination hatası — düzeltildi</strong> — koruma artık fiziksel hareket başına bir kez kurulur (yalnızca drag başlangıcında; momentum yeniden kurmaz) ve proxy ile yeniden doğrulama, hareket başına tek sayfa isteğini teyit etti; kanıt zinciri için implementation raporuna bakın.</li>
+    <li><strong>Stok sıralamasında cache sırası — kabul edildi</strong> — başarılı kayıt, değerleri refetch yapmadan yamaladığı için stok ya da güncelleme zamanına göre sıralı listeler yenilemeye kadar eski sırada kalabilir. Koordinatör tarafından bilinçli olarak kabul edildi: gösterilen değer doğrudur ve normal bir yenileme kanonik sıralamayı geri getirir.</li>
+    <li><strong>Ürün görselleri internet gerektirir</strong> (seed verisi herkese açık bir placeholder servisini gösteriyor); görsel hataları sessizce tolere edilir, uygulama hatası gibi görünmez.</li>
+    <li><strong>Yalnızca Android'de doğrulandı</strong> — assignment bir Android APK istiyor; kod yolları mevcut olsa da iOS derlenmedi.</li>
   </ul>
 </section>
 
@@ -422,7 +422,7 @@
 </footer>
 <footer lang="tr">
   <a href="index.html">← Değerlendirici özeti</a> · İlgili:
-  <a href="frontend-report.html">Web yönetim paneli mimarisi</a> ·
+  <a href="frontend-report.html">Web admin mimarisi</a> ·
   <a href="backend-report.html">Backend ve değişiklikler</a> ·
   <a href="development-decisions.html">Mühendislik kararları</a> ·
   <a href="agent-workflow-report.html">Yapay zekâ destekli süreç</a>

@@ -79,7 +79,7 @@
   reasoning, the alternatives that were actually considered, the trade-off accepted, and the result. This is a
   decision record, not a chronology.</p>
   <p class="lede" lang="tr">Teslim edilen çözümün neden bu şekilde kurulduğu. Her kayıt bağlamı, kararı, gerekçeyi,
-  gerçekten değerlendirilen alternatifleri, kabul edilen ödünleşimi ve sonucu veriyor. Bu bir karar kaydıdır,
+  gerçekten değerlendirilen alternatifleri, kabul edilen trade-off'u ve sonucu veriyor. Bu bir karar kaydıdır,
   kronoloji değil.</p>
 </header>
 
@@ -103,11 +103,11 @@
 <nav class="toc" lang="tr">
   <a href="#monorepo">1 · Monorepo ve npm workspaces</a>
   <a href="#shared">2 · Paylaşılan kod sınırları</a>
-  <a href="#query">3 · Sunucu state'i için TanStack Query</a>
+  <a href="#query">3 · Server state için TanStack Query</a>
   <a href="#auth">4 · Merkezî single-flight refresh</a>
   <a href="#weburl">5 · URL'in sahiplendiği web liste state'i</a>
   <a href="#webui">6 · Web'de shadcn/ui + Tailwind</a>
-  <a href="#mobileui">7 · Elle stillendirilmiş mobil UI</a>
+  <a href="#mobileui">7 · Elle tasarlanmış mobil UI</a>
   <a href="#split">8 · Admin ve müşteri tasarım ayrımı</a>
   <a href="#expo">9 · Expo managed + yerel Gradle APK</a>
   <a href="#apiurl">10 · EXPO_PUBLIC_API_URL, ayar ekranı yok</a>
@@ -134,14 +134,14 @@
     <dt>Karar</dt><dd>Düz bir npm-workspaces monorepo'su: <code>shared</code>, <code>web</code>, <code>mobile</code>; backend de yanlarında. <code>shared</code> doğrudan TypeScript kaynağı yayımlıyor — build adımı yok, project reference yok.</dd>
     <dt>Gerekçe</dt><dd>Tek install, tek bağımlılık ağacı, tek lockfile. npm Node ile birlikte geldiği için değerlendirici ek araç kurmuyor; ayrıca React Native/Metro uç durumları en az olan seçenek. Vite workspace TypeScript'ini transpile ediyor, Metro Babel üzerinden derliyor; bu yüzden yalnızca kaynak paylaşmak sorunsuz çalışıyor.</dd>
     <dt>Değerlendirilen alternatifler</dt><dd>pnpm — daha hızlı, ama değerlendirici için ek bir kurulum adımı ve zaman zaman Metro sürtüşmesi getiriyor; standart çözümü de zaten npm'in yerleşimini yeniden üretiyor. Workspace'siz ayrı klasörler — tiplerin ve istemci kodunun tekrarlanması. Nx/Turborepo — üç paket için build grafiği.</dd>
-    <dt>Ödünleşim</dt><dd>npm'in düz <code>node_modules</code> yapısı, phantom bağımlılıklar konusunda pnpm'in izole yerleşiminden daha gevşek.</dd>
+    <dt>Trade-off</dt><dd>npm'in düz <code>node_modules</code> yapısı, phantom bağımlılıklar konusunda pnpm'in izole yerleşiminden daha gevşek.</dd>
     <dt>Sonuç</dt><dd class="res">Değerlendirici kökte bir kez <code>npm install</code> çalıştırıyor ve mobil build dahil her şey çalışıyor.</dd>
   </dl>
 </section>
 
 <section class="dec" id="shared">
   <h3 lang="en">2 · Share the wire, not the UI</h3>
-  <h3 lang="tr">2 · İletişim katmanını paylaş, UI'ı değil</h3>
+  <h3 lang="tr">2 · Wire katmanını paylaş, UI'ı değil</h3>
   <dl lang="en">
     <dt>Context</dt><dd>Two clients, one API with several verified traps (full-replace PUT, plain-text errors, strict token rotation).</dd>
     <dt>Decision</dt><dd>Share only framework-free code whose behavior is genuinely identical on both platforms: API/domain types, the fetch client core, the query-key factory, and small formatting/normalization utilities. UI, navigation, forms, and storage stay per-app; each app injects its own storage adapter.</dd>
@@ -151,18 +151,18 @@
     <dt>Result</dt><dd class="res">Roughly 500 lines of shared source carry every cross-client correctness concern, covered by unit tests plus live contract tests against the running backend.</dd>
   </dl>
   <dl lang="tr">
-    <dt>Bağlam</dt><dd>İki istemci ve doğrulanmış birkaç tuzağı olan tek bir API (tümünü değiştiren PUT, düz metin hatalar, katı token rotasyonu).</dd>
-    <dt>Karar</dt><dd>Yalnızca framework'ten bağımsız ve davranışı iki platformda gerçekten aynı olan kod paylaşılıyor: API/domain tipleri, fetch istemcisinin çekirdeği, query key üreteci ve küçük biçimlendirme/normalleştirme yardımcıları. UI, navigasyon, formlar ve depolama uygulamaya özel kalıyor; her uygulama kendi storage adapter'ını enjekte ediyor.</dd>
-    <dt>Gerekçe</dt><dd>Birebir doğru olması gereken altyapı — hata normalleştirme, Bearer ekleme, refresh-and-retry — bir kez yazılıyor ve tek bir test kümesiyle korunuyor. Query key'ler paylaşıldığı için cache ve invalidation semantiği istemciler arasında ayrışamıyor.</dd>
-    <dt>Değerlendirilen alternatifler</dt><dd>Paylaşılan bir UI bileşen paketi — reddedildi: DOM ve React Native primitifleri bu ölçekte temiz paylaşılmıyor ve sonuç en düşük ortak paydada bileşenler oluyor. İstemciyi her uygulamada ayrı yazmak — token rotasyonunu yanlış yapmak için iki ayrı yer.</dd>
-    <dt>Ödünleşim</dt><dd>Bir miktar dolaylılık: platform davranışı satır içinde değil, enjekte edilen adapter'lar üzerinden giriyor.</dd>
+    <dt>Bağlam</dt><dd>İki istemci ve doğrulanmış birkaç tuzağı olan tek bir API (full-replace PUT, düz metin hatalar, katı token rotasyonu).</dd>
+    <dt>Karar</dt><dd>Yalnızca framework bağımsız ve davranışı iki platformda gerçekten aynı olan kod paylaşılıyor: API/domain tipleri, fetch client'ının çekirdeği, query key factory'si ve küçük formatlama/normalizasyon yardımcıları. UI, navigasyon, formlar ve depolama uygulamaya özel kalıyor; her uygulama kendi storage adapter'ını enjekte ediyor.</dd>
+    <dt>Gerekçe</dt><dd>Birebir doğru olması gereken altyapı — hata normalizasyonu, Bearer ekleme, refresh-and-retry — bir kez yazılıyor ve tek bir test kümesiyle korunuyor. Query key'ler paylaşıldığı için cache ve invalidation semantiği istemciler arasında ayrışamıyor.</dd>
+    <dt>Değerlendirilen alternatifler</dt><dd>Paylaşılan bir UI bileşen paketi — reddedildi: DOM ve React Native primitive'leri bu ölçekte temiz paylaşılamıyor ve sonuç, en düşük ortak paydada bileşenler oluyor. İstemciyi her uygulamada ayrı yazmak — token rotasyonunu yanlış yapmak için iki ayrı yer.</dd>
+    <dt>Trade-off</dt><dd>Bir miktar dolaylılık: platform davranışı satır içinde değil, enjekte edilen adapter'lar üzerinden giriyor.</dd>
     <dt>Sonuç</dt><dd class="res">Yaklaşık 500 satır paylaşılan kaynak, istemciler arası tüm doğruluk kaygılarını taşıyor; unit testlerin yanı sıra çalışan backend'e karşı canlı kontrat testleriyle kapsanıyor.</dd>
   </dl>
 </section>
 
 <section class="dec" id="query">
   <h3 lang="en">3 · TanStack Query as the only server-state layer</h3>
-  <h3 lang="tr">3 · Tek sunucu state'i katmanı olarak TanStack Query</h3>
+  <h3 lang="tr">3 · Tek server-state katmanı olarak TanStack Query</h3>
   <dl lang="en">
     <dt>Context</dt><dd>Almost all application state in this product is server state. (Using TanStack Query was a fixed project decision; it was adopted willingly.)</dd>
     <dt>Decision</dt><dd>TanStack Query v5 on both clients, with no additional state library. Remaining client state is one auth context plus local component state.</dd>
@@ -172,11 +172,11 @@
     <dt>Result</dt><dd class="res">No global store exists in either client, and none is missing.</dd>
   </dl>
   <dl lang="tr">
-    <dt>Bağlam</dt><dd>Bu üründeki uygulama state'inin neredeyse tamamı sunucu state'i. (TanStack Query kullanımı sabit bir proje kararıydı; isteyerek benimsendi.)</dd>
+    <dt>Bağlam</dt><dd>Bu üründeki uygulama state'inin neredeyse tamamı server state. (TanStack Query kullanımı sabit bir proje kararıydı; isteyerek benimsendi.)</dd>
     <dt>Karar</dt><dd>Her iki istemcide de TanStack Query v5, ek bir state kütüphanesi olmadan. Geriye kalan istemci state'i tek bir auth context ve yerel bileşen state'i.</dd>
-    <dt>Gerekçe</dt><dd>Her filtre kombinasyonuna ayrı query key vermek, bayat yanıtlara karşı korumayı bedelsiz sağlıyor — geç gelen bir yanıt kendi key'ine düşüyor ve mevcut görünümün üzerine asla yazamıyor. <code>keepPreviousData</code> gereken "yüklenirken sonuçları görünür tut" davranışını doğrudan veriyor, invalidation da "liste güncellemeden sonra kalıcılaşmış durumu gösterir" gereksinimini karşılıyor.</dd>
+    <dt>Gerekçe</dt><dd>Her filtre kombinasyonuna ayrı query key vermek, stale yanıtlara karşı korumayı beraberinde getiriyor — geç gelen bir yanıt kendi key'ine düşüyor ve mevcut görünümün üzerine asla yazamıyor. <code>keepPreviousData</code> gereken "yüklenirken sonuçları görünür tut" davranışını doğrudan veriyor, invalidation da "liste, güncellemeden sonra sunucudaki kalıcı state'i gösterir" gereksinimini karşılıyor.</dd>
     <dt>Değerlendirilen alternatifler</dt><dd>Üzerine Redux/Zustand/Jotai — zaten var olan bir cache'i tekrarlardı. Elle yazılmış fetch hook'ları — deduplication, cache ve revalidation'ı kötü biçimde yeniden yazmak demek.</dd>
-    <dt>Ödünleşim</dt><dd>Tasarım gereği optimistic update yok: UX sözleşmesi kaydetmeden sonra kalıcılaşmış sunucu durumunun gösterilmesini istiyor; dolayısıyla optimizm, gerekli olmayan bir davranış için geri alma karmaşıklığı eklerdi.</dd>
+    <dt>Trade-off</dt><dd>Tasarım gereği optimistic update yok: UX kararı, kayıttan sonra sunucuda kalıcı hâle gelen state'in gösterilmesini istiyor; dolayısıyla optimistic update, gerekli olmayan bir davranış için rollback karmaşıklığı eklerdi.</dd>
     <dt>Sonuç</dt><dd class="res">İki istemcide de global store yok ve eksikliği de hissedilmiyor.</dd>
   </dl>
 </section>
@@ -194,10 +194,10 @@
   </dl>
   <dl lang="tr">
     <dt>Bağlam</dt><dd>Doğrulanmış backend davranışı: 15 dakikalık access token'lar; refresh token'lar katı biçimde rotasyona giriyor (birini tekrar kullanmak oturumu öldürüyor); bir istemcideki logout, diğerinin access token'larını anında geçersiz kılıyor; backend yeniden başlatıldığında tüm oturumlar siliniyor.</dd>
-    <dt>Karar</dt><dd>Paylaşılan istemcide tek bir interceptor: 401'de bir mutex arkasında bir kez refresh, yeni çifti çözümlemeden <em>önce</em> kalıcılaştırma, orijinal isteği tam olarak bir kez yeniden deneme. Refresh başarısız olursa depolama temizleniyor ve uygulama login'e dönüyor. Bir oturum-epoch sayacı, login/logout sınırlarında uçuştaki işlemleri geçersiz kılıyor.</dd>
-    <dt>Gerekçe</dt><dd>Bu bir iyileştirme değil, zorunlu altyapı — olmadan iki uygulama da kullanım sırasında rastgele bozulmuş görünüyor. Rotasyon eşzamanlı refresh'leri ölümcül kıldığı için single-flight bir optimizasyon değil, doğruluk gereksinimi.</dd>
-    <dt>Değerlendirilen alternatifler</dt><dd>Önden çalışan son kullanma zamanlayıcıları — reaktif refresh'e göre hiçbir kazanç sağlamadan saat kayması ve yaşam döngüsü karmaşıklığı. Uygulama başına ayrı gerçekleştirimler — rotasyonu yanlış yapmak için iki fırsat. İstemciler arasında ortak token depolama — her istemci kendi oturum zincirine haklı olarak sahip.</dd>
-    <dt>Ödünleşim</dt><dd>Süre dolduktan sonraki ilk istek fazladan bir gidiş-dönüş ödüyor.</dd>
+    <dt>Karar</dt><dd>Paylaşılan client'ta tek bir interceptor: 401'de bir mutex arkasında bir kez refresh, yeni çift promise çözülmeden <em>önce</em> kalıcılaştırılıyor, orijinal istek tam olarak bir kez tekrarlanıyor. Refresh başarısız olursa storage temizleniyor ve uygulama login'e dönüyor. Oturum-epoch sayacı, login/logout sınırlarında devam eden isteklerin sonuçlarını geçersiz kılıyor.</dd>
+    <dt>Gerekçe</dt><dd>Bu bir iyileştirme değil, zorunlu altyapı — olmadan iki uygulama da kullanım sırasında rastgele bozulmuş görünüyor. Rotasyon yüzünden eşzamanlı refresh'ler oturumu düşürdüğü için single-flight bir optimizasyon değil, doğruluk gereksinimi.</dd>
+    <dt>Değerlendirilen alternatifler</dt><dd>Süre dolmadan önden çalışan expiry timer'ları — reaktif refresh'e göre hiçbir kazanç sağlamadan saat kayması ve yaşam döngüsü karmaşıklığı. Uygulama başına ayrı implementasyonlar — rotasyonu yanlış yapmak için iki fırsat. İstemciler arasında ortak token depolama — her istemci kendi oturum zincirine haklı olarak sahip.</dd>
+    <dt>Trade-off</dt><dd>Süre dolduktan sonraki ilk istek fazladan bir gidiş-dönüş ödüyor.</dd>
     <dt>Sonuç</dt><dd class="res">Oturum süresinin dolması, istemciler arası logout ve backend yeniden başlatıldıktan sonra toparlanma uçtan uca denendi; release APK dahil.</dd>
   </dl>
 </section>
@@ -214,18 +214,18 @@
     <dt>Result</dt><dd class="res">Filter/sort/page state is inspectable in the address bar during review — e.g. <code>?status=3&amp;sort=price&amp;dir=desc</code>.</dd>
   </dl>
   <dl lang="tr">
-    <dt>Bağlam</dt><dd>Yönetim listesi arama, üç filtre, sıralama, yön ve sayfa taşıyor — UX ise ürün detayından dönüldüğünde bunların tamamının korunmasını gerektiriyor.</dd>
-    <dt>Karar</dt><dd>Hepsi URL arama parametrelerinde duruyor; ayrıştırılmış parametreler doğrudan TanStack query key'i oluyor.</dd>
-    <dt>Gerekçe</dt><dd>"Görünümü koru" davranışı tarayıcının kendi geçmişinden bedelsiz geliyor; ayrıca sayfa yenilemeye dayanıyor, paylaşılabiliyor ve gösterilen veriyle adres çubuğunun çelişmesini yapısal olarak imkânsız kılıyor.</dd>
+    <dt>Bağlam</dt><dd>Admin listesi arama, üç filtre, sıralama, yön ve sayfa taşıyor — UX ise ürün detayından dönüldüğünde bunların tamamının korunmasını gerektiriyor.</dd>
+    <dt>Karar</dt><dd>Hepsi URL search param'larında duruyor; parse edilen param'lar doğrudan TanStack query key'i oluyor.</dd>
+    <dt>Gerekçe</dt><dd>"Görünümü koru" davranışı tarayıcının kendi history'sinden kendiliğinden geliyor; ayrıca sayfa yenilemede kaybolmuyor, paylaşılabiliyor ve gösterilen veriyle adres çubuğunun çelişmesini yapısal olarak imkânsız kılıyor.</dd>
     <dt>Değerlendirilen alternatifler</dt><dd>Bileşen state'i artı bir geri yükleme mekanizması — daha fazla kod ve yeni bir hata sınıfı (state ile URL'in birbirinden ayrışması).</dd>
-    <dt>Ödünleşim</dt><dd>Arama girdisinin URL'e ulaşmadan önce 300 ms debounce'a ihtiyacı var; böylece yazmak geçmişi doldurmuyor.</dd>
+    <dt>Trade-off</dt><dd>Arama girdisinin URL'e ulaşmadan önce 300 ms debounce'a ihtiyacı var; böylece yazmak geçmişi doldurmuyor.</dd>
     <dt>Sonuç</dt><dd class="res">Filtre/sıralama/sayfa state'i inceleme sırasında adres çubuğundan görülebiliyor — ör. <code>?status=3&amp;sort=price&amp;dir=desc</code>.</dd>
   </dl>
 </section>
 
 <section class="dec" id="webui">
   <h3 lang="en">6 · shadcn/ui on Tailwind for the web admin</h3>
-  <h3 lang="tr">6 · Web yönetim paneli için Tailwind üzerinde shadcn/ui</h3>
+  <h3 lang="tr">6 · Web admin için Tailwind üzerinde shadcn/ui</h3>
   <dl lang="en">
     <dt>Context</dt><dd>An operational admin UI needing accessible primitives — table, select, dialog, toast — without adopting a design system.</dd>
     <dt>Decision</dt><dd>shadcn/ui components vendored into the repository on Tailwind CSS v4; only the ~10 components the assignment needs.</dd>
@@ -235,18 +235,18 @@
     <dt>Result</dt><dd class="res">A consistent admin surface that never grew into a design-system project.</dd>
   </dl>
   <dl lang="tr">
-    <dt>Bağlam</dt><dd>Bir tasarım sistemi benimsemeden erişilebilir primitiflere — tablo, select, dialog, toast — ihtiyaç duyan operasyonel bir yönetim UI'ı.</dd>
-    <dt>Karar</dt><dd>Tailwind CSS v4 üzerinde, depoya kopyalanmış shadcn/ui bileşenleri; yalnızca ödevin ihtiyaç duyduğu ~10 bileşen.</dd>
-    <dt>Gerekçe</dt><dd>Bileşenler depoda sahiplenilen kaynak: incelenebilir, uyarlanabilir ve gözden geçirilebilir; altta erişilebilir Radix primitifleri ve küçük bir bağımlılık yüzeyi var.</dd>
+    <dt>Bağlam</dt><dd>Bir tasarım sistemi benimsemeden erişilebilir primitive'lere — tablo, select, dialog, toast — ihtiyaç duyan operasyonel bir admin UI'ı.</dd>
+    <dt>Karar</dt><dd>Tailwind CSS v4 üzerinde, repoya kopyalanmış shadcn/ui bileşenleri; yalnızca ödevin ihtiyaç duyduğu ~10 bileşen.</dd>
+    <dt>Gerekçe</dt><dd>Bileşenler repoda sahiplenilen kaynak kod: incelenebilir, uyarlanabilir ve gözden geçirilebilir; altta erişilebilir Radix primitive'leri ve küçük bir bağımlılık yüzeyi var.</dd>
     <dt>Değerlendirilen alternatifler</dt><dd>Mantine — tablo/snackbar gereksinimlerine güçlü biçimde uyuyordu (ve ilk keşif önerisiydi), ama kendi stil sistemi olan, daha büyük ve kapalı bir bağımlılık. MUI — daha da ağır. Elle yazılmış CSS — harcanan emeğe karşılık en zayıf erişilebilirlik.</dd>
-    <dt>Ödünleşim</dt><dd>Depoya kopyalanan bileşenler bakımı yapılacak koddur; azaltıcı önlem, primitifleri değiştirmek yerine kompoze etmek ve domain gösterim mantığını tek yerde tutmak.</dd>
-    <dt>Sonuç</dt><dd class="res">Hiçbir zaman bir tasarım sistemi projesine dönüşmeyen, tutarlı bir yönetim yüzeyi.</dd>
+    <dt>Trade-off</dt><dd>Repoya kopyalanan bileşenler, bakımı yapılacak koddur; azaltıcı önlem, primitive'leri değiştirmek yerine kompoze etmek ve domain gösterim mantığını tek yerde tutmak.</dd>
+    <dt>Sonuç</dt><dd class="res">Hiçbir zaman bir tasarım sistemi projesine dönüşmeyen, tutarlı bir admin yüzeyi.</dd>
   </dl>
 </section>
 
 <section class="dec" id="mobileui">
   <h3 lang="en">7 · Hand-styled mobile UI, no component kit</h3>
-  <h3 lang="tr">7 · Elle stillendirilmiş mobil UI, bileşen kiti yok</h3>
+  <h3 lang="tr">7 · Elle tasarlanmış mobil UI, bileşen kiti yok</h3>
   <dl lang="en">
     <dt>Context</dt><dd>Four mobile screens plus feedback states, with queued bottom snackbars required by the UX decisions.</dd>
     <dt>Decision</dt><dd>React Native <code>StyleSheet</code> with a small owned primitive set and a token file; no RN Paper or equivalent.</dd>
@@ -256,18 +256,18 @@
     <dt>Result</dt><dd class="res">A coherent surface system (documented in <code>mobile/DESIGN.md</code>) with two UI-related runtime dependencies: navigation and safe-area handling.</dd>
   </dl>
   <dl lang="tr">
-    <dt>Bağlam</dt><dd>Dört mobil ekran ve geri bildirim durumları; UX kararlarının gerektirdiği, sıraya alınan alt snackbar'larla birlikte.</dd>
-    <dt>Karar</dt><dd>React Native <code>StyleSheet</code>, küçük ve sahiplenilen bir primitif kümesi ve bir token dosyası; RN Paper veya muadili yok.</dd>
-    <dt>Gerekçe</dt><dd>Asıl zor parça — sıraya alınmış snackbar sistemi — bir kitle bile özel kod gerektiriyor (Paper'ınki tek örnekli); yani bir kit, iş azaltmadan bağımlılık eklerdi. Ayrıca mobil görünümü üçüncü parti bir görsel kimlikten uzak tutuyor.</dd>
+    <dt>Bağlam</dt><dd>Dört mobil ekran ve geri bildirim durumları; UX kararlarının gerektirdiği, kuyruğa alınan alt snackbar'larla birlikte.</dd>
+    <dt>Karar</dt><dd>React Native <code>StyleSheet</code>, küçük ve sahiplenilen bir primitive kümesi ve bir token dosyası; RN Paper veya muadili yok.</dd>
+    <dt>Gerekçe</dt><dd>Asıl zor parça — kuyruğa alınan snackbar sistemi — bir kitle bile özel kod gerektiriyor (Paper'ınki tek instance'lı); yani bir kit, iş azaltmadan bağımlılık eklerdi. Ayrıca mobil görünümü üçüncü parti bir görsel kimlikten uzak tutuyor.</dd>
     <dt>Değerlendirilen alternatifler</dt><dd>React Native Paper — hız düşerse diye açık bir çıkış kapısı olarak tutuldu; ihtiyaç olmadı.</dd>
-    <dt>Ödünleşim</dt><dd>Daha fazla stil emeği; minimal bir bağımlılık kümesi için kabul edildi.</dd>
-    <dt>Sonuç</dt><dd class="res">UI ile ilgili iki çalışma zamanı bağımlılığı olan tutarlı bir yüzey sistemi (<code>mobile/DESIGN.md</code> içinde belgelendi): navigasyon ve güvenli alan yönetimi.</dd>
+    <dt>Trade-off</dt><dd>Daha fazla stil emeği; minimal bir bağımlılık kümesi için kabul edildi.</dd>
+    <dt>Sonuç</dt><dd class="res">UI ile ilgili yalnızca iki runtime bağımlılığı olan tutarlı bir yüzey sistemi (<code>mobile/DESIGN.md</code> içinde belgelendi): navigasyon ve safe-area yönetimi.</dd>
   </dl>
 </section>
 
 <section class="dec" id="split">
   <h3 lang="en">8 · Deliberately different designs for admin and mobile</h3>
-  <h3 lang="tr">8 · Yönetim paneli ve mobil için bilinçli olarak farklı tasarımlar</h3>
+  <h3 lang="tr">8 · Admin ve mobil için bilinçli olarak farklı tasarımlar</h3>
   <dl lang="en">
     <dt>Context</dt><dd>One product family, two audiences: head-office operators at a desk and store staff on a phone.</dd>
     <dt>Decision</dt><dd>Share the <em>data language</em> — status semantics, stock thresholds, currency formatting, terminology — but not the visual system. Web is a dense operational table; mobile is a productized browsing-and-editing surface.</dd>
@@ -277,18 +277,18 @@
     <dt>Result</dt><dd class="res">Each surface reads as fit for its user, while status colours and ₺ amounts mean the same thing everywhere.</dd>
   </dl>
   <dl lang="tr">
-    <dt>Bağlam</dt><dd>Tek ürün ailesi, iki kitle: masa başındaki merkez ofis operatörleri ve telefondaki mağaza personeli.</dd>
-    <dt>Karar</dt><dd><em>Veri dili</em> paylaşılıyor — durum semantiği, stok eşikleri, para birimi biçimlendirmesi, terminoloji — ama görsel sistem paylaşılmıyor. Web yoğun bir operasyonel tablo; mobil ise ürünleştirilmiş bir gezinme ve düzenleme yüzeyi.</dd>
+    <dt>Bağlam</dt><dd>Tek ürün ailesi, iki kitle: masa başındaki genel merkez operatörleri ve telefondaki mağaza personeli.</dd>
+    <dt>Karar</dt><dd><em>Veri dili</em> paylaşılıyor — durum semantiği, stok eşikleri, para formatı, terminoloji — ama görsel sistem paylaşılmıyor. Web yoğun bir operasyonel tablo; mobil ise ürünleşmiş bir gezinme ve düzenleme yüzeyi.</dd>
     <dt>Gerekçe</dt><dd>Operatörler çok sayıda satırı tarayıp değerleri karşılaştırıyor; mağaza personeli telefonu tek elle tutup tek bir ürün üzerinde işlem yapıyor. İkisine tek bir görsel sistem dayatmak, her birinin asıl işini zayıflatırdı.</dd>
     <dt>Değerlendirilen alternatifler</dt><dd>Paylaşılan bir bileşen/tasarım paketi — genel olarak paylaşılan UI kodunun reddedilme gerekçesiyle aynı nedenle reddedildi.</dd>
-    <dt>Ödünleşim</dt><dd>Tutarlı tutulması gereken iki stil sistemi; her ikisinin de <code>DESIGN.md</code> dosyalarına kaydedilmesiyle hafifletiliyor, böylece sonraki geçişler onları yeniden icat etmek yerine genişletiyor.</dd>
+    <dt>Trade-off</dt><dd>Tutarlı tutulması gereken iki stil sistemi; her ikisinin de <code>DESIGN.md</code> dosyalarına kaydedilmesiyle hafifletiliyor, böylece sonraki geçişler onları yeniden icat etmek yerine genişletiyor.</dd>
     <dt>Sonuç</dt><dd class="res">Her yüzey kendi kullanıcısına uygun okunuyor; durum renkleri ve ₺ tutarları ise her yerde aynı anlama geliyor.</dd>
   </dl>
 </section>
 
 <section class="dec" id="expo">
   <h3 lang="en">9 · Expo managed workflow, APK built locally with Gradle</h3>
-  <h3 lang="tr">9 · Expo managed workflow, APK yerelde Gradle ile derleniyor</h3>
+  <h3 lang="tr">9 · Expo managed workflow, APK lokalde Gradle ile build ediliyor</h3>
   <dl lang="en">
     <dt>Context</dt><dd>The assignment requires a working Android APK; Expo vs bare React Native was left open.</dd>
     <dt>Decision</dt><dd>Expo managed workflow; the deliverable APK produced by <code>expo prebuild</code> + local <code>gradlew assembleRelease</code>, signed with the Gradle debug keystore and documented as assignment-grade.</dd>
@@ -299,11 +299,11 @@
   </dl>
   <dl lang="tr">
     <dt>Bağlam</dt><dd>Ödev çalışan bir Android APK istiyor; Expo ile bare React Native arasındaki seçim açık bırakılmıştı.</dd>
-    <dt>Karar</dt><dd>Expo managed workflow; teslim edilecek APK <code>expo prebuild</code> + yerel <code>gradlew assembleRelease</code> ile üretiliyor, Gradle debug keystore'uyla imzalanıyor ve ödev düzeyinde olduğu belgeleniyor.</dd>
-    <dt>Gerekçe</dt><dd>Bulut build hesabı veya kuyruğu yok; çevrimdışı yeniden üretilebilir; değerlendirici belgelenen komutların tam olarak aynısını çalıştırabiliyor. Managed Expo native yapılandırmayı bildirimsel tutuyor — yalnızca HTTP konuşan backend'in gerektirdiği cleartext-HTTP bayrağı dahil — prebuild ise Gradle'ın ihtiyaç duyduğu anda tam native projeyi üretiyor.</dd>
-    <dt>Değerlendirilen alternatifler</dt><dd>EAS bulut build'i — değerlendiricinin yeniden üretim yolu için hesap ve yükleme bağımlılığı. Bare React Native — tek seferlik prebuild çıktısı yerine kalıcı native yapılandırma bakımı.</dd>
-    <dt>Ödünleşim</dt><dd>Debug keystore ile imzalama mağazaya hazır değil ve ilk Gradle build'i yavaş ve ağ yoğun.</dd>
-    <dt>Sonuç</dt><dd class="res">Teslim edilen APK bilinen bir commit'ten derlendi ve emulator üzerinde, çalışan backend'e karşı tek başına doğrulandı — yalnızca derlenebilen bir APK açıkça tamamlanmış sayılmadı.</dd>
+    <dt>Karar</dt><dd>Expo managed workflow; teslim edilecek APK <code>expo prebuild</code> + lokal <code>gradlew assembleRelease</code> ile üretiliyor, Gradle debug keystore'uyla imzalanıyor ve assignment düzeyinde olduğu belgeleniyor.</dd>
+    <dt>Gerekçe</dt><dd>Cloud build hesabı veya kuyruğu yok; offline yeniden üretilebilir; değerlendirici, belgelenen komutların tam olarak aynısını çalıştırabiliyor. Managed Expo native yapılandırmayı declarative tutuyor — yalnızca HTTP konuşan backend'in gerektirdiği cleartext HTTP bayrağı dâhil — prebuild ise Gradle'ın ihtiyaç duyduğu anda tam native projeyi üretiyor.</dd>
+    <dt>Değerlendirilen alternatifler</dt><dd>EAS cloud build'i — değerlendiricinin yeniden üretim yolu için hesap ve upload bağımlılığı. Bare React Native — tek seferlik prebuild çıktısı yerine kalıcı native config bakımı.</dd>
+    <dt>Trade-off</dt><dd>Debug keystore ile imzalama mağazaya hazır değil; ilk Gradle build'i de yavaş ve ağ yoğun.</dd>
+    <dt>Sonuç</dt><dd class="res">Teslim edilen APK bilinen bir commit'ten build edildi ve emülatör üzerinde, çalışan backend'e karşı tek başına doğrulandı — yalnızca derlenebilen bir APK açıkça "tamamlandı" sayılmadı.</dd>
   </dl>
 </section>
 
@@ -319,12 +319,12 @@
     <dt>Result</dt><dd class="res">One documented variable covers every environment, and the release artifact's baked URL was verified in the built APK.</dd>
   </dl>
   <dl lang="tr">
-    <dt>Bağlam</dt><dd>Mobil uygulamanın backend'e emulator'dan, fiziksel bir cihazdan ve release APK'dan erişebilmesi gerekiyor.</dd>
-    <dt>Karar</dt><dd><code>EXPO_PUBLIC_API_URL</code> tek yapılandırma noktası (emulator varsayılanı <code>10.0.2.2</code>, iOS simülatörü <code>localhost</code>, cihaz/APK için açıkça verilen bir LAN veya HTTPS URL'i). Uygulama içinde sunucu adresi UI'ı yok.</dd>
-    <dt>Gerekçe</dt><dd>Ürün yüzeyi yerine yapılandırma: ayar ekranı, ödevin hiç istemediği; doğrulama, kalıcılık ve UX maliyeti getiren bir UI olurdu — barındırılan bir dağıtım ise kod değişikliği olmadan aynı değişken üzerinden bir HTTPS URL'i verirdi.</dd>
-    <dt>Değerlendirilen alternatifler</dt><dd>Çalışma zamanı ayar ekranı — mimari aşamasında değerlendirildi ve açıkça bu politikayla değiştirildi.</dd>
-    <dt>Ödünleşim</dt><dd>Derlenmiş bir APK'nın API adresini değiştirmek yeniden derleme gerektiriyor; README tam komutu belgeliyor.</dd>
-    <dt>Sonuç</dt><dd class="res">Belgelenmiş tek bir değişken tüm ortamları kapsıyor ve release çıktısına gömülen URL, derlenen APK içinde doğrulandı.</dd>
+    <dt>Bağlam</dt><dd>Mobil uygulamanın backend'e emülatörden, fiziksel bir cihazdan ve release APK'dan erişebilmesi gerekiyor.</dd>
+    <dt>Karar</dt><dd><code>EXPO_PUBLIC_API_URL</code> tek yapılandırma noktası (emülatör varsayılanı <code>10.0.2.2</code>, iOS simülatörü <code>localhost</code>, cihaz/APK için açıkça verilen bir LAN veya HTTPS URL'i). Uygulama içinde sunucu adresi UI'ı yok.</dd>
+    <dt>Gerekçe</dt><dd>Ürün yüzeyi yerine konfigürasyon: ayar ekranı, ödevin hiç istemediği; validasyon, kalıcılık ve UX maliyeti getiren bir UI olurdu — hosted bir deployment ise kod değişikliği olmadan aynı değişken üzerinden bir HTTPS URL'i verirdi.</dd>
+    <dt>Değerlendirilen alternatifler</dt><dd>Runtime bir ayar ekranı — mimari aşamasında değerlendirildi ve açıkça bu politikayla değiştirildi.</dd>
+    <dt>Trade-off</dt><dd>Build edilmiş bir APK'nın API adresini değiştirmek yeniden build gerektiriyor; README tam komutu belgeliyor.</dd>
+    <dt>Sonuç</dt><dd class="res">Belgelenmiş tek bir değişken tüm ortamları kapsıyor ve release çıktısına gömülen URL, build edilen APK içinde doğrulandı.</dd>
   </dl>
 </section>
 
@@ -341,11 +341,11 @@
   </dl>
   <dl lang="tr">
     <dt>Bağlam</dt><dd>Domain verisi ve tüm backend mesajları Türkçe; değerlendirme bağlamı Türkçe; proje kararı ise varsayılanı İngilizce olan bir arayüzdü.</dd>
-    <dt>Karar</dt><dd>Her iki istemci de küçük ve tipli mesaj kataloglarıyla İngilizce (varsayılan) ve Türkçe sunuyor; çalışma zamanında değiştirilebiliyor ve kalıcılaştırılıyor. API verisi hiçbir zaman çevrilmiyor. Fiyatlar her zaman TRY ve tam sayı kuruştan biçimlendiriliyor.</dd>
+    <dt>Karar</dt><dd>Her iki istemci de küçük ve tipli mesaj kataloglarıyla İngilizce (varsayılan) ve Türkçe sunuyor; çalışma anında değiştirilebiliyor ve kalıcılaştırılıyor. API verisi hiçbir zaman çevrilmiyor. Fiyatlar her zaman TRY ve tam sayı kuruştan formatlanıyor.</dd>
     <dt>Gerekçe</dt><dd>İki dil ve küçük bir mesaj kümesi, bir i18n framework'ünü veya çeviri backend'ini gerekçelendirmiyor. Tipli kataloglar ayrıca eksik bir çeviriyi derleme hatasına dönüştürüyor.</dd>
-    <dt>Değerlendirilen alternatifler</dt><dd>i18next ve benzerleri — iki dil için orantısız altyapı. Backend hata metinlerini string eşleştirmeyle çevirmek — kırılgan ve yasak: bilinen hatalar bunun yerine durum kodu ve istek bağlamıyla tanımlanıyor, kalanlar için yerelleştirilmiş genel bir yedek mesaj kullanılıyor.</dd>
-    <dt>Ödünleşim</dt><dd>Tasarım gereği karışık dilli ekranlar mümkün (Türkçe ürün adlarının çevresinde İngilizce arayüz) — dürüst sonuç bu, çünkü API verisini yeniden adlandırmak daha kötü olurdu.</dd>
-    <dt>Sonuç</dt><dd class="res">Release APK içinde tam bir Türkçe geçişi doğrulandı; ondalık virgüllü para birimi biçimlendirmesi dahil.</dd>
+    <dt>Değerlendirilen alternatifler</dt><dd>i18next ve benzerleri — iki dil için orantısız altyapı. Backend hata metinlerini string eşleştirmeyle çevirmek — kırılgan ve yasak: bilinen hatalar bunun yerine status kodu ve istek bağlamıyla tanınıyor, kalanlar için yerelleştirilmiş genel bir fallback mesajı kullanılıyor.</dd>
+    <dt>Trade-off</dt><dd>Tasarım gereği karışık dilli ekranlar mümkün (Türkçe ürün adlarının çevresinde İngilizce arayüz) — dürüst sonuç bu, çünkü API verisini yeniden adlandırmak daha kötü olurdu.</dd>
+    <dt>Sonuç</dt><dd class="res">Release APK içinde uçtan uca Türkçe bir kullanım akışı doğrulandı; ondalık virgüllü para formatı dâhil.</dd>
   </dl>
 </section>
 
@@ -363,10 +363,10 @@
   <dl lang="tr">
     <dt>Bağlam</dt><dd>Ödev backend değişikliklerinden kaçınılmasını söylüyor, ama kendi zorunlu gereksinimleri bir noktada verilen API ile çakıştı ve iki ürün kuralının sunucu tarafına ait olduğuna karar verildi.</dd>
     <dt>Karar</dt><dd><code>GET /products/{id}</code> eklendi; Discontinued ürünlerdeki stok güncellemeleri 409 ile reddediliyor; ürün okumalarına rate limit uygulanıyor. Başka bir şey yok.</dd>
-    <dt>Gerekçe</dt><dd>Detay endpoint'i, tümünü değiştiren PUT'taki kanıtlanmış sessiz veri kaybı tuzağını kapatıyor. 409, devre dışı bir butonun sağlayamayacağı biçimde bayat istemcilere karşı koruma sağlıyor. Rate limit ise istemci tarafındaki refresh bekleme sürelerinin olamadığı bağımsız sınır.</dd>
-    <dt>Değerlendirilen alternatifler</dt><dd>Detay endpoint'i için: eksik alanları istemci tarafında tahmin etmek, liste DTO'sunu genişletmek veya PUT semantiğini gevşetmek — hepsi ya veriyi bozduğu ya da daha müdahaleci olduğu için reddedildi. Her değişikliğin tüm ayrıntısı: <a href="backend-report.html">backend raporu</a>.</dd>
-    <dt>Ödünleşim</dt><dd>Her backend değişikliği ödevin tercihinden bir sapmadır; her biri mevcut desenlere ve hata kurallarına uyularak bir controller action'ı, bir guard veya bir middleware politikasıyla sınırlı tutuldu.</dd>
-    <dt>Sonuç</dt><dd class="res">Her değişiklik API kontratında çalışma zamanı doğrulamasıyla belgelendi ve mevcut hiçbir endpoint'in davranışı değişmedi.</dd>
+    <dt>Gerekçe</dt><dd>Detay endpoint'i, full-replace PUT'taki kanıtlanmış sessiz veri kaybı tuzağını kapatıyor. 409, devre dışı bırakılmış bir butonun sağlayamayacağı biçimde stale istemcilere karşı koruma sağlıyor. Rate limit ise istemci tarafındaki refresh cooldown'larının olamadığı bağımsız sınır.</dd>
+    <dt>Değerlendirilen alternatifler</dt><dd>Detay endpoint'i için: eksik alanları istemci tarafında tahmin etmek, liste DTO'sunu genişletmek veya PUT semantiğini gevşetmek — hepsi ya veriyi bozduğu ya da daha müdahaleci olduğu için reddedildi. Her değişikliğin tüm ayrıntısı: <a href="backend-report.html?lang=tr">backend raporu</a>.</dd>
+    <dt>Trade-off</dt><dd>Her backend değişikliği ödevin tercihinden bir sapmadır; her biri mevcut kalıplara ve hata konvansiyonlarına uyularak bir controller action'ı, bir guard veya bir middleware politikasıyla sınırlı tutuldu.</dd>
+    <dt>Sonuç</dt><dd class="res">Her değişiklik API kontratında runtime doğrulamasıyla belgelendi ve mevcut hiçbir endpoint'in davranışı değişmedi.</dd>
   </dl>
 </section>
 
@@ -383,11 +383,11 @@
   </dl>
   <dl lang="tr">
     <dt>Bağlam</dt><dd>Aynı kataloğu birden fazla istemci düzenliyor ve isteğe bağlı bonus, açık duran web listesinin diğer istemcilerin değişikliklerini yansıtmasını istiyor. Manuel butonlar, pull-to-refresh, yaşam döngüsü revalidation'ı, arka plan polling'i ve web mutation invalidation'ı okuma tetikleyebilir; mobil stok başarısı ise refetch yapmadan cache'leri yamalar.</dd>
-    <dt>Karar</dt><dd>Görünür/odaktaki web listesi tam açık query'sini yaklaşık her 15 sn poll eder. Mobil, yalnızca açık detayı ekran odaktayken ve uygulama aktifken yaklaşık her 10 sn poll eder; odağa/ön plana dönüş o detayı yeniden doğrular. Polling son çekimin <em>tamamlanmasına</em> sabittir, aynı ana denk gelen refetch'ler uçuştaki isteği paylaşır, manuel refresh'in ~4 sn bekleme süresi vardır, 4xx otomatik denenmez ve üç ürün GET'i authorization değeri başına (fallback: IP) bağımsız 60/10 sn rate limit'i paylaşır. Tazelik son <em>başarılı</em> çekimden gösterilir.</dd>
-    <dt>Gerekçe</dt><dd>Yenileme, işi bölmeden ve önlenebilir yük yaratmadan veriye duyulan güveni artırmalı. Sabitleme, manuel veya yaşam döngüsü refetch'inin bir sonraki otomatik çekimi tam bir aralık ileri itmesi demek. Yalnızca cache'i yamalayan mobil stok başarısı okuma yapmaz veya zamanlayıcıyı sıfırlamaz.</dd>
-    <dt>Değerlendirilen alternatifler</dt><dd>WebSocket/SSE/SignalR — gerçek zamanlı altyapı ve ödevin önermediği backend değişiklikleri. Düz bir <code>refetchInterval</code> — daha basit, ama serbest çalışıyor ve diğer tetikleyicilerin üzerine biniyor.</dd>
-    <dt>Ödünleşim</dt><dd>Yakınsama anlık değil, polling aralığıyla sınırlı (web listesinde ~15 sn, odaktaki mobil detayda ~10 sn).</dd>
-    <dt>Sonuç</dt><dd class="res">Her iki istemcide doğrulandı: <code>curl</code> ile yapılan dışarıdan bir stok değişikliği refresh hattı üzerinden görünüyor ve bekleme süresi butonu gözle görülür biçimde koruyor.</dd>
+    <dt>Karar</dt><dd>Görünür/odaktaki web listesi, açık query'sini tam parametreleriyle yaklaşık 15 saniyede bir poll eder. Mobil, yalnızca açık detayı — ekran odaktayken ve uygulama aktifken — yaklaşık 10 saniyede bir poll eder; odağa/ön plana dönüş o detayı yeniden doğrular. Polling son fetch'in <em>bitişine</em> hizalanır, aynı ana denk gelen refetch'ler devam eden isteği paylaşır, manuel refresh'in ~4 saniyelik cooldown'u vardır, 4xx asla otomatik denenmez ve üç ürün GET'i authorization değeri başına (fallback: IP) bağımsız 60/10 saniyelik rate limit'i paylaşır. Tazelik, son <em>başarılı</em> fetch'ten gösterilir.</dd>
+    <dt>Gerekçe</dt><dd>Yenileme, işi bölmeden ve önlenebilir yük yaratmadan veriye duyulan güveni artırmalı. Hizalama, manuel veya yaşam döngüsü kaynaklı bir refetch'in bir sonraki otomatik fetch'i tam bir aralık ileri itmesi demek. Yalnızca cache'i yamalayan mobil stok başarısı, okuma yapmaz ve zamanlayıcıyı sıfırlamaz.</dd>
+    <dt>Değerlendirilen alternatifler</dt><dd>WebSocket/SSE/SignalR — realtime altyapı ve ödevin önermediği backend değişiklikleri. Düz bir <code>refetchInterval</code> — daha basit, ama serbest çalışıyor ve diğer tetikleyicilerin üzerine biniyor.</dd>
+    <dt>Trade-off</dt><dd>Tutarlılığa ulaşma anlık değil, polling aralığıyla sınırlı (web listesinde ~15 saniye, odaktaki mobil detayda ~10 saniye).</dd>
+    <dt>Sonuç</dt><dd class="res">Her iki istemcide doğrulandı: <code>curl</code> ile dışarıdan yapılan bir stok değişikliği refresh hattı üzerinden görünüyor ve cooldown, butonu gözle görülür biçimde koruyor.</dd>
   </dl>
 </section>
 
@@ -403,12 +403,12 @@
     <dt>Result</dt><dd class="res">The one place where a domain rule <em>can</em> protect a stale client — discontinued products — is enforced server-side, and is documented as a domain rejection rather than a version check.</dd>
   </dl>
   <dl lang="tr">
-    <dt>Bağlam</dt><dd>Keşif aşaması, backend'de eşzamanlılık koruması bulunmadığını ayrıntılı biçimde doğruladı: sürüm alanı yok, ETag/If-Match yok (bayat ön koşullar yok sayılıp 200 dönüyor), 412 yolu yok. Kayıp güncellemeler çalışma zamanında yeniden üretildi.</dd>
-    <dt>Karar</dt><dd>Bunu kabul et. İstemci tarafında eşzamanlılık protokolü kurma. Yalnızca UX düzeyinde hafiflet: düzenleme formları taze bir okumadan başlatılıyor, her mutation sunucunun döndürdüğü durumu uyguluyor, mobil stok düzenleyici kirli bir taslağı sessizce ezmek yerine "başka yerde değişti" uyarısını gösteriyor ve kısıt belgeleniyor.</dd>
-    <dt>Gerekçe</dt><dd>İstemci tarafındaki herhangi bir "koruma", sunucunun zorlamadığı bir güvenlik olurdu — API davranışı uydurmak ise açıkça kapsam dışıydı.</dd>
-    <dt>Değerlendirilen alternatifler</dt><dd>If-Match veya <code>updatedAt</code> ön koşullarını istemci tarafında taklit etmek — sahte güvenlik olarak reddedildi. Backend'e bir sürüm sütunu eklemek — yapılan üç değişiklikten belirgin biçimde daha müdahaleci bir değişiklik.</dd>
-    <dt>Ödünleşim</dt><dd>Eşzamanlı düzenlemeler hâlâ birbirini ezebilir; kullanıcı aksini düşünecek şekilde asla yanıltılmıyor.</dd>
-    <dt>Sonuç</dt><dd class="res">Bir domain kuralının bayat bir istemciyi <em>koruyabildiği</em> tek yer — discontinued ürünler — sunucu tarafında zorlanıyor ve bir sürüm kontrolü olarak değil, domain reddi olarak belgeleniyor.</dd>
+    <dt>Bağlam</dt><dd>Keşif aşaması, backend'de concurrency koruması bulunmadığını ayrıntılı biçimde doğruladı: versiyon alanı yok, ETag/If-Match yok (stale precondition'lar yok sayılıp 200 dönüyor), 412 yolu yok. Kayıp güncellemeler runtime'da yeniden üretildi.</dd>
+    <dt>Karar</dt><dd>Bunu kabul et. İstemci tarafında bir concurrency protokolü kurma. Yalnızca UX düzeyinde hafiflet: düzenleme formları taze bir okumadan başlatılıyor, her mutation sunucunun döndürdüğü state'i uyguluyor, mobil stok editörü kirli bir taslağı sessizce ezmek yerine "başka yerde değişti" uyarısını gösteriyor ve kısıt belgeleniyor.</dd>
+    <dt>Gerekçe</dt><dd>İstemci tarafındaki herhangi bir "koruma", sunucunun uygulamadığı bir güvenlik olurdu — API davranışı uydurmak ise açıkça kapsam dışıydı.</dd>
+    <dt>Değerlendirilen alternatifler</dt><dd>If-Match veya <code>updatedAt</code> precondition'larını istemci tarafında taklit etmek — sahte güvenlik olarak reddedildi. Backend'e bir versiyon kolonu eklemek — yapılan üç değişiklikten belirgin biçimde daha müdahaleci bir değişiklik.</dd>
+    <dt>Trade-off</dt><dd>Eşzamanlı düzenlemeler hâlâ birbirini ezebilir; kullanıcı aksini düşünecek şekilde asla yanıltılmıyor.</dd>
+    <dt>Sonuç</dt><dd class="res">Bir domain kuralının stale bir istemciyi <em>koruyabildiği</em> tek yer — Discontinued ürünler — sunucu tarafında uygulanıyor ve bir versiyon kontrolü olarak değil, domain reddi olarak belgeleniyor.</dd>
   </dl>
 </section>
 
@@ -436,17 +436,17 @@
     <tr lang="en"><td>Zod / Yup, Formik</td><td>Few client-known validation rules and an authoritative backend; react-hook-form's built-ins suffice.</td></tr>
     <tr lang="tr"><td>Zod / Yup, Formik</td><td>İstemcinin bildiği doğrulama kuralı az ve backend yetkili; react-hook-form'un yerleşikleri yetiyor.</td></tr>
     <tr lang="en"><td>Expo Router / TanStack Router</td><td>Three web routes and two mobile screens: the boring default wins.</td></tr>
-    <tr lang="tr"><td>Expo Router / TanStack Router</td><td>Üç web rotası ve iki mobil ekran: sıkıcı varsayılan kazanıyor.</td></tr>
+    <tr lang="tr"><td>Expo Router / TanStack Router</td><td>Üç web route'u ve iki mobil ekran: gösterişsiz varsayılan kazanıyor.</td></tr>
     <tr lang="en"><td>Optimistic updates</td><td>The UX contract requires displaying persisted server state after a save.</td></tr>
-    <tr lang="tr"><td>Optimistic update'ler</td><td>UX sözleşmesi, kaydetmeden sonra kalıcılaşmış sunucu durumunun gösterilmesini gerektiriyor.</td></tr>
+    <tr lang="tr"><td>Optimistic update'ler</td><td>UX kararı, kayıttan sonra sunucuda kalıcı hâle gelen state'in gösterilmesini gerektiriyor.</td></tr>
     <tr lang="en"><td>WebSockets / SSE for the bonus</td><td>Realtime infrastructure plus backend changes; coordinated polling meets the criterion.</td></tr>
-    <tr lang="tr"><td>Bonus için WebSocket / SSE</td><td>Gerçek zamanlı altyapı ve backend değişiklikleri; koordineli polling ölçütü karşılıyor.</td></tr>
+    <tr lang="tr"><td>Bonus için WebSocket / SSE</td><td>Realtime altyapı ve backend değişiklikleri demek; koordineli polling kriteri karşılıyor.</td></tr>
     <tr lang="en"><td>E2E frameworks (Playwright/Detox/Maestro), API mocking</td><td>Acceptance is verified against a real seeded backend by executed flows; the harness would outweigh the app.</td></tr>
-    <tr lang="tr"><td>E2E framework'leri (Playwright/Detox/Maestro), API mock'lama</td><td>Kabul, gerçek ve tohumlanmış bir backend'e karşı çalıştırılan akışlarla doğrulanıyor; test altyapısı uygulamadan ağır basardı.</td></tr>
+    <tr lang="tr"><td>E2E framework'leri (Playwright/Detox/Maestro), API mock'lama</td><td>Kabul, gerçek ve seed'lenmiş bir backend'e karşı çalıştırılan akışlarla doğrulanıyor; test altyapısı uygulamanın kendisinden ağır basardı.</td></tr>
     <tr lang="en"><td>Husky / CI pipelines</td><td>Not required by the acceptance criteria; root scripts plus the QA process cover verification.</td></tr>
-    <tr lang="tr"><td>Husky / CI hatları</td><td>Kabul ölçütleri gerektirmiyor; kökteki script'ler ve QA süreci doğrulamayı karşılıyor.</td></tr>
+    <tr lang="tr"><td>Husky / CI pipeline'ları</td><td>Kabul kriterleri gerektirmiyor; kökteki script'ler ve QA süreci doğrulamayı karşılıyor.</td></tr>
     <tr lang="en"><td>Product create/delete, stats dashboard</td><td>The API supports them; the assignment doesn't ask for them.</td></tr>
-    <tr lang="tr"><td>Ürün oluşturma/silme, istatistik panosu</td><td>API bunları destekliyor; ödev istemiyor.</td></tr>
+    <tr lang="tr"><td>Ürün oluşturma/silme, istatistik dashboard'u</td><td>API bunları destekliyor; ödev istemiyor.</td></tr>
   </table>
   </div>
 </section>
@@ -460,7 +460,7 @@
 </footer>
 <footer lang="tr">
   <a href="index.html">← Değerlendirici özeti</a> · İlgili:
-  <a href="frontend-report.html">Web yönetim paneli mimarisi</a> ·
+  <a href="frontend-report.html">Web admin mimarisi</a> ·
   <a href="mobile-report.html">Mobil mimari</a> ·
   <a href="backend-report.html">Backend ve değişiklikler</a> ·
   <a href="agent-workflow-report.html">Yapay zekâ destekli süreç</a>

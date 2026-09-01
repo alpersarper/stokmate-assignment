@@ -165,6 +165,8 @@ Checkpoint-pass verdict summary (unchanged surfaces): search debounce/trim/reset
 
 ### Published artifact (2026-08-31, GitHub Release `v1.0.0`)
 
+> **Status update (2026-09-01):** this release was removed as part of the coordinated final-release process — the authoritative `v1.0.0` will be recreated from the exact final source commit with a freshly built and verified APK (new SHA-256). The download URL below is therefore not live at the moment; the details in this section remain the accurate historical record of the 2026-08-31 publication.
+
 The delivery mechanism is now a public GitHub Release rather than a machine-local file. A **fresh** release APK was rebuilt from the same product commit with the same commands and re-verified before publishing:
 
 - Download: <https://github.com/alpersarper/stokmate-assignment/releases/tag/v1.0.0> — asset `stokmate-v1.0.0-release.apk`

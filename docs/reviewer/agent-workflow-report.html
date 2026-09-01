@@ -96,15 +96,15 @@
   backend, verifying API behavior endpoint by endpoint, implementing well-specified slices, and running verification
   repeatedly without fatigue. They are unreliable at the parts that need judgment: deciding what the product should
   do, what is in scope, and when something is actually finished.</p>
-  <p lang="tr">Değerlendirme projesi, küçük ve iyi tanımlanmış ama yüzeyi geniş bir problemdir: iki istemci, ortak bir
-  çekirdek, tanımadığınız bir backend, bir Android derlemesi ve dokümantasyon. Ajanlar geniş kısımda iyidir — bütün bir
+  <p lang="tr">Take-home projesi, küçük ve iyi tanımlanmış ama yüzeyi geniş bir problemdir: iki istemci, ortak bir
+  çekirdek, tanımadığınız bir backend, bir Android build'i ve dokümantasyon. Ajanlar geniş kısımda iyidir — bütün bir
   backend'i okumak, API davranışını endpoint endpoint doğrulamak, iyi tanımlanmış dilimleri uygulamak ve doğrulamayı
   yorulmadan tekrar tekrar çalıştırmak. Muhakeme gerektiren kısımlarda güvenilir değildirler: ürünün ne yapması
   gerektiğine, neyin kapsamda olduğuna ve bir işin gerçekten ne zaman bittiğine karar vermek.</p>
   <p lang="en">So the workflow was organized around that split. Decisions were made and written down by a human first; agents
   implemented against those written contracts; and nothing reached the default branch without human review.</p>
   <p lang="tr">Süreç bu ayrım etrafında kuruldu. Kararlar önce bir insan tarafından verilip yazıya döküldü; ajanlar bu
-  yazılı sözleşmelere göre uyguladı; ve hiçbir şey insan incelemesinden geçmeden default branch'e ulaşmadı.</p>
+  yazılı kontratlara göre uyguladı; ve hiçbir şey insan incelemesinden geçmeden default branch'e ulaşmadı.</p>
 </section>
 
 <section>
@@ -126,10 +126,10 @@
       <ul lang="tr">
         <li>Ödevi yorumlamak ve "bitti"nin ne anlama geldiğine karar vermek</li>
         <li>Tüm ürün ve UX kararları — uygulamadan önce <code>docs/UX_DECISIONS.md</code> içine yazıldı</li>
-        <li>Kabul ölçütleri — ajanların karşısında ölçüldüğü tamamlanma tanımı</li>
+        <li>Kabul kriterleri — ajanların karşısında ölçüldüğü tamamlanma tanımı</li>
         <li>Teknoloji kararları, kilitlenmiş server-state tercihi dahil</li>
         <li>Kapsam: her backend değişikliğini ve eklenen her bağımlılığı onaylamak (ya da reddetmek)</li>
-        <li>Bir gereksinim verilen API ile çakıştığında ödünleşim kararları</li>
+        <li>Bir gereksinim verilen API ile çakıştığında trade-off kararları</li>
         <li><strong>Her pull request'in incelenmesi ve merge edilmesi</strong> — 8'de 8, hiçbiri bir ajan tarafından kendi kendine merge edilmedi</li>
       </ul>
     </div>
@@ -147,10 +147,10 @@
       </ul>
       <ul lang="tr">
         <li>Verilen backend kaynağını okumak ve çalışma zamanı davranışını yoklamak</li>
-        <li>Web, mobil ve ortak dilimleri yazılı sözleşmelere göre uygulamak</li>
+        <li>Web, mobil ve ortak dilimleri yazılı kontratlara göre uygulamak</li>
         <li>Hedefli araştırma (platform davranışı, kütüphane API'leri, Android/Metro ayrıntıları)</li>
         <li>Test yazmak ve çalıştırmak; typecheck, lint ve build'leri yürütmek</li>
-        <li>Gerçek bir tarayıcıda ve gerçek bir Android emulator'ünde çalışma zamanı QA'i — release APK dahil</li>
+        <li>Gerçek bir tarayıcıda ve gerçek bir Android emülatöründe runtime QA'i — release APK dâhil</li>
         <li>Kod inceleme turları ve inceleme bulgularından çıkan dar kapsamlı düzeltmeler</li>
         <li>Dokümantasyon taslakları, bu raporlar dahil</li>
       </ul>
@@ -163,7 +163,7 @@
   <code>GET /products/{id}</code> backend addition came to be a deliberate, approved decision rather than a silent
   edit.</p>
   <p lang="tr">Sınır iyi niyetle değil, yapısal olarak korunuyor: deponun <code>AGENTS.md</code> dosyası ödevi, UX
-  kararlarını ve kabul ölçütlerini ajanların yeniden yazamayacağı, insana ait girdiler olarak tanımlıyor. Bir ajan
+  kararlarını ve kabul kriterlerini ajanların yeniden yazamayacağı, insana ait girdiler olarak tanımlıyor. Bir ajan
   çelişki bulduğunda — örneğin zorunlu bir gereksinimin verilen API ile karşılanamayacağını — kural, gereksinimi
   sessizce değiştirmek yerine konuyu yukarıya taşımaktı. <code>GET /products/{id}</code> backend eklemesinin sessiz bir
   düzenleme değil, bilinçli ve onaylanmış bir karar olmasının nedeni tam olarak bu.</p>
@@ -180,7 +180,7 @@
         <text x="44" y="42" font-weight="700" fill="#1d4ed8" lang="en">0 · Human preparation</text>
         <text x="44" y="42" font-weight="700" fill="#1d4ed8" lang="tr">0 · İnsan hazırlığı</text>
         <text x="44" y="60" fill="#44403c" lang="en">assignment scope · UX decisions · acceptance criteria · agent contract (AGENTS.md) — committed before any agent ran</text>
-        <text x="44" y="60" fill="#44403c" lang="tr">ödev kapsamı · UX kararları · kabul ölçütleri · ajan sözleşmesi (AGENTS.md) — ajanlar başlamadan önce commit edildi</text>
+        <text x="44" y="60" fill="#44403c" lang="tr">ödev kapsamı · UX kararları · kabul kriterleri · ajan kontratı (AGENTS.md) — ajanlar başlamadan önce commit edildi</text>
 
         <line x1="450" y1="70" x2="450" y2="86" stroke="#a8a29e" stroke-width="1.5" marker-end="url(#arrw)"/>
 
@@ -189,7 +189,7 @@
         <text x="44" y="112" font-weight="700" fill="#1c1917" lang="en">1 · API discovery (research only)</text>
         <text x="44" y="112" font-weight="700" fill="#1c1917" lang="tr">1 · API keşfi (yalnızca araştırma)</text>
         <text x="44" y="130" fill="#57534e" lang="en">full backend source read + runtime probe battery</text>
-        <text x="44" y="130" fill="#57534e" lang="tr">tüm backend kaynağı okundu + çalışma zamanı yoklamaları</text>
+        <text x="44" y="130" fill="#57534e" lang="tr">tüm backend kaynağı okundu + runtime yoklama bataryası</text>
         <rect x="458" y="90" width="418" height="56" rx="8" fill="#ffffff" stroke="#d6d3d1"/>
         <text x="478" y="112" font-weight="700" fill="#1c1917" lang="en">1 · Architecture proposal (research only)</text>
         <text x="478" y="112" font-weight="700" fill="#1c1917" lang="tr">1 · Mimari önerisi (yalnızca araştırma)</text>
@@ -199,7 +199,7 @@
         <line x1="450" y1="146" x2="450" y2="162" stroke="#a8a29e" stroke-width="1.5" marker-end="url(#arrw)"/>
         <rect x="24" y="166" width="852" height="34" rx="8" fill="#fefce8" stroke="#fde68a"/>
         <text x="450" y="188" font-weight="700" fill="#a16207" text-anchor="middle" lang="en">Human checkpoint — reconcile findings, approve the contract and architecture, then freeze them as documents</text>
-        <text x="450" y="188" font-weight="700" fill="#a16207" text-anchor="middle" lang="tr">İnsan kontrol noktası — bulguları uzlaştır, sözleşmeyi ve mimariyi onayla, sonra belge olarak dondur</text>
+        <text x="450" y="188" font-weight="700" fill="#a16207" text-anchor="middle" lang="tr">İnsan kontrol noktası — bulguları uzlaştır, kontratı ve mimariyi onayla, sonra belge olarak dondur</text>
 
         <line x1="450" y1="200" x2="450" y2="216" stroke="#a8a29e" stroke-width="1.5" marker-end="url(#arrw)"/>
         <rect x="24" y="220" width="852" height="34" rx="8" fill="#ffffff" stroke="#d6d3d1"/>
@@ -219,7 +219,7 @@
         <text x="44" y="356" font-weight="700" fill="#15803d" lang="en">4 · Integration → independent QA → targeted fixes → final QA</text>
         <text x="44" y="356" font-weight="700" fill="#15803d" lang="tr">4 · Entegrasyon → bağımsız QA → hedefli düzeltmeler → son QA</text>
         <text x="44" y="374" fill="#44403c" lang="en">QA evaluates the integrated project against the acceptance criteria and owns the implementation report; fixes are narrow, not reopened features</text>
-        <text x="44" y="374" fill="#44403c" lang="tr">QA, entegre projeyi kabul ölçütlerine göre değerlendirir ve uygulama raporunun sahibidir; düzeltmeler dardır, özellikler yeniden açılmaz</text>
+        <text x="44" y="374" fill="#44403c" lang="tr">QA, entegre projeyi kabul kriterlerine göre değerlendirir ve uygulama raporunun sahibidir; düzeltmeler dardır, özellikler yeniden açılmaz</text>
       </g>
       <defs>
         <marker id="arrw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#a8a29e"/></marker>
@@ -237,8 +237,8 @@
   does" could not drift into "what an agent assumed it does".</p>
   <p lang="tr">Roller mantıksal ayrımlardı, bir ajan filosu değil: aynı anda en fazla iki üç ajan çalıştı ve yalnızca
   dosya sahiplikleri çakışmadığı yerlerde (araştırma paralel; web ve mobil ayrı worktree'lerde paralel; ortak araçları
-  asla iki ajan birden düzenlemedi). Keşif ajanlarının özellik uygulaması ya da besledikleri sözleşme belgelerini
-  yazması açıkça yasaklandı — sözleşme ayrı ve incelenen bir entegrasyon adımında üretildi; böylece "API'nin ne yaptığı"
+  asla iki ajan birden düzenlemedi). Keşif ajanlarının özellik uygulaması ya da besledikleri kontrat belgelerini
+  yazması açıkça yasaklandı — kontrat ayrı ve incelenen bir entegrasyon adımında üretildi; böylece "API'nin ne yaptığı"
   ile "bir ajanın ne yaptığını varsaydığı" birbirine karışamazdı.</p>
   <div class="note" lang="en">Independence was also enforced at the QA boundary: the agent that verified the project was not the
   agent that built it, it evaluated the <em>integrated</em> tree rather than a feature branch, and it was prohibited
@@ -256,11 +256,11 @@
     <tr lang="en"><th>Tool</th><th>Where it lives</th><th>What it did</th></tr>
     <tr lang="tr"><th>Araç</th><th>Nerede tanımlı</th><th>Ne yaptı</th></tr>
     <tr lang="en"><td>Chrome DevTools MCP</td><td><code>.mcp.json</code></td><td>Drove a real browser for web verification: executing flows, reading the network log to confirm the client sent the contract's query parameters, and capturing screenshots.</td></tr>
-    <tr lang="tr"><td>Chrome DevTools MCP</td><td><code>.mcp.json</code></td><td>Web doğrulaması için gerçek bir tarayıcı sürdü: akışları çalıştırmak, istemcinin sözleşmedeki query parametrelerini gönderdiğini doğrulamak için network log'unu okumak ve ekran görüntüsü almak.</td></tr>
+    <tr lang="tr"><td>Chrome DevTools MCP</td><td><code>.mcp.json</code></td><td>Web doğrulaması için gerçek bir tarayıcı sürdü: akışları çalıştırmak, istemcinin kontrattaki query parametrelerini gönderdiğini doğrulamak için network log'unu okumak ve ekran görüntüsü almak.</td></tr>
     <tr lang="en"><td>shadcn MCP</td><td><code>.mcp.json</code></td><td>Adding UI primitives from the configured registry instead of hand-writing parallel components.</td></tr>
-    <tr lang="tr"><td>shadcn MCP</td><td><code>.mcp.json</code></td><td>Paralel bileşenleri elle yazmak yerine yapılandırılmış registry'den UI primitifleri eklemek.</td></tr>
+    <tr lang="tr"><td>shadcn MCP</td><td><code>.mcp.json</code></td><td>Paralel bileşenleri elle yazmak yerine yapılandırılmış registry'den UI primitive'leri eklemek.</td></tr>
     <tr lang="en"><td><code>product-ui-polish</code> skill</td><td><code>.claude/skills/</code></td><td>A project-authored, explicitly-invoked workflow for polish passes: inspect the real rendered screen, critique it against the recorded design language, make the smallest coherent change, verify visually. Its reference files encode this product's rules (admin density, mobile conventions, data tables, freshness affordances) so polish extends the existing language instead of restyling by taste.</td></tr>
-    <tr lang="tr"><td><code>product-ui-polish</code> skill'i</td><td><code>.claude/skills/</code></td><td>Cila turları için proje içinde yazılmış, yalnızca açıkça çağrıldığında çalışan bir akış: gerçekte render edilen ekranı incele, kayıtlı tasarım diline göre eleştir, en küçük tutarlı değişikliği yap, görsel olarak doğrula. Referans dosyaları bu ürünün kurallarını (yönetim paneli yoğunluğu, mobil alışkanlıklar, veri tabloları, tazelik göstergeleri) kodlar; böylece cila, zevke göre yeniden biçimlendirmek yerine mevcut dili sürdürür.</td></tr>
+    <tr lang="tr"><td><code>product-ui-polish</code> skill'i</td><td><code>.claude/skills/</code></td><td>Cila turları için proje içinde yazılmış, yalnızca açıkça çağrıldığında çalışan bir akış: gerçekte render edilen ekranı incele, kayıtlı tasarım diline göre eleştir, en küçük tutarlı değişikliği yap, görsel olarak doğrula. Referans dosyaları bu ürünün kurallarını (admin yoğunluğu, mobil alışkanlıklar, veri tabloları, tazelik göstergeleri) kodlar; böylece cila, zevke göre yeniden biçimlendirmek yerine mevcut dili sürdürür.</td></tr>
     <tr lang="en"><td><code>frontend-design</code> plugin</td><td><code>.claude/settings.json</code></td><td>General visual-design judgment. Where it conflicts with this product's rules, the project skill wins — this is operational software, not an identity exercise.</td></tr>
     <tr lang="tr"><td><code>frontend-design</code> eklentisi</td><td><code>.claude/settings.json</code></td><td>Genel görsel tasarım muhakemesi. Bu ürünün kurallarıyla çeliştiği yerde proje skill'i kazanır — bu operasyonel bir yazılım, bir kimlik çalışması değil.</td></tr>
     <tr lang="en"><td>Expo plugin</td><td><code>mobile/.claude/settings.json</code></td><td>Expo/React Native tooling knowledge for the native build and dev workflow.</td></tr>
@@ -277,7 +277,7 @@
   <p lang="en">The biggest practical risk in agent-assisted work is not bad code; it is <em>drift</em>. A later session doesn't
   remember why something was decided, so it re-decides differently. The countermeasure here was to write decisions into
   the repository as documents with defined authority, each owning one concern:</p>
-  <p lang="tr">Ajan destekli çalışmadaki en büyük pratik risk kötü kod değil, <em>kaymadır</em>. Sonraki bir oturum bir
+  <p lang="tr">Ajan destekli çalışmadaki en büyük pratik risk kötü kod değil, <em>drift</em>tir. Sonraki bir oturum bir
   şeyin neden öyle kararlaştırıldığını hatırlamaz ve farklı karar verir. Buradaki karşı önlem, kararları depoya, her
   biri tek bir konunun sahibi olan ve yetkisi tanımlı belgeler halinde yazmaktı:</p>
   <ul class="tight" lang="en">
@@ -290,13 +290,13 @@
     <li><strong>Machine and tooling notes</strong> in <code>AGENTS.md</code> — hard-won environment facts (which emulator image works, which port to use, how to recover a stuck dev build) so each session doesn't rediscover them.</li>
   </ul>
   <ul class="tight" lang="tr">
-    <li><strong>Kabul ölçütleri</strong> — tamamlanma tanımı; ajanlar kendi işlerini buna göre tamamlandı olarak işaretleyemez.</li>
+    <li><strong>Kabul kriterleri</strong> — tamamlanma tanımı; ajanlar kendi işlerini buna göre tamamlandı olarak işaretleyemez.</li>
     <li><strong>UX kararları</strong> — onaylanmış ürün davranışı; uygulama ajanları bunların yerine kendi tercihlerini koyamaz.</li>
-    <li><strong>API sözleşmesi</strong> — yalnızca doğrulanmış backend davranışı; kanıt seviyeleri neyin çalışma zamanında gözlemlendiğini, neyin kaynak koddan okunduğunu işaretler. Bu dosyada spekülasyona izin verilmez.</li>
+    <li><strong>API kontratı</strong> — yalnızca doğrulanmış backend davranışı; kanıt seviyeleri neyin runtime'da gözlemlendiğini, neyin kaynak koddan okunduğunu işaretler. Bu dosyada spekülasyona izin verilmez.</li>
     <li><strong>Mimari ve karar kayıtları</strong> — onaylanmış teknik tercihler ve reddedilen karmaşıklığın açık listesi; böylece "X'i ekleyelim mi?" sorusunun cevabı, onu cevaplayan oturumdan sonra da ayakta kalır.</li>
     <li><strong>Tasarım dili dosyaları</strong> — teslim edilen üründen çıkarıldı; böylece sonraki görsel çalışma sistemi yeniden icat etmek yerine genişletir.</li>
     <li><strong>Uygulama raporu</strong> — neyin gerçekten doğrulandığına dair QA'in sahiplendiği kayıt; herhangi bir ajanın iddiasından ayrı tutulur.</li>
-    <li><code>AGENTS.md</code> içindeki <strong>makine ve araç notları</strong> — zor kazanılmış ortam bilgileri (hangi emulator imajı çalışıyor, hangi port kullanılmalı, takılan bir geliştirme derlemesi nasıl kurtarılır); her oturum bunları yeniden keşfetmesin diye.</li>
+    <li><code>AGENTS.md</code> içindeki <strong>makine ve araç notları</strong> — zor kazanılmış ortam bilgileri (hangi emülatör imajı çalışıyor, hangi port kullanılmalı, takılan bir dev build nasıl kurtarılır); her oturum bunları yeniden keşfetmesin diye.</li>
   </ul>
   <p lang="en">These reviewer reports are the last layer of the same idea: the reasoning is written down where it can be checked
   against the code, rather than living only in a conversation.</p>
@@ -316,10 +316,10 @@
     <li><strong>Evidence vocabulary</strong>: the implementation report distinguishes "verified by running it" from "verified by inspection" and never counts unchecked work as complete.</li>
   </ul>
   <ul class="tight" lang="tr">
-    <li><strong>Her turda otomatik</strong>: TypeScript (strict, üç workspace'in tamamı), ESLint, ortak birim testleri, çalışan bir backend'e karşı canlı sözleşme testleri ve web production build'i.</li>
+    <li><strong>Her turda otomatik</strong>: TypeScript (strict, üç workspace'in tamamı), ESLint, paylaşılan unit testler, çalışan bir backend'e karşı canlı kontrat testleri ve web production build'i.</li>
     <li><strong>İnceleme yerine çalıştırılan akışlar</strong>: web doğrulaması, kod üzerinde akıl yürütmek yerine gerçek API'ye karşı gerçek bir tarayıcı sürdü — istemcinin gerçekte gönderdiği isteği doğrulamak için network log'unu okumak dahil.</li>
     <li><strong>Bağımsız geri okuma</strong>: bir istemciden yazma yapıldıktan sonra sonuç, API'ye ayrı bir <code>curl</code> ile doğrulandı; böylece inandırıcı görünen bir UI, kalıcılaşmış bir değişikliğin yerine geçemedi.</li>
-    <li><strong>Vekil değil, teslim edilen artefakt</strong>: son mobil doğrulama, teslim edilen release APK'yı emulator üzerinde bağımsız koşullarda (Metro kapalı, geliştirme köprüleri kaldırılmış, temiz kurulum) 12 maddelik bir matris boyunca çalıştırdı; oturum kurtarmayı sınamak için kasıtlı bir backend yeniden başlatması dahil.</li>
+    <li><strong>Vekil değil, teslim edilen artifact</strong>: son mobil doğrulama, teslim edilen release APK'yı emülatör üzerinde standalone koşullarda (Metro kapalı, geliştirme köprüleri kaldırılmış, temiz kurulum) 12 maddelik bir matris boyunca çalıştırdı; oturum kurtarmayı sınamak için kasıtlı bir backend yeniden başlatması dahil.</li>
     <li><strong>Dokümantasyon da test edilebilir</strong>: README'deki komutlar yazıldığı gibi çalıştırıldı; bu yolla bulunan, güncelliğini yitirmiş bir ifade sessizce düzeltilmek yerine hata olarak kaydedilip giderildi.</li>
     <li><strong>Kanıt sözlüğü</strong>: uygulama raporu "çalıştırarak doğrulandı" ile "inceleyerek doğrulandı"yı birbirinden ayırır ve denetlenmemiş işi asla tamamlanmış saymaz.</li>
   </ul>
@@ -334,7 +334,7 @@
   </div>
   <div class="risk" lang="tr">
     <div class="r">Aşırı mühendislik — ajanlar kapsamlı görünmek için soyutlama ve altyapı ekler</div>
-    <div class="m">Kontroller: açık bir kapsam disiplini kuralı ("ödevi karşılayan en basit çözüm"), güncel tutulan bir reddedilen-karmaşıklık listesi, gerekçe isteyen bağımlılık eklemeleri ve her PR'ın insan tarafından incelenmesi. Sonuç: state kütüphanesi, codegen, CI düzeneği ve ortak bileşen paketi olmayan üç workspace'li bir depo.</div>
+    <div class="m">Kontroller: açık bir kapsam disiplini kuralı ("ödevi karşılayan en basit çözüm"), güncel tutulan bir reddedilen-karmaşıklık listesi, gerekçe isteyen bağımlılık eklemeleri ve her PR'ın insan tarafından incelenmesi. Sonuç: state kütüphanesi, codegen, CI altyapısı ve ortak bileşen paketi olmayan üç workspace'li bir repo.</div>
   </div>
   <div class="risk" lang="en">
     <div class="r">False assumptions about the API — inventing endpoints, fields, or error shapes</div>
@@ -342,7 +342,7 @@
   </div>
   <div class="risk" lang="tr">
     <div class="r">API hakkında yanlış varsayımlar — endpoint, alan ya da hata biçimi uydurmak</div>
-    <div class="m">Kontroller: API davranışı uydurma yasağı; hiçbir istemci kodu backend'e bağımlı hale gelmeden önce onu çalışma zamanında doğrulayan bir keşif aşaması; ve belirsizlikleri örtmek yerine kanıt seviyelerini ve çözülmemiş soruları kaydeden bir sözleşme belgesi.</div>
+    <div class="m">Kontroller: API davranışı uydurma yasağı; hiçbir istemci kodu backend'e bağımlı hâle gelmeden önce onu runtime'da doğrulayan bir keşif aşaması; ve belirsizlikleri örtmek yerine kanıt seviyelerini ve çözülmemiş soruları kaydeden bir kontrat belgesi.</div>
   </div>
   <div class="risk" lang="en">
     <div class="r">Unnecessary changes — touching the backend or unrelated code for convenience</div>
@@ -366,7 +366,7 @@
   </div>
   <div class="risk" lang="tr">
     <div class="r">Sahte güven — kod var diye işi tamamlanmış ilan etmek</div>
-    <div class="m">Kontroller: en güçlü olanı. Tamamlanma, yazılı ölçütlere karşı yapılan bağımsız bir QA turuyla tanımlanır; bir commit mesajı, bir görev durumu ya da bir ajanın kendi iddiası açıkça kanıt sayılmaz; ve rapor, çalıştırılarak yapılan doğrulamayı incelemeden ayırır. İki dokümantasyon hatası bu yolla yakalandı ve düzeltilmeden önce kayda geçirildi.</div>
+    <div class="m">Kontroller: en güçlü olanı. Tamamlanma, yazılı kriterlere karşı yapılan bağımsız bir QA turuyla tanımlanır; bir commit mesajı, bir görev durumu ya da bir ajanın kendi iddiası açıkça kanıt sayılmaz; ve rapor, çalıştırılarak yapılan doğrulamayı incelemeden ayırır. İki dokümantasyon hatası bu yolla yakalandı ve düzeltilmeden önce kayda geçirildi.</div>
   </div>
   <p lang="en">None of this makes agent output automatically correct. It makes the failures <em>visible</em> — which is the
   property that mattered, since the reviewer is evaluating the delivered product, not the process that produced it.</p>
@@ -381,7 +381,7 @@
   <a href="backend-report.html">Backend &amp; modifications</a> ·
   <a href="development-decisions.html">Engineering decisions</a></span>
   <span lang="tr"><a href="index.html">← Değerlendirici özeti</a> · İlgili:
-  <a href="frontend-report.html">Web yönetim paneli mimarisi</a> ·
+  <a href="frontend-report.html">Web admin mimarisi</a> ·
   <a href="mobile-report.html">Mobil mimari</a> ·
   <a href="backend-report.html">Backend ve değişiklikler</a> ·
   <a href="development-decisions.html">Mühendislik kararları</a></span>
