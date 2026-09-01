@@ -40,15 +40,15 @@ e-mail `test@ornek.com` · password `Test1234!`
 
 ## APK
 
-**GitHub Release `v1.0.0` is being recreated.** The previously published release was removed so that the final deliverable can be rebuilt from the exact final source commit. Once the fresh APK is built and verified end-to-end, it will be attached — together with its SHA-256, size, and source commit — at the canonical URL below, which goes live on publication:
+The delivered APK is published as a GitHub Release — asset `stokmate-v1.0.0-release.apk`, built from the final commit [`bd443f2`](https://github.com/alpersarper/stokmate-assignment/commit/bd443f237867a07f07f50548679439c3d24c8d07), SHA-256 `becd9fa9c4f2f70a93bf2dd3b976075e8c90fc5cffd77de418008b58744b4284`, 77,824,168 bytes:
 
-**[Release `v1.0.0` (pending recreation) →](https://github.com/alpersarper/stokmate-assignment/releases/tag/v1.0.0)**
+**[Release `v1.0.0` →](https://github.com/alpersarper/stokmate-assignment/releases/tag/v1.0.0)**
 
-What holds for the delivered APK regardless of the rebuild:
+Key facts about the delivered APK:
 
 - **Build**: Release variant — applicationId `com.stokmate.app`, not debuggable, signed with the Gradle debug keystore (assignment-grade).
 - **API target**: `http://10.0.2.2:5080`, **baked in at build time**. `10.0.2.2` is the Android emulator's alias for the host machine, so run the backend there and install the APK on an emulator on that same machine. There is no hosted backend.
-- The exact asset that gets published is verified standalone end-to-end first (12-point matrix, `docs/IMPLEMENTATION_REPORT.md`); the release page will state its SHA-256 and source commit.
+- The exact published asset was verified standalone end-to-end before upload (12-point matrix, `docs/IMPLEMENTATION_REPORT.md`); the release page states its SHA-256 and source commit.
 - Reproduce (or retarget for a physical device by changing the URL):
 
   ```bash
