@@ -135,22 +135,24 @@
     </div>
     <div class="card" lang="en">
       <h3>Backend</h3>
-      <p>The provided .NET 8 in-memory API, verified at runtime and kept intact — plus three minimal, documented
-      modifications the assignment required.</p>
+      <p>The provided .NET 8 in-memory API, verified at runtime and otherwise kept intact — plus three minimal,
+      documented additions: one closed an API gap; two were explicit product/operational initiatives.</p>
       <span class="tag">api/StokMate/ · .NET 8</span>
     </div>
     <div class="card" lang="tr">
       <h3>Backend</h3>
-      <p>Verilen .NET 8 in-memory API'si; çalışır hâlde doğrulandı ve olduğu gibi korundu — artı ödevin gerektirdiği
-      üç minimal ve belgelenmiş değişiklik.</p>
+      <p>Verilen .NET 8 in-memory API'si çalışır hâlde doğrulandı ve bunun dışında olduğu gibi korundu — ayrıca üç minimal,
+      belgelenmiş ek yapıldı: biri API açığını kapattı, ikisi açık ürün/operasyon inisiyatifiydi.</p>
       <span class="tag">api/StokMate/ · .NET 8</span>
     </div>
   </div>
-  <p style="font-size:13.5px;color:var(--text-2)" lang="en">Final QA: all required acceptance criteria pass with executed evidence; the submission APK
-  (built from <code>339d00c</code>) passed a 12-point standalone verification matrix — see
+  <p style="font-size:13.5px;color:var(--text-2)" lang="en">The submission APK (built from <code>339d00c</code>) passed its recorded
+  12-point standalone matrix. A later senior review reproduced a <strong>HIGH mobile pagination defect</strong>: one physical gesture can
+  request multiple pages. Approval is held until it is fixed or explicitly accepted — see
   <a href="https://github.com/alpersarper/stokmate-assignment/blob/main/docs/IMPLEMENTATION_REPORT.md">docs/IMPLEMENTATION_REPORT.md</a>.</p>
-  <p style="font-size:13.5px;color:var(--text-2)" lang="tr">Son QA: zorunlu kabul ölçütlerinin tamamı yürütülmüş kanıtlarla geçti; teslim APK'sı
-  (<code>339d00c</code> üzerinden derlendi) 12 maddelik bağımsız doğrulama matrisini geçti — bkz.
+  <p style="font-size:13.5px;color:var(--text-2)" lang="tr">Teslim APK'sı (<code>339d00c</code> üzerinden derlendi) kayıtlı 12 maddelik
+  bağımsız matrisini geçti. Daha sonraki kıdemli inceleme <strong>YÜKSEK önem seviyesinde bir mobil sayfalama hatasını</strong> yeniden üretti:
+  tek bir fiziksel hareket birden fazla sayfa isteyebiliyor. Düzeltilene veya açıkça kabul edilene kadar onay beklemede — bkz.
   <a href="https://github.com/alpersarper/stokmate-assignment/blob/main/docs/IMPLEMENTATION_REPORT.md">docs/IMPLEMENTATION_REPORT.md</a>.</p>
 </section>
 
@@ -173,7 +175,7 @@
         <text x="250" y="117" font-size="11.5" fill="#57534e">server state per query key</text>
         <rect x="50" y="138" width="170" height="46" rx="6" fill="#f5f5f4" stroke="#e7e5e4"/>
         <text x="60" y="157" font-size="12.5" font-weight="600" fill="#44403c">react-hook-form</text>
-        <text x="60" y="173" font-size="11.5" fill="#57534e">edit-form draft + dirty state</text>
+        <text x="60" y="173" font-size="11.5" fill="#57534e">field registration + validation</text>
         <rect x="240" y="138" width="170" height="46" rx="6" fill="#f5f5f4" stroke="#e7e5e4"/>
         <text x="250" y="157" font-size="12.5" font-weight="600" fill="#44403c">Web storage adapter</text>
         <text x="250" y="173" font-size="11.5" fill="#57534e">tokens: local/sessionStorage</text>
@@ -215,7 +217,7 @@
         <rect x="140" y="408" width="620" height="72" rx="10" fill="#ffffff" stroke="#d6d3d1"/>
         <text x="160" y="434" font-size="15" font-weight="700" fill="#1c1917">Provided .NET 8 API — in-memory, port 5080</text>
         <text x="160" y="456" font-size="12.5" fill="#57534e">auth (opaque rotating tokens) · products · lookups · re-seeds on restart</text>
-        <text x="160" y="472" font-size="12" fill="#a16207">+ 3 assignment modifications: GET /products/{id} · Discontinued-stock 409 · read rate-limit</text>
+        <text x="160" y="472" font-size="12" fill="#a16207">+ 3 documented additions: lossless detail read · Discontinued-stock 409 · read rate-limit</text>
       </g>
       <defs>
         <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -235,18 +237,18 @@
   <h2 lang="en">What this delivery optimized for</h2>
   <h2 lang="tr">Bu teslimde neye öncelik verildi</h2>
   <div class="cards">
-    <div class="card" lang="en"><h3>Assignment completeness</h3><p>Every required feature plus all three optional bonuses, verified against written acceptance criteria — never features for their own sake.</p></div>
-    <div class="card" lang="tr"><h3>Ödev bütünlüğü</h3><p>Zorunlu özelliklerin tamamı ve üç opsiyonel bonusun hepsi, yazılı kabul ölçütlerine göre doğrulandı — özellik olsun diye özellik eklenmedi.</p></div>
+    <div class="card" lang="en"><h3>Assignment completeness</h3><p>The required vertical slices and optional refresh work are implemented; current verification evidence, including the open pagination defect, is reported without converting historical passes into guarantees.</p></div>
+    <div class="card" lang="tr"><h3>Ödev bütünlüğü</h3><p>Zorunlu dikey akışlar ve opsiyonel yenileme işi uygulandı; açık sayfalama hatası dâhil güncel doğrulama kanıtı, geçmiş geçişler garantiye çevrilmeden raporlanıyor.</p></div>
     <div class="card" lang="en"><h3>API correctness</h3><p>The backend's real behavior was verified at runtime and recorded before client code depended on it; clients never invent API behavior.</p></div>
     <div class="card" lang="tr"><h3>API doğruluğu</h3><p>Backend'in gerçek davranışı, istemci kodu ona bağımlı hâle gelmeden önce çalışır hâlde doğrulanıp kayda geçirildi; istemciler API davranışı uydurmaz.</p></div>
     <div class="card" lang="en"><h3>Admin / customer separation</h3><p>The web admin is dense and operational; the mobile app is a productized customer surface. Deliberately different designs over one shared data language.</p></div>
     <div class="card" lang="tr"><h3>Yönetici / müşteri ayrımı</h3><p>Web yönetim paneli yoğun ve operasyonel; mobil uygulama ürünleşmiş bir müşteri yüzeyi. Tek bir ortak veri dili üzerinde bilinçli olarak farklı tasarımlar.</p></div>
     <div class="card" lang="en"><h3>Predictable data flow</h3><p>One server-state layer (TanStack Query), one API client, one refresh pipeline per dataset — every data movement has a single, inspectable path.</p></div>
     <div class="card" lang="tr"><h3>Öngörülebilir veri akışı</h3><p>Tek bir server-state katmanı (TanStack Query), tek bir API client'ı, veri kümesi başına tek bir yenileme hattı — her veri hareketinin tek ve incelenebilir bir yolu var.</p></div>
-    <div class="card" lang="en"><h3>Data freshness</h3><p>Both clients show how old the visible data is, refresh it safely (cooldown + single-flight + server rate limit), and pick up other clients' changes.</p></div>
-    <div class="card" lang="tr"><h3>Veri tazeliği</h3><p>Her iki istemci de görünen verinin ne kadar eski olduğunu gösterir, güvenle yeniler (bekleme süresi + single-flight + sunucu rate limit) ve diğer istemcilerin değişikliklerini alır.</p></div>
-    <div class="card" lang="en"><h3>Pragmatic scope &amp; reviewer clarity</h3><p>Small dependency set, rejected-complexity list, documented assumptions — and this report set so the reasoning can be inspected, not guessed.</p></div>
-    <div class="card" lang="tr"><h3>Pragmatik kapsam ve değerlendiriciye açıklık</h3><p>Küçük bir bağımlılık seti, reddedilen karmaşıklıkların listesi, belgelenmiş varsayımlar — ve gerekçeler tahmin edilmesin diye bu rapor seti.</p></div>
+    <div class="card" lang="en"><h3>Data freshness</h3><p>The brief left the mechanism open: coordinated polling/refetch exposes cross-client changes through one data path; no realtime transport was added, and the server independently limits reads.</p></div>
+    <div class="card" lang="tr"><h3>Veri tazeliği</h3><p>Ödev mekanizmayı açık bıraktı: koordineli polling/refetch, istemciler arası değişiklikleri tek veri yolunda gösterir; realtime taşıma eklenmedi ve sunucu okumaları bağımsız olarak sınırlar.</p></div>
+    <div class="card" lang="en"><h3>Explicit product assumptions</h3><p>Where the brief was silent: Discontinued is terminal for stock (Passive is not), mobile defaults to Active while web defaults to All, low-stock cues use only <code>minStock</code>, and the lossless detail read plus read limit are deliberately narrow additions.</p></div>
+    <div class="card" lang="tr"><h3>Açık ürün varsayımları</h3><p>Ödevin sustuğu noktalarda: stok için Discontinued terminaldir (Pasif değil), mobil Aktif web Tümü ile açılır, düşük stok yalnızca <code>minStock</code> ile gösterilir; kayıpsız detay okuması ve okuma limiti bilinçli olarak dar eklerdir.</p></div>
   </div>
 </section>
 
@@ -256,14 +258,14 @@
   <ul class="tight" lang="en">
     <li><strong>Single-flight token refresh with a session-epoch guard</strong> — strict refresh-token rotation makes concurrent refreshes fatal; the shared client makes them structurally impossible, and stale in-flight requests can neither resurrect a logged-out session nor tear down a new one (<code>shared/src/api/client.ts</code>).</li>
     <li><strong>A proven data-loss trap, closed at the source</strong> — the provided PUT is a full replace requiring fields no read endpoint returned; discovery proved any legal client PUT silently corrupted data, and the minimal <code>GET /products/{id}</code> addition makes edits losslessly round-trippable.</li>
-    <li><strong>Coordinated freshness pipeline</strong> — manual refresh, pull-to-refresh, focus revalidation, mutation invalidation, and background polls all converge on one query fetch; polls re-anchor to the last fetch settle so triggers never stack, with backend rate limiting as the independent boundary.</li>
+    <li><strong>Coordinated freshness pipeline</strong> — the visible web list polls its current query about every 15 s; the focused, foreground mobile detail polls only its current product about every 10 s. Manual/lifecycle reads join the same per-key pipeline; mobile stock success patches caches without a follow-up GET. Polls re-anchor to the last fetch settle, with backend rate limiting as the independent boundary.</li>
     <li><strong>Server-enforced domain rule for stale clients</strong> — a stock update on a Discontinued product is rejected with <code>409</code> by the backend, so a device that opened the product while it was Active cannot book stock onto it after head office discontinues it.</li>
     <li><strong>Evidence-based QA</strong> — the delivered APK itself (not a dev build) passed a 12-point standalone matrix with independent <code>curl</code> read-backs; "done" claims required executed evidence throughout.</li>
   </ul>
   <ul class="tight" lang="tr">
     <li><strong>Session-epoch korumalı single-flight token yenileme</strong> — katı refresh token rotasyonu eşzamanlı yenilemeleri ölümcül kılıyor; paylaşılan client bunu yapısal olarak imkânsız hâle getiriyor ve uçuştaki bayat istekler ne kapanmış bir oturumu diriltebiliyor ne de yeni bir oturumu düşürebiliyor (<code>shared/src/api/client.ts</code>).</li>
     <li><strong>Kanıtlanmış bir veri kaybı tuzağı, kaynağında kapatıldı</strong> — verilen PUT, hiçbir okuma endpoint'inin döndürmediği alanları zorunlu kılan tam bir değiştirme işlemi; keşif aşaması, kurallara uygun her istemci PUT'unun veriyi sessizce bozduğunu kanıtladı ve minimal <code>GET /products/{id}</code> eklemesi düzenlemeleri kayıpsız gidip gelebilir hâle getirdi.</li>
-    <li><strong>Koordineli tazelik hattı</strong> — manuel yenileme, pull-to-refresh, odaklanmada yeniden doğrulama, mutation invalidasyonu ve arka plan polling'i tek bir query fetch'inde birleşiyor; polling son fetch'in tamamlanmasına yeniden bağlandığı için tetikleyiciler üst üste binmiyor, backend rate limiting ise bağımsız sınır olarak duruyor.</li>
+    <li><strong>Koordineli tazelik hattı</strong> — görünür web listesi açık query'sini yaklaşık her 15 sn, odaktaki ve ön plandaki mobil detay yalnızca açık ürünü yaklaşık her 10 sn poll eder. Manuel/yaşam döngüsü okumaları aynı key hattına katılır; mobil stok başarısı ardından GET yapmadan cache'leri yamalar. Polling son fetch'in tamamlanmasına yeniden bağlanır, backend rate limiting ise bağımsız sınırdır.</li>
     <li><strong>Bayat istemciler için sunucuda zorlanan iş kuralı</strong> — Discontinued bir ürüne yapılan stok güncellemesi backend tarafından <code>409</code> ile reddediliyor; böylece ürünü Active durumdayken açmış bir cihaz, genel müdürlük ürünü durdurduktan sonra ona stok işleyemiyor.</li>
     <li><strong>Kanıta dayalı QA</strong> — teslim edilen APK'nın kendisi (dev build değil) bağımsız <code>curl</code> okumalarıyla 12 maddelik bağımsız matrisi geçti; süreç boyunca "tamamlandı" iddiaları yürütülmüş kanıt gerektirdi.</li>
   </ul>
@@ -296,8 +298,8 @@
     <a href="frontend-report.html?lang=tr" lang="tr"><span class="t">Web yönetim paneli mimarisi</span><span class="d">Amaç, state sahipliği, veri akışı, liste/düzenleme akışları, oturum yaşam döngüsü, UX yaklaşımı.</span></a>
     <a href="mobile-report.html" lang="en"><span class="t">Mobile architecture</span><span class="d">Customer-facing product, data lifecycle, stock workflow, networking, localization.</span></a>
     <a href="mobile-report.html?lang=tr" lang="tr"><span class="t">Mobil mimari</span><span class="d">Müşteriye dönük ürün, veri yaşam döngüsü, stok akışı, ağ katmanı, yerelleştirme.</span></a>
-    <a href="backend-report.html" lang="en"><span class="t">Backend architecture &amp; modifications</span><span class="d">Provided API surface, auth lifecycle, and the three assignment modifications in detail.</span></a>
-    <a href="backend-report.html?lang=tr" lang="tr"><span class="t">Backend mimarisi ve değişiklikler</span><span class="d">Verilen API yüzeyi, auth yaşam döngüsü ve üç ödev değişikliğinin ayrıntıları.</span></a>
+    <a href="backend-report.html" lang="en"><span class="t">Backend architecture &amp; modifications</span><span class="d">Provided API surface, auth lifecycle, and the three documented additions in detail.</span></a>
+    <a href="backend-report.html?lang=tr" lang="tr"><span class="t">Backend mimarisi ve değişiklikler</span><span class="d">Verilen API yüzeyi, auth yaşam döngüsü ve belgelenmiş üç ekin ayrıntıları.</span></a>
     <a href="development-decisions.html" lang="en"><span class="t">Engineering decisions</span><span class="d">Context, alternatives, trade-offs, and results for every material decision.</span></a>
     <a href="development-decisions.html?lang=tr" lang="tr"><span class="t">Mühendislik kararları</span><span class="d">Her önemli karar için bağlam, alternatifler, ödünleşimler ve sonuçlar.</span></a>
     <a href="agent-workflow-report.html" lang="en"><span class="t">AI-assisted development workflow</span><span class="d">Human vs. agent responsibility, the actual workflow, verification, risks and controls.</span></a>

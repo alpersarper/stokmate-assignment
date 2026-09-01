@@ -124,23 +124,37 @@ Alternatifler ve ödünleşimlerle birlikte tam gerekçe: [Mühendislik kararlar
 
 ## Varsayımlar
 
+### Ortam ve API gerçekleri
+
 - **Bellek içi backend**: yeniden başlatma veriyi ve tüm oturumları siler; refresh başarısız olduğunda istemciler giriş ekranına döner.
-- **Son yazan kazanır**: API'de eşzamanlılık mekanizması yok (doğrulandı); yalnızca UX düzeyinde hafifletildi (taze okumayla düzenleme, yazma sonrası refetch). Discontinued-stok 409'u bir alan kuralıdır, sürüm kontrolü değil.
+- **Son yazan kazanır**: API'de eşzamanlılık mekanizması yok (doğrulandı); yalnızca UX düzeyinde hafifletildi (taze okumayla düzenleme, kanonik mutation yanıtları, hedefli yenileme). Discontinued-stok 409'u bir alan kuralıdır, sürüm kontrolü değil.
 - **Tek değerli filtreler** (bir kategori, bir marka) — API'de çoklu seçim yok.
 - **Arama/sıralama karşılaştırması sunucu tarafından belirlenir** (Türkçe i/ı davranışı backend host'unun locale'ini izler); girdi olduğu gibi geçirilir.
 - Verilen alan dokümantasyonu uyarınca **TRY (₺)**; tam sayı kuruş aritmetiğiyle açıkça biçimlendirilir.
 - Varsayılan arayüz dili İngilizce, çalışma zamanında EN/TR anahtarı var; API verisi (ürün/marka adları) hiçbir zaman çevrilmez.
 
+### Ürün tasarımı inisiyatifleri
+
+Bunlar ödevin davranışı açık bıraktığı noktalarda alınan bilinçli kararlardır; gerekçelerin tamamı [`docs/DECISIONS.md`](docs/DECISIONS.md), UX ve wire-level sınırlar ise [`docs/UX_DECISIONS.md`](docs/UX_DECISIONS.md) ile [`docs/API_CONTRACT.md`](docs/API_CONTRACT.md) içindedir.
+
+- **Operasyonel durum sınırı**: eski veriyle çalışan mağaza istemcilerini korumak için Discontinued durumunda stok terminaldir (`409` ve mobil kilit); Pasif değiştirilebilir, Discontinued ise listelenebilir ve diğer yönleriyle düzenlenebilir kalır çünkü görünürlük ve durum yönetimi bilinçli olarak kısıtlanmadı.
+- **Kitleye özgü varsayılanlar**: mobil mağaza çalışanları için Aktif ürünlerle, web ise genel müdürlük gözetimi için Tüm durumlarla açılır; iki yüzey de bütün durum seçeneklerini sunmaya devam eder.
+- **Kayıpsız detay okuması**: tümünü değiştiren PUT, hiçbir okumanın döndürmediği alanları gerektirdiği için yalnızca `GET /products/{id}` eklendi; değerler tahmin edilmedi, liste DTO'su genişletilmedi ve PUT semantiği değiştirilmedi.
+- **Bağımsız okuma hız sınırı**: üç ürün GET'i authorization değeri başına 60 istek/10 saniyelik ortak bütçe kullanır (fallback: IP); auth, lookup ve yazmalar kapsam dışıdır, dolayısıyla olağan yenileme/polling etkilenmez.
+- **Doğrulanmış düşük stok semantiği**: aynı alan kuralını iki istemcide de göstermek için vurgu API'nin `minStock` sinyalini izler; yalnızca istemcide yaşayan bir eşik uydurulmadı.
+- **Realtime olmadan tazelik**: koordineli polling/refetch, tek veri yolunu korurken istemciler arası değişiklikleri makul sürede görünür kılar; WebSocket/SSE veya ikinci bir senkronizasyon sistemi eklenmedi.
+
 ## Başlıca kütüphaneler
 
-- **Web**: Vite + React + TypeScript (strict) — SPA araç zinciri; React Router — route'lar + URL liste state'i; TanStack Query v5 — sunucu state'i; react-hook-form — düzenleme formunda dirty/validity takibi; Tailwind CSS v4 + shadcn/ui — depoya kopyalanan UI primitive'leri; sonner — sıraya alınan toast'lar.
+- **Web**: Vite + React + TypeScript (strict) — SPA araç zinciri; React Router — route'lar + URL liste state'i; TanStack Query v5 — sunucu state'i; react-hook-form — alan kaydı ve doğrulama; Tailwind CSS v4 + shadcn/ui — depoya kopyalanan UI primitive'leri; sonner — sıraya alınan toast'lar.
 - **Mobil**: Expo (managed) + React Native + TypeScript; React Navigation (native stack); TanStack Query v5; expo-secure-store — token saklama; expo-build-properties — cleartext HTTP bayrağı; expo-dev-client — dev build araçları (release'de etkisiz, doğrulandı).
-- **Backend**: verilen .NET 8 + EF Core InMemory yığını (değiştirilmedi); okuma rate-limit'i için `System.Threading.RateLimiting`.
+- **Backend**: verilen .NET 8 + EF Core InMemory temeli; yukarıda belgelenen üç dar ek, ürün okumalarındaki `System.Threading.RateLimiting` dâhil.
 - **Shared/test**: Vitest — birim + canlı kontrat testleri; ESLint v9 + Prettier.
 
 ## Notlar
 
 - Realtime kanal yok (WebSocket/SSE) — istemciler arası tutarlılık tasarım gereği polling + koordineli yenileme ile sağlanıyor; raporların tazelik bölümlerine bakın.
+- **Açık kıdemli inceleme bulgusu**: sürükleme ve momentum sayfalamayı ayrı ayrı tetiklediği için tek bir mobil sürükleme/savurma şu anda birden fazla sayfa isteyebilir; ürün kodu düzeltilene veya açıkça kabul edilene kadar onay beklemede. Stok sıralı cache satırlarının değeri de yenilenir ama sırası refresh'e kadar değişmez. Bkz. `docs/IMPLEMENTATION_REPORT.md`.
 - Teslim edilen APK'nın API hedefi build sırasında sabitlenir; farklı bir hedef belgelenmiş yeniden build'i gerektirir.
 - Assignment odaklı altyapı: CI hattı veya E2E framework'ü yok — doğrulama, script'lenmiş kontroller artı `docs/IMPLEMENTATION_REPORT.md` içinde kayıtlı QA sürecidir.
 - Doğrulama komutları: `npm run typecheck`, `npm run lint`, `npm run test` (çevrimdışı birim), `npm run test:live --workspace shared` (çalışan backend'e karşı), `npm run build:web`.

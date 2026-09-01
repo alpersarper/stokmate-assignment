@@ -1,20 +1,21 @@
 # StokMate Implementation Report
 
-Maintained by the QA / Reporter agent. This is the **final verification pass for the release artifact**, evaluating the delivered project on `main` (`339d00c`, verified local == `origin/main`, clean worktree) against `docs/ACCEPTANCE_CRITERIA.md`. Verification date: **2026-08-31**, macOS host, Node 22, backend run from `api/StokMate` via `~/.dotnet/dotnet`.
+Maintained by the QA / Reporter agent. The release-artifact verification below records `main` at `339d00c` on **2026-08-31**. A senior pre-merge addendum on **2026-09-01** reviews the later combined state (`main` at `7818a49` plus documentation PR #11) and supersedes the earlier approval verdict where they conflict. Host: macOS, Node 22; backend run from `api/StokMate` via `~/.dotnet/dotnet`.
 
 Verdict vocabulary — **Pass (executed)**: verified by running the flow/command; **Pass (inspected)**: verified by direct code/repo inspection where runtime verification is impractical; **Not verified**: not checked (never counted as complete); **Fail**: defect recorded in Known Defects.
 
-Three verification passes back this report:
+Four verification passes back this report:
 
 - **Checkpoint pass** (2026-08-28, integrated tree at `f31affa`): full execution of every backend/web/mobile criterion — evidence E0–E6 (retained at the end of this report).
 - **Prior final pass** (2026-08-28, `main` at `d81e1ef`): baseline re-validation, README execution, first release-APK end-to-end verification — evidence F0–F6 (retained).
 - **This pass** (2026-08-31, `main` at `339d00c`): re-verified by execution everything the post-`1fcb4fb` PRs (#1–#7) changed — mobile list/detail query architecture with server search/filters/sort, the Discontinued 409 stock rule, freshness indicators + protected manual refresh on both clients, the mobile visual redesign, web status filter and header sorting — plus a **new release APK built from `339d00c` and verified standalone end-to-end (12-point matrix)**, full baseline re-validation, and a fresh README execution check. Evidence G0–G7 below. Evidence from earlier passes is carried forward, with its date, only where the implementing code is genuinely unchanged since.
+- **Senior pre-merge review** (2026-09-01, `main` at `7818a49` + PR #11): full post-`1fcb4fb` source/diff inspection, baseline and live checks, exact web polling/rate-limit/Turkish-query/Discontinued probes, and a timestamped-proxy mobile session. Evidence H0–H6 below.
 
 Source delta covered by this pass: `git diff 1fcb4fb..339d00c` — 31 files, ~2 300 insertions across `api/` (Discontinued 409, read rate-limit), `shared/` (freshness descriptor, new tests), `web/src/products/` (status filter, header sorting, freshness/refresh, table polish), `mobile/src/` (query architecture rework, freshness/refresh, full visual redesign), plus docs/tooling.
 
 ## Status
 
-**FINAL: delivery-ready. All Required criteria pass with executed evidence. All verified Quality/UX criteria pass. All three Optional/Bonus features pass. The submission release APK (built from `339d00c`, published as GitHub Release `v1.0.0` — see [Published artifact](#published-artifact-2026-08-31-github-release-v100)) passed all 12 standalone runtime checks. One documentation defect (D2, stale README claim) was found this pass and fixed in the same change set. No open defects.**
+**SENIOR REVIEW: approval held. No BLOCKER was found, but one HIGH product defect is open: mobile pagination can issue multiple page requests for one physical gesture because drag-start and momentum-start both re-arm the guard. Fresh proxy evidence reproduced page 2 and page 3 requests 441 ms apart without a deliberate second fling. One MEDIUM limitation is also open: mobile stock success patches values without re-sorting/re-paging stock- or updated-time-sorted datasets. The published APK identity and the historical 12-point matrix remain valid; they do not override this later evidence.**
 
 ---
 
@@ -29,12 +30,12 @@ Source delta covered by this pass: `git diff 1fcb4fb..339d00c` — 31 files, ~2 
 | `docs/API_CONTRACT.md` contains the verified contract | Pass (inspected + executed spot-checks) | G2 — this pass exercised `q`, `brandId`, `status`, `sort`/`dir`, `PATCH /products/{id}/stock` (200 and 409 paths) and all matched the contract; E1 covers the fuller battery (2026-08-28) |
 | Clients use verified endpoints/contracts | Pass (executed) | G1 (shared live tests 7/7), G2 (web network log shows contract query params), G4 (APK flows against the real API) |
 | No invented API behavior | Pass (inspected) | Shared client implements only contract endpoints; sort/filter params match §6 of the contract |
-| Necessary backend modifications documented | Pass (inspected) | `GET /products/{id}` (`docs/DECISIONS.md` §1), Discontinued stock 409 (`docs/DECISIONS.md` §12, contract §8), read rate-limit (contract §13) — all in the contract with runtime-verification notes |
+| Necessary backend modifications documented | Pass (inspected) | `GET /products/{id}` (`docs/DECISIONS.md` §1), Discontinued stock 409 (`docs/DECISIONS.md` §12, contract §8), read rate-limit (contract §2a) — all in the contract with runtime-verification notes |
 
 New backend behavior since the prior pass, both assignment decisions recorded in `docs/DECISIONS.md` and `docs/API_CONTRACT.md`:
 
 - **Discontinued stock rule (`faf1a85`)** — re-verified by execution this pass (G2): `PATCH /products/40/stock` on a Discontinued product → `409` `Üretimi durdurulmuş ürünün stoğu güncellenemez.`, stock confirmed unchanged by read-back; Active products still accept stock updates (multiple 200s this pass).
-- **Read rate-limit (`e1ff1b0`)** — Pass (executed, prior evidence): the contract §13 records a same-day runtime battery (2026-08-31: 60-req window boundary, per-token isolation, writes/lookups exempt). This pass's heavy interactive use (both clients + curl) stayed under the limit with zero spurious 429s, consistent with the "deliberately generous" design.
+- **Read rate-limit (`e1ff1b0`)** — Pass (executed): contract §2a records the original runtime battery. H3 rechecked the boundary: 60 product reads returned 200, the next 10 returned 429 with `Retry-After` and the documented body; a second token, auth, lookups, and stock writes remained unaffected.
 
 ### 2. Required — Web
 
@@ -123,7 +124,7 @@ Checkpoint-pass verdict summary (unchanged surfaces): search debounce/trim/reset
 | Feature | Verdict | Evidence |
 | --- | --- | --- |
 | Web cross-client refresh | Pass (executed) | G2 — an external curl stock change surfaced via the refresh pipeline this pass; E5 (2026-08-28) verified the 15 s poll picking up external changes without interaction |
-| Mobile pagination | Pass (executed) | E4.6 (2026-08-28) for deep-scroll guards; G4 exercised the reworked pipeline's boundary behavior ("You've reached the end" terminal state on 1-, 2-, and 3-item result sets; 75-item Active default list loads and scrolls) |
+| Mobile pagination | **Fail — HIGH** | H5 — source shows both drag-start and momentum-start re-arm one guard; the timestamped proxy recorded page 2 then page 3 only 441 ms apart without a deliberate second fling. Earlier end-of-list checks did not prove one-gesture/one-page behavior. |
 | Mobile pull-to-refresh | Pass (executed) | E4.6 (2026-08-28); shares the G4.10-verified refresh pipeline (`753fed2` unified them) |
 
 ---
@@ -178,14 +179,15 @@ The delivery mechanism is now a public GitHub Release rather than a machine-loca
 
 ## Known Defects
 
-**None open.**
+- **D3 (HIGH, mobile pagination; open)** — one physical gesture can request multiple pages. `ProductListScreen` arms the pagination ref from both `onScrollBeginDrag` and `onMomentumScrollBegin`; runtime proxy evidence reproduced chained page requests. Recommended product fix: arm once per physical gesture (or track a gesture identifier) and retain the existing placeholder/end/in-flight/retry guards. Not changed in documentation-only PR #11.
+- **D4 (MEDIUM, stock-sorted cache order; open)** — mobile stock success patches the canonical value into detail and existing list rows with no GET, but does not reorder/re-page stock- or updated-time-sorted infinite datasets. Values are current; ordering can stay stale until explicit refresh.
 
 - **D1 (cosmetic, EN product-count pluralization)** — fixed in `f40a6d3` (2026-08-28); still correct this pass (G2). **Closed.**
 - **D2 (documentation, found this pass)** — README's mobile dev-workflow note claimed the DevTools Network panel cannot capture app traffic because expo-dev-client is not included; stale since PR #2 added expo-dev-client (`a6c50b3`). Corrected in this change set (README updated; no code impact). **Closed.**
 
 ## Unresolved Risks
 
-1. **Backend has no general concurrency protection** — last-write-wins on PUT/PATCH (contract §11). The Discontinued 409 is a domain-state rejection, not a version check. Accepted and documented; clients edit from fresh reads and refetch after writes.
+1. **Backend has no general concurrency protection** — last-write-wins on PUT/PATCH (contract §11). The Discontinued 409 is a domain-state rejection, not a version check. Accepted and documented; clients edit from fresh reads and apply canonical mutation responses. Web edits invalidate lists; mobile stock success does not refetch.
 2. **In-memory backend**: restart wipes data and tokens. Both clients verifiably recover to login (web E3.8; release APK G4.11).
 3. **Turkish dotted/dotless-I search folding is host-locale-dependent** (contract §12). Informational.
 4. **APK API URL fixed at build time** — by design (`docs/DECISIONS.md` §8); rebuild instructions in README.
@@ -194,15 +196,27 @@ The delivery mechanism is now a public GitHub Release rather than a machine-loca
 
 ## Architecture Deviations
 
-None. Matches `docs/ARCHITECTURE.md` and the locked TanStack Query decision. The post-checkpoint additions (freshness descriptor in shared, rate-limit + Discontinued rule in the backend, native-debug-build dev workflow) are all recorded in `docs/DECISIONS.md` / `docs/API_CONTRACT.md` / README rather than silently introduced.
+No product-architecture deviation from the locked TanStack Query decision. The post-checkpoint additions (freshness descriptor in shared, rate-limit + Discontinued rule in the backend, native-debug-build dev workflow) are recorded in `docs/DECISIONS.md` / `docs/API_CONTRACT.md` / README rather than silently introduced. D3 is an implementation defect in the pagination guard, not an approved architecture change.
 
 ## Remaining Work
 
-**None for delivery.** The submission APK is built from current `main`, verified standalone, and delivered with its identity and evidence.
+1. Fix D3 in product code, or have the coordinator explicitly accept its impact before approval.
+2. Decide whether D4 warrants targeted invalidation of only stock/updated-time-sorted datasets; otherwise retain it as an explicit limitation.
+3. Re-run the focused mobile one-fling/one-page and stock-save network-footprint checks on a stable emulator after any product fix. The 2026-09-01 emulator repeatedly exited, so the exact 10 s mobile-detail cadence and stock-save request footprint were source-verified but not freshly re-measured.
 
 ---
 
 ## Verification Evidence
+
+### Senior pre-merge review (H0–H6) — `main` @ `7818a49` + PR #11, 2026-09-01
+
+- **H0 — Combined diff/source:** inspected the full post-`1fcb4fb` implementation plus PR #11's documentation-only diff, including freshness schedulers, query keys, pagination guards, mutation cache patching, backend rules/policies, defaults/counts, and EN/TR documentation claims.
+- **H1 — Baseline:** `npm run typecheck` ✅; `npm run lint` ✅; `npm run test` ✅ 27/27; `npm run build:web` ✅ (informational chunk warning); backend solution test command ✅; `npm run test:live --workspace shared` ✅ 7/7 (known single-flight flake did not occur).
+- **H2 — Web cadence/query/lifecycle:** timestamped proxy measured settled requests about 15.1 s apart. A query containing UTF-8 search, category, brand, status, price sort/direction, page, and page size was preserved exactly. Simulated hidden state stopped polling; visibility restoration triggered an immediate targeted read.
+- **H3 — Rate limit:** a normal 12-read sequence remained 200; a fresh-token 70-read loop produced exactly 60×200 then 10×429. The 61st carried `Retry-After` and the documented Turkish body. A second token, `/auth/me`, lookups, and stock PATCH remained 200.
+- **H4 — Contract edges:** Discontinued stock PATCH returned the documented 409 and left stock/`updatedAt` unchanged; Passive stock PATCH succeeded. UTF-8 Turkish query encoding was preserved. Common case pairs matched, while dotted/dotless-I variants differed, confirming the documented host-defined casing limitation.
+- **H5 — Mobile:** debug build succeeded and the app reached the default Active list (backend total 75). Proxy logs then reproduced chained page requests without a deliberate second fling: page 2 at `21:28:36.337`, page 3 at `21:28:36.778`. The emulator later exited repeatedly; fresh exact measurements of detail cadence, background/refocus behavior, and stock-save footprint are therefore **Not verified in this pass**, not counted as new runtime passes.
+- **H6 — Source-backed mobile behavior:** current detail alone is scheduled at ~10 s only while focused + foregrounded; lifecycle return targets that detail. Stock PATCH sends one absolute integer value, applies the canonical response to detail and existing list rows, and does no success-path invalidation/refetch. A Discontinued 409 invalidates only detail.
 
 ### This pass (G0–G7) — `main` @ `339d00c`, 2026-08-31
 
