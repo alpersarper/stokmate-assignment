@@ -16,7 +16,7 @@ Source delta covered by this pass: `git diff 1fcb4fb..339d00c` — 31 files, ~2 
 
 ## Status
 
-**SENIOR REVIEW FOLLOW-UP: the HIGH mobile pagination defect is FIXED with evidence (2026-09-01, branch `fm/pagination-fix`). The guard now arms exactly once per physical gesture, in `onScrollBeginDrag` only; `onMomentumScrollBegin` no longer re-arms the same gesture. Empirical re-verification over a timestamped proxy confirmed one request per gesture across plain, search, filtered, sorted, and combined datasets, zero requests after the final page, and intact pull-to-refresh / footer-retry / pure-drag behavior (evidence I0–I5). The MEDIUM stock-sort ordering limitation (D4) is explicitly accepted by the coordinator: the updated stock value is correct, and normal refresh/freshness restores canonical server ordering. The published APK identity and the historical 12-point matrix remain valid; the APK predates this fix and would pick it up on the next release build.**
+**SENIOR REVIEW FOLLOW-UP: the HIGH mobile pagination defect is FIXED with evidence (2026-09-01, branch `fm/pagination-fix`). The guard now arms exactly once per physical gesture, in `onScrollBeginDrag` only; `onMomentumScrollBegin` no longer re-arms the same gesture. Empirical re-verification over a timestamped proxy confirmed one request per gesture across plain, search, filtered, sorted, and combined datasets, zero requests after the final page, and intact pull-to-refresh / footer-retry / pure-drag behavior (evidence I0–I5). The MEDIUM stock-sort ordering limitation (D4) is explicitly accepted by the coordinator: the updated stock value is correct, and normal refresh/freshness restores canonical server ordering. The recreated `v1.0.0` release APK (built 2026-09-01 from `bd443f2`) carries this fix, and the one-request-per-gesture behavior was re-proven on that exact release binary via a timestamped proxy (see Published artifact, 2026-09-01).**
 
 ---
 
@@ -165,7 +165,7 @@ Checkpoint-pass verdict summary (unchanged surfaces): search debounce/trim/reset
 
 ### Published artifact (2026-08-31, GitHub Release `v1.0.0`)
 
-> **Status update (2026-09-01):** this release was removed as part of the coordinated final-release process — the authoritative `v1.0.0` will be recreated from the exact final source commit with a freshly built and verified APK (new SHA-256). The download URL below is therefore not live at the moment; the details in this section remain the accurate historical record of the 2026-08-31 publication.
+> **Status update (2026-09-01):** this release was removed as part of the coordinated final-release process and has been **recreated** — see [Published artifact (2026-09-01)](#published-artifact-2026-09-01-recreated-github-release-v100) below for the authoritative current release. The details in this section remain the accurate historical record of the 2026-08-31 publication only; its download URL and checksum are no longer live.
 
 The delivery mechanism is now a public GitHub Release rather than a machine-local file. A **fresh** release APK was rebuilt from the same product commit with the same commands and re-verified before publishing:
 
@@ -177,6 +177,18 @@ The delivery mechanism is now a public GitHub Release rather than a machine-loca
 **The checksum differs from the 2026-08-28 artifact above even though the source commit is identical.** Android APK packaging is not byte-reproducible (zip entry timestamps and build-tool metadata vary per build), so an identical checksum was not expected. The artifact that was verified is the artifact that was published.
 
 **Re-verified on the exact published binary** (AVD `TripFlow_API_36`, backend on the host): install of the named artifact · launch straight to the product login (no dev launcher) · login with the test user · product list matching an independent `curl` read · product detail matching the same read field-for-field · **stock write 12 → 15 confirmed server-side by independent `curl`** · Turkish-query search (`çaykur` → 2 results) matching the server · force-stop and relaunch restoring the remembered session (secure storage intact in the release build). Static audit: not debuggable, no secrets, no hardcoded credentials, Gradle debug keystore (assignment-grade). After upload, the release asset was downloaded again and its SHA-256 confirmed byte-identical to the tested binary.
+
+### Published artifact (2026-09-01, recreated GitHub Release `v1.0.0`)
+
+**This is the authoritative delivery.** The `v1.0.0` release and tag were recreated from the final commit after all fixes and the documentation pass merged; the attached APK is the first release artifact carrying the D3 pagination fix (PR #12).
+
+- Download: <https://github.com/alpersarper/stokmate-assignment/releases/tag/v1.0.0> — asset `stokmate-v1.0.0-release.apk`
+- Size: 77 824 168 bytes · SHA-256: `becd9fa9c4f2f70a93bf2dd3b976075e8c90fc5cffd77de418008b58744b4284`
+- Source commit: `bd443f2` (tag target; main; local == origin/main; clean worktree; 0 open PRs)
+- Build commands: unchanged (README's `CI=1` prebuild `--clean` + `assembleRelease` with baked `EXPO_PUBLIC_API_URL=http://10.0.2.2:5080`); Hermes bundle present, baked URL exactly 1 occurrence and sole app URL
+- Variant `release`, applicationId `com.stokmate.app`, versionName 0.1.0, not debuggable; expo-dev-client inert (single `MainActivity`, zero devlauncher/devmenu entries)
+
+**Verified standalone end-to-end on the exact binary before upload** (AVD `TripFlow_API_36`; Metro killed, reverses cleared, backend from the same worktree; full uninstall first): clean launch to product login · login · list with visual pass (75 products, Active default) · Turkish server-side search (`çaykur` → 2, curl-matched) · detail (curl-matched field-for-field) · **stock 12 → 15 with independent curl read-back** · Discontinued lock (UI + curl `409`) · freshness + manual refresh (one refetch burst of the loaded pages) · backend-restart session recovery to the localized login (not stuck) · full EN/TR switch. **Release-form pagination re-proven via timestamped proxy (in-emulator DNAT, release build has no DevTools): every threshold-crossing flick produced exactly one page request (pages 2→3→4), sub-threshold flicks produced zero, and flicks past the backend-reported end produced zero — the D3 fix holds in the shipped binary.** After upload, the release asset was downloaded again and its SHA-256 confirmed byte-identical.
 
 ---
 

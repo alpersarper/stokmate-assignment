@@ -40,15 +40,15 @@ e-posta `test@ornek.com` · parola `Test1234!`
 
 ## APK
 
-**GitHub Release `v1.0.0` yeniden oluşturuluyor.** Daha önce yayımlanan release kaldırıldı; nihai teslim APK'sı, kesinleşen son kaynak commit'inden yeniden build edilecek. Yeni APK build edilip uçtan uca doğrulandığında, SHA-256'sı, boyutu ve kaynak commit'iyle birlikte aşağıdaki kalıcı URL'ye eklenecek; bağlantı yayınla birlikte aktifleşecek:
+Teslim edilen APK bir GitHub Release olarak yayında — asset `stokmate-v1.0.0-release.apk`, nihai commit [`bd443f2`](https://github.com/alpersarper/stokmate-assignment/commit/bd443f237867a07f07f50548679439c3d24c8d07)'den build edildi, SHA-256 `becd9fa9c4f2f70a93bf2dd3b976075e8c90fc5cffd77de418008b58744b4284`, 77.824.168 bayt:
 
-**[Release `v1.0.0` (yeniden oluşturulacak) →](https://github.com/alpersarper/stokmate-assignment/releases/tag/v1.0.0)**
+**[Release `v1.0.0` →](https://github.com/alpersarper/stokmate-assignment/releases/tag/v1.0.0)**
 
-Yeniden build'den bağımsız olarak teslim edilen APK için geçerli olanlar:
+Teslim edilen APK hakkında bilinmesi gerekenler:
 
 - **Build**: Release varyantı — applicationId `com.stokmate.app`, debuggable değil, Gradle debug keystore ile imzalı (assignment düzeyinde bir anahtar, dağıtım anahtarı değil).
 - **API hedefi**: `http://10.0.2.2:5080`, **build sırasında sabitlenir**. `10.0.2.2`, Android emülatörünün host makine için kullandığı adrestir; backend'i o makinede çalıştırın ve APK'yı aynı makinedeki bir emülatöre kurun. Hosted bir backend yok.
-- Yayımlanan asset, yayına alınmadan önce tek başına uçtan uca doğrulanır (12 maddelik matris, `docs/IMPLEMENTATION_REPORT.md`); release sayfası kendi SHA-256'sını ve kaynak commit'ini belirtecek.
+- Yayımlanan asset, yayına alınmadan önce tek başına uçtan uca doğrulandı (12 maddelik matris, `docs/IMPLEMENTATION_REPORT.md`); release sayfası kendi SHA-256'sını ve kaynak commit'ini belirtir.
 - Yeniden üretmek (veya URL'yi değiştirip fiziksel bir cihaza hedeflemek) için:
 
   ```bash
