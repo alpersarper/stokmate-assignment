@@ -2,22 +2,22 @@
 
 # StokMate
 
-Değerlendirme projesi: verilen StokMate .NET API'si üzerine kurulu iki istemci — genel merkez için bir **web yönetim paneli** ve mağaza personeli için **müşteriye dönük bir mobil uygulama** (birincil akış stok güncelleme). İkisi de framework'ten bağımsız tek bir TypeScript API/auth çekirdeğini paylaşır. Backend, verilen API'nin kendisi artı üç küçük ve belgelenmiş değişikliktir.
+Take-home projesi: verilen StokMate .NET API'si üzerinde iki istemci — genel merkezin ürün yönetimi için bir **web admin paneli** ve mağaza personelinin kullandığı, müşteri uygulaması gibi tasarlanmış bir **mobil uygulama** (birincil iş akışı: stok güncelleme). İki istemci, framework bağımsız tek bir TypeScript API/auth çekirdeğini paylaşır. Backend, verilen API artı üç küçük ve belgelenmiş değişikliktir.
 
-**Değerlendirici derin analizleri** (mimari, kararlar, backend değişiklikleri, yapay zekâ destekli süreç) GitHub Pages üzerinde yayımlanıyor — bkz. [Değerlendirici derin analizleri](#değerlendirici-derin-analizleri).
+**Değerlendirici raporları** (mimari, kararlar, backend değişiklikleri, yapay zekâ destekli süreç) GitHub Pages'te yayında — bkz. [Değerlendirici raporları](#değerlendirici-raporları).
 
 ## Hızlı başlangıç
 
-**1. Backend** (.NET SDK 8.0+ gerekir):
+**1. Backend** (.NET SDK 8.0+ gerektirir):
 
 ```bash
 cd api/StokMate
 dotnet run --project src/StokMate.Api
 ```
 
-→ `http://localhost:5080` (Swagger: `/swagger`). Bellek içi çalışır: her yeniden başlatma veriyi yeniden seed'ler ve tüm oturumları geçersiz kılar.
+→ `http://localhost:5080` (Swagger: `/swagger`). Backend in-memory çalışır: her yeniden başlatma veriyi baştan seed'ler ve tüm oturumları geçersiz kılar.
 
-**2. Web yönetim paneli** (Node.js ≥ 20 gerekir; yeni bir terminalde, depo kökünde):
+**2. Web admin paneli** (Node.js ≥ 20 gerektirir; yeni bir terminalde, repo kökünde):
 
 ```bash
 npm install
@@ -26,28 +26,30 @@ npm run dev:web
 
 → `http://localhost:5173`.
 
-**3. Mobil** (çalışan bir Android emülatörü; JDK 17 + Android SDK gerekir):
+**3. Mobil** (çalışan bir Android emülatörü; JDK 17 + Android SDK gerektirir):
 
 ```bash
 cd mobile
 npx expo run:android
 ```
 
-İlk çalıştırma native debug uygulamasını derleyip kurar, ardından Metro'yu başlatır; sonraki JS-only iterasyonlar için depo kökünde `npm run dev:mobile` ve kurulu uygulamayı açmak yeterlidir. JDK 17 varsayılanınız değilse `JAVA_HOME`'u ona ayarlayın. Emülatör host'taki backend'e varsayılan `http://10.0.2.2:5080` üzerinden ulaşır; fiziksel cihazda `EXPO_PUBLIC_API_URL=http://<lan-ip-adresiniz>:5080` verin (aynı Wi-Fi).
+İlk çalıştırma native debug build'ini derleyip emülatöre kurar, ardından Metro'yu başlatır. Sonrasında yalnızca JS değişiyorsa repo kökünde `npm run dev:mobile` çalıştırıp kurulu uygulamayı açmak yeterli. JDK 17 varsayılanınız değilse `JAVA_HOME`'u ona ayarlayın. Emülatör, host'taki backend'e varsayılan `http://10.0.2.2:5080` adresinden erişir; fiziksel cihaz için `EXPO_PUBLIC_API_URL=http://<lan-ip>:5080` verin (aynı Wi-Fi ağında).
 
-**Test kullanıcısı** (assignment tarafından bilinçli olarak verilmiştir, yalnızca test amaçlı):
+**Test kullanıcısı** (assignment'ın bilinçli olarak sağladığı, yalnızca test amaçlı hesap):
 e-posta `test@ornek.com` · parola `Test1234!`
 
 ## APK
 
-**[Güncel Release APK'yı indir →](https://github.com/alpersarper/stokmate-assignment/releases/tag/v1.0.0)** (GitHub Release `v1.0.0`)
+**GitHub Release `v1.0.0` yeniden oluşturuluyor.** Daha önce yayımlanan release kaldırıldı; nihai teslim APK'sı, kesinleşen son kaynak commit'inden yeniden build edilecek. Yeni APK build edilip uçtan uca doğrulandığında, SHA-256'sı, boyutu ve kaynak commit'iyle birlikte aşağıdaki kalıcı URL'ye eklenecek; bağlantı yayınla birlikte aktifleşecek:
 
-- **Build**: Release — `stokmate-v1.0.0-release.apk`, applicationId `com.stokmate.app`, debuggable değil, Gradle debug keystore ile imzalı (assignment düzeyinde).
-- **SHA-256**: `a004fa9c04fa42f469073dbf256cad4a2335e73e4fadeaede3dde904ea081290` (77.824.176 bayt).
-- **Kaynak**: `339d00c` commit'i — uygulama kaynağını değiştiren son commit; `main` üzerinde ondan sonrası yalnızca dokümantasyon.
-- **API hedefi**: `http://10.0.2.2:5080`, **build sırasında sabitlenir**. `10.0.2.2`, Android emülatörünün host makineye verdiği adrestir; dolayısıyla backend'i o makinede çalıştırın ve APK'yı yine aynı makinedeki bir emülatöre kurun. Barındırılan (hosted) bir backend yoktur.
-- Yayımlanmadan önce tek başına uçtan uca doğrulandı (12 maddelik matris, `docs/IMPLEMENTATION_REPORT.md`); yayımlanan dosya, doğrulamayı geçen artefaktla bayt bayt aynıdır.
-- Yeniden üretmek (veya URL'yi değiştirip fiziksel cihaza yöneltmek) için:
+**[Release `v1.0.0` (yeniden oluşturulacak) →](https://github.com/alpersarper/stokmate-assignment/releases/tag/v1.0.0)**
+
+Yeniden build'den bağımsız olarak teslim edilen APK için geçerli olanlar:
+
+- **Build**: Release varyantı — applicationId `com.stokmate.app`, debuggable değil, Gradle debug keystore ile imzalı (assignment düzeyinde bir anahtar, dağıtım anahtarı değil).
+- **API hedefi**: `http://10.0.2.2:5080`, **build sırasında sabitlenir**. `10.0.2.2`, Android emülatörünün host makine için kullandığı adrestir; backend'i o makinede çalıştırın ve APK'yı aynı makinedeki bir emülatöre kurun. Hosted bir backend yok.
+- Yayımlanan asset, yayına alınmadan önce tek başına uçtan uca doğrulanır (12 maddelik matris, `docs/IMPLEMENTATION_REPORT.md`); release sayfası kendi SHA-256'sını ve kaynak commit'ini belirtecek.
+- Yeniden üretmek (veya URL'yi değiştirip fiziksel bir cihaza hedeflemek) için:
 
   ```bash
   cd mobile
@@ -57,119 +59,119 @@ e-posta `test@ornek.com` · parola `Test1234!`
   # → app/build/outputs/apk/release/app-release.apk
   ```
 
-- Backend düz HTTP konuştuğu için Android cleartext trafiği açık (`expo-build-properties`).
+- Backend düz HTTP kullandığı için Android'de cleartext trafiğe izin verildi (`expo-build-properties`).
 
-## Proje bir bakışta
+## Projeye genel bakış
 
 ```
-api/StokMate/   verilen .NET 8 API (bellek içi) + 3 belgelenmiş değişiklik
-shared/         framework'ten bağımsız TS: tipler, API client, query key'ler, yardımcılar
-web/            Vite + React yönetim paneli (Tailwind + shadcn/ui)
+api/StokMate/   verilen .NET 8 API (in-memory) + 3 belgelenmiş değişiklik
+shared/         framework bağımsız TS: tipler, API client, query key'ler, yardımcılar
+web/            Vite + React admin paneli (Tailwind + shadcn/ui)
 mobile/         Expo (managed) + React Native müşteri uygulaması
 docs/           kontratlar, kararlar, QA raporu, değerlendirici raporları (docs/reviewer/)
 ```
 
 ## Neler yapıldı
 
-### Web yönetim paneli
+### Web admin paneli
 
-- Zorunlu kapsamın tamamı: giriş/oturum, arama içeren yoğun ürün tablosu, kategori/marka/**durum** filtreleri, sunucu tarafı başlık sıralaması, sayfalama — tüm liste state'i URL'de tutulur.
-- Korumalı düzenleme formu içeren ürün detayı: taze bir okumadan kurulan kayıpsız tam nesne PUT'u, doğrulanmış API kurallarını birebir yansıtan satır içi doğrulama, kaydedilmemiş değişiklik koruması.
-- Veri tazeliği: "X önce güncellendi" göstergesi, bekleme süresiyle korunan manuel yenileme ve son fetch'in tamamlanmasına sabitlenen 15 sn'lik polling (başka istemcilerin değişiklikleri sayfa yenilenmeden görünür — opsiyonel bonus).
-- Eksiksiz yükleniyor/hata/boş durumları, sıraya alınan toast'lar, EN/TR arayüz.
+- Zorunlu kapsamın tamamı: login/oturum, arama ve kategori/marka/**durum** filtreleri olan yoğun ürün tablosu, sunucu tarafında başlık sıralaması, pagination — liste state'inin tamamı URL'de yaşar.
+- Korumalı düzenleme formuyla ürün detayı: taze bir read üzerine kurulan kayıpsız full-object PUT, doğrulanmış API kurallarını birebir uygulayan inline validasyon, kaydedilmemiş değişiklik uyarısı.
+- Veri tazeliği: "X önce güncellendi" göstergesi, cooldown korumalı manuel yenileme ve son fetch'in bitişine göre hizalanan 15 saniyelik polling — diğer istemcilerin değişiklikleri sayfa yenilemeden görünür (opsiyonel bonus).
+- Eksiksiz loading/hata/boş durumları, kuyruğa alınan toast'lar, EN/TR arayüz.
 
-→ Derin analiz: [Web yönetim paneli mimarisi](https://alpersarper.github.io/stokmate-assignment/reviewer/frontend-report.html?lang=tr)
+→ Ayrıntılı rapor: [Web admin mimarisi](https://alpersarper.github.io/stokmate-assignment/reviewer/frontend-report.html?lang=tr)
 
 ### Mobil
 
-- Zorunlu kapsamın tamamı, ürünleşmiş bir müşteri uygulaması olarak: giriş (güvenli depolama ile "beni hatırla"), sunucu tarafı arama/filtre/sıralama ve sonsuz kaydırma içeren ürün listesi, detay ekranı ve **stok güncelleme akışı** (taslak tabanlı editör, artır/azalt kontrolleri, doğrulama, sunucudan teyitli kayıt).
-- Discontinued ürünlerde stok editörü kilitlenir (ve backend bunu 409 ile zorunlu kılar — eski veriyle çalışan bir istemci Discontinued bir ürüne stok işleyemez).
-- Aşağı çekip yenileme, tazelik göstergesi, korumalı manuel yenileme ve detayda 10 sn'lik polling — hepsi tek bir koordineli yenileme hattında.
-- Elle yazılmış görsel sistem (UI kit yok), sıraya alınan snackbar'lar, tam EN/TR.
+- Zorunlu kapsamın tamamı, ürünleşmiş bir müşteri uygulaması olarak: login (secure storage ile "beni hatırla"), sunucu tarafında arama/filtre/sıralama ve infinite scroll içeren ürün listesi, detay ekranı ve **stok güncelleme akışı** (taslak tabanlı editör, stepper'lar, validasyon, sunucu yanıtıyla teyitli kayıt).
+- Discontinued ürünlerde stok editörü kilitlenir; backend de bunu 409 ile uygular — stale veriyle çalışan bir istemci Discontinued bir ürüne stok yazamaz.
+- Pull-to-refresh, tazelik göstergesi, korumalı manuel yenileme ve detay ekranında 10 saniyelik polling — hepsi tek bir koordineli yenileme hattında.
+- Elle tasarlanmış görsel sistem (UI kit yok), kuyruğa alınan snackbar'lar, eksiksiz EN/TR.
 
-→ Derin analiz: [Mobil mimari](https://alpersarper.github.io/stokmate-assignment/reviewer/mobile-report.html?lang=tr)
+→ Ayrıntılı rapor: [Mobil mimari](https://alpersarper.github.io/stokmate-assignment/reviewer/mobile-report.html?lang=tr)
 
 ### Backend
 
-- **Verilen**: API yüzeyinin tamamı — auth (opak token'lar, 15 dk access / 7 gün rotasyonlu refresh), ürün listeleme/arama/filtre/sıralama/sayfalama, tam değiştiren PUT güncellemesi, ayrı stok PATCH'i, lookup'lar, seed verisi, hata kuralları. Doğrulanmış davranış `docs/API_CONTRACT.md` içinde kayıtlı.
-- **Proje sırasında değiştirilen** (her biri minimal, belgelenmiş ve çalışır durumda doğrulanmış):
-  1. `GET /products/{id}` eklendi — özgün backend'de ürünü id ile okuyan bir uç yoktu, ancak tam değiştiren PUT hiçbir okuma ucunun döndürmediği üç alanı zorunlu tutuyordu (kanıtlanmış bir sessiz veri kaybı tuzağı).
-  2. **Discontinued** ürünlerde stok güncellemesi `409` ile reddediliyor — eski veriyle çalışan istemcilere karşı sunucu tarafı koruma.
-  3. Ürün okumalarında rate limiting (token başına 60 istek / 10 sn → `429`) — yenileme/polling özelliği için bağımsız bir backend sınırı.
+- **Verilen**: API yüzeyinin tamamı — auth (opak token'lar, 15 dakikalık access / 7 günlük rotating refresh), ürün listeleme/arama/filtre/sıralama/pagination, full-replace PUT güncellemesi, ayrı stok PATCH endpoint'i, lookup'lar, seed verisi, hata konvansiyonları. Doğrulanmış davranış `docs/API_CONTRACT.md` dosyasında kayıtlı.
+- **Proje sırasında değiştirilen** (her biri minimal, belgelenmiş ve runtime'da doğrulanmış):
+  1. `GET /products/{id}` eklendi — orijinal backend'de ürünü id ile okuyan bir endpoint yoktu; oysa full-replace PUT, hiçbir read endpoint'inin döndürmediği üç alanı zorunlu tutuyordu (kanıtlanmış bir sessiz veri kaybı tuzağı).
+  2. **Discontinued** ürünlerde stok güncellemesi `409` ile reddedilir — stale istemcilere karşı sunucu tarafı koruma.
+  3. Ürün read'lerine rate limit (token başına 60 istek / 10 saniye → `429`) — yenileme/polling özelliği için backend tarafında bağımsız bir sınır.
 
-→ Derin analiz: [Backend mimarisi ve değişiklikler](https://alpersarper.github.io/stokmate-assignment/reviewer/backend-report.html?lang=tr)
+→ Ayrıntılı rapor: [Backend mimarisi ve değişiklikler](https://alpersarper.github.io/stokmate-assignment/reviewer/backend-report.html?lang=tr)
 
 ## Temel kararlar
 
-| Karar | Gerekçe |
+| Karar | Neden |
 | --- | --- |
-| npm workspaces monorepo | Tek kurulum, tek bağımlılık ağacı; üç paketin ihtiyacı script'ler, build grafiği değil. |
-| Tek sunucu-state katmanı olarak TanStack Query | Uygulama neredeyse tamamen sunucu state'i; query key'ler + invalidation her global store'un yerini tutuyor. |
-| Framework'ten bağımsız `shared/` çekirdek | Wire formatı ile auth/refresh/hata mekaniği iki istemci için tam olarak bir kez yazıldı. |
-| Merkezî, single-flight 401 → refresh → retry | Katı token rotasyonunda eşzamanlı refresh ölümcül; tepkisel kurtarma, süre sayan zamanlayıcılardan üstün. |
-| Web'de shadcn/ui + Tailwind | Depoya kopyalanan, okunabilir primitive'ler; operasyonel bir yönetim paneli için küçük bağımlılık yüzeyi. |
-| Elle yazılmış mobil arayüz (kit yok) | Dört ekran; işin zor kısmı (sıraya alınan snackbar'lar) bir kit ile de özel kod gerektiriyordu. |
-| Expo managed + yerel Gradle APK | Belgelenmiş komutlarla, çevrimdışı ve tekrarlanabilir; bulut build hesabı gerekmiyor. |
-| EN/TR, varsayılan İngilizce, her yerde TRY | İki dil için tipli mesaj katalogları yeterli; para birimi veridir, hiçbir zaman çevrilmez. |
+| npm workspaces monorepo | Tek kurulum, tek bağımlılık ağacı; üç paketin ihtiyacı script, build grafiği değil. |
+| Tek server-state katmanı olarak TanStack Query | Uygulama neredeyse tamamen server state; query key + invalidation, global bir store ihtiyacını ortadan kaldırıyor. |
+| Framework bağımsız `shared/` çekirdeği | Wire formatı ve auth/refresh/hata akışı iki istemci için tek bir yerde, bir kez yazıldı. |
+| Merkezî single-flight 401 → refresh → retry | Katı token rotasyonunda eşzamanlı refresh istekleri oturumu düşürür; reaktif kurtarma, süre tahminine dayalı timer'lardan daha güvenilir. |
+| Web'de shadcn/ui + Tailwind | Repoya kopyalanan, incelenebilir primitive'ler; operasyonel bir admin arayüzü için küçük bağımlılık yüzeyi. |
+| Mobilde elle tasarlanmış UI (kit yok) | Dört ekran; işin zor kısmı (kuyruğa alınan snackbar'lar) kit kullanılsa da özel kod gerektiriyordu. |
+| Expo managed + yerel Gradle APK | Belgelenmiş komutlarla offline tekrarlanabilir; cloud build hesabı gerekmez. |
+| EN/TR, varsayılan İngilizce, her yerde TRY | İki dil için tipli mesaj katalogları yeterli; para birimi veridir, asla dönüştürülmez. |
 
-Alternatifler ve ödünleşimlerle birlikte tam gerekçe: [Mühendislik kararları](https://alpersarper.github.io/stokmate-assignment/reviewer/development-decisions.html?lang=tr).
+Alternatifler ve trade-off'larla birlikte tam gerekçe: [Mühendislik kararları](https://alpersarper.github.io/stokmate-assignment/reviewer/development-decisions.html?lang=tr).
 
 ## Geliştirme süreci
 
-- Gereksinimler, UX kararları ve kabul ölçütleri implementasyondan önce `docs/` altında yazıya döküldü ve bağlayıcı kontrat olarak ele alındı.
-- Backend'in gerçek davranışı önce çalışır durumda doğrulandı; istemciler varsayımlara göre değil, kayıt altına alınan kontrata (`docs/API_CONTRACT.md`) göre yazıldı.
-- İnsan sahipliğindeki kararlar altında implementasyonu, araştırmayı, QA'i ve dokümantasyonu yapay zekâ ajanları yürüttü; her PR merge öncesi insan tarafından incelendi — bkz. [Yapay zekâ destekli geliştirme süreci](https://alpersarper.github.io/stokmate-assignment/reviewer/agent-workflow-report.html?lang=tr).
-- Doğrulama, otomatik kontrolleri (TypeScript, lint, birim + canlı kontrat testleri, build'ler) tarayıcıdaki, emülatördeki ve nihai release APK'sındaki gerçek backend akışlarıyla birleştirdi (bağımsız `curl` geri okumaları dâhil).
-- Doğrulanmış güncel durum `docs/IMPLEMENTATION_REPORT.md` içinde.
+- Gereksinimler, UX kararları ve kabul kriterleri implementasyondan önce `docs/` altında yazıldı ve bağlayıcı kontrat olarak kullanıldı.
+- Önce backend'in gerçek davranışı runtime'da doğrulandı; istemciler varsayımlara değil, kayıt altına alınan kontrata (`docs/API_CONTRACT.md`) göre geliştirildi.
+- İmplementasyonu, araştırmayı, QA'i ve dokümantasyonu — kararların sahipliği insanda kalmak üzere — yapay zekâ ajanları yürüttü; her PR merge edilmeden önce insan tarafından incelendi. Bkz. [Yapay zekâ destekli geliştirme süreci](https://alpersarper.github.io/stokmate-assignment/reviewer/agent-workflow-report.html?lang=tr).
+- Doğrulama, otomatik kontrolleri (TypeScript, lint, unit + canlı kontrat testleri, build'ler) tarayıcı, emülatör ve nihai release APK'sı üzerindeki gerçek backend akışlarıyla birleştirdi (bağımsız `curl` geri okumaları dâhil).
+- Doğrulanmış güncel durum: `docs/IMPLEMENTATION_REPORT.md`.
 
 ## Varsayımlar
 
 ### Ortam ve API gerçekleri
 
-- **Bellek içi backend**: yeniden başlatma veriyi ve tüm oturumları siler; refresh başarısız olduğunda istemciler giriş ekranına döner.
-- **Son yazan kazanır**: API'de eşzamanlılık mekanizması yok (doğrulandı); yalnızca UX düzeyinde hafifletildi (taze okumayla düzenleme, kanonik mutation yanıtları, hedefli yenileme). Discontinued-stok 409'u bir alan kuralıdır, sürüm kontrolü değil.
-- **Tek değerli filtreler** (bir kategori, bir marka) — API'de çoklu seçim yok.
-- **Arama/sıralama karşılaştırması sunucu tarafından belirlenir** (Türkçe i/ı davranışı backend host'unun locale'ini izler); girdi olduğu gibi geçirilir.
-- Verilen alan dokümantasyonu uyarınca **TRY (₺)**; tam sayı kuruş aritmetiğiyle açıkça biçimlendirilir.
-- Varsayılan arayüz dili İngilizce, çalışma zamanında EN/TR anahtarı var; API verisi (ürün/marka adları) hiçbir zaman çevrilmez.
+- **In-memory backend**: yeniden başlatma veriyi ve tüm oturumları siler; refresh başarısız olduğunda istemciler login ekranına döner.
+- **Last-write-wins**: API'de bir concurrency mekanizması yok (doğrulandı); risk yalnızca UX düzeyinde azaltıldı (düzenlemeden önce taze read, mutation yanıtının kanonik kabulü, hedefli yenileme). Discontinued-stok 409'u bir domain kuralıdır, versiyon kontrolü değil.
+- **Tek değerli filtreler** (bir kategori, bir marka) — API çoklu seçim desteklemiyor.
+- **Arama/sıralama collation'ı sunucuda belirlenir** (Türkçe i/ı ayrımı backend host'un locale'ine bağlıdır); girdi olduğu gibi iletilir.
+- Verilen domain dokümantasyonu gereği **TRY (₺)**; tam sayı kuruş aritmetiğiyle, para birimi açık yazılarak gösterilir.
+- Arayüz varsayılanı İngilizce, çalışma anında EN/TR geçişi var; API verisi (ürün/marka adları) hiçbir zaman çevrilmez.
 
-### Ürün tasarımı inisiyatifleri
+### Ürün tasarımı kararları
 
-Bunlar ödevin davranışı açık bıraktığı noktalarda alınan bilinçli kararlardır; gerekçelerin tamamı [`docs/DECISIONS.md`](docs/DECISIONS.md), UX ve wire-level sınırlar ise [`docs/UX_DECISIONS.md`](docs/UX_DECISIONS.md) ile [`docs/API_CONTRACT.md`](docs/API_CONTRACT.md) içindedir.
+Assignment'ın davranışı açık bıraktığı noktalarda bilinçli tercihler yapıldı; gerekçelerin tamamı [`docs/DECISIONS.md`](docs/DECISIONS.md), UX ve wire seviyesindeki sınırlar ise [`docs/UX_DECISIONS.md`](docs/UX_DECISIONS.md) ile [`docs/API_CONTRACT.md`](docs/API_CONTRACT.md) dosyalarındadır.
 
-- **Operasyonel durum sınırı**: eski veriyle çalışan mağaza istemcilerini korumak için Discontinued durumunda stok terminaldir (`409` ve mobil kilit); Pasif değiştirilebilir, Discontinued ise listelenebilir ve diğer yönleriyle düzenlenebilir kalır çünkü görünürlük ve durum yönetimi bilinçli olarak kısıtlanmadı.
-- **Kitleye özgü varsayılanlar**: mobil mağaza çalışanları için Aktif ürünlerle, web ise genel müdürlük gözetimi için Tüm durumlarla açılır; iki yüzey de bütün durum seçeneklerini sunmaya devam eder.
-- **Kayıpsız detay okuması**: tümünü değiştiren PUT, hiçbir okumanın döndürmediği alanları gerektirdiği için yalnızca `GET /products/{id}` eklendi; değerler tahmin edilmedi, liste DTO'su genişletilmedi ve PUT semantiği değiştirilmedi.
-- **Bağımsız okuma hız sınırı**: üç ürün GET'i authorization değeri başına 60 istek/10 saniyelik ortak bütçe kullanır (fallback: IP); auth, lookup ve yazmalar kapsam dışıdır, dolayısıyla olağan yenileme/polling etkilenmez.
-- **Doğrulanmış düşük stok semantiği**: aynı alan kuralını iki istemcide de göstermek için vurgu API'nin `minStock` sinyalini izler; yalnızca istemcide yaşayan bir eşik uydurulmadı.
-- **Realtime olmadan tazelik**: koordineli polling/refetch, tek veri yolunu korurken istemciler arası değişiklikleri makul sürede görünür kılar; WebSocket/SSE veya ikinci bir senkronizasyon sistemi eklenmedi.
+- **Operasyonel durum sınırı**: stale mağaza istemcilerini korumak için Discontinued üründe stok işlemi kapalıdır (`409` + mobilde kilit); Passive düzenlenebilir kalır, Discontinued da listelenmeye ve stok dışındaki alanlarıyla düzenlenmeye devam eder — görünürlük ve durum yönetimi bilinçli olarak kısıtlanmadı.
+- **Kitleye göre varsayılanlar**: mobil, mağaza personeli için Active ürünlerle; web, genel merkez gözetimi için All (tüm durumlar) ile açılır. İki taraf da bütün durum seçeneklerini sunar.
+- **Kayıpsız detay okuması**: full-replace PUT hiçbir read'in döndürmediği alanları gerektirdiği için yalnızca `GET /products/{id}` eklendi; değer tahmin edilmedi, liste DTO'su genişletilmedi, PUT semantiği değiştirilmedi.
+- **Read'lere özel rate limit**: üç ürün GET'i, authorization değeri başına (yoksa IP) 60 istek/10 saniyelik ortak bir bütçe paylaşır; auth, lookup ve yazma işlemleri kapsam dışı — olağan yenileme/polling bundan etkilenmez.
+- **Doğrulanmış düşük stok semantiği**: düşük stok vurgusu API'nin `minStock` sinyalini izler; aynı domain kuralı iki istemcide de aynı görünür, istemciye özel bir eşik uydurulmadı.
+- **Realtime olmadan tazelik**: koordineli polling/refetch, tek veri yolunu korurken istemciler arası değişiklikleri makul sürede görünür kılar; WebSocket/SSE ya da ikinci bir senkronizasyon sistemi eklenmedi.
 
 ## Başlıca kütüphaneler
 
-- **Web**: Vite + React + TypeScript (strict) — SPA araç zinciri; React Router — route'lar + URL liste state'i; TanStack Query v5 — sunucu state'i; react-hook-form — alan kaydı ve doğrulama; Tailwind CSS v4 + shadcn/ui — depoya kopyalanan UI primitive'leri; sonner — sıraya alınan toast'lar.
-- **Mobil**: Expo (managed) + React Native + TypeScript; React Navigation (native stack); TanStack Query v5; expo-secure-store — token saklama; expo-build-properties — cleartext HTTP bayrağı; expo-dev-client — dev build araçları (release'de etkisiz, doğrulandı).
-- **Backend**: verilen .NET 8 + EF Core InMemory temeli; yukarıda belgelenen üç dar ek, ürün okumalarındaki `System.Threading.RateLimiting` dâhil.
-- **Shared/test**: Vitest — birim + canlı kontrat testleri; ESLint v9 + Prettier.
+- **Web**: Vite + React + TypeScript (strict) — SPA araç zinciri; React Router — route'lar + URL'deki liste state'i; TanStack Query v5 — server state; react-hook-form — form alanları ve validasyon; Tailwind CSS v4 + shadcn/ui — repoya kopyalanan UI primitive'leri; sonner — kuyruğa alınan toast'lar.
+- **Mobil**: Expo (managed) + React Native + TypeScript; React Navigation (native stack); TanStack Query v5; expo-secure-store — token saklama; expo-build-properties — cleartext HTTP izni; expo-dev-client — dev build araçları (release'te etkisiz, doğrulandı).
+- **Backend**: verilen .NET 8 + EF Core InMemory temeli; yukarıda belgelenen üç dar ekleme — ürün read'lerindeki `System.Threading.RateLimiting` dâhil.
+- **Shared/test**: Vitest — unit + canlı kontrat testleri; ESLint v9 + Prettier.
 
 ## Notlar
 
-- Realtime kanal yok (WebSocket/SSE) — istemciler arası tutarlılık tasarım gereği polling + koordineli yenileme ile sağlanıyor; raporların tazelik bölümlerine bakın.
-- **Kıdemli inceleme bulguları çözüldü**: YÜKSEK öncelikli mobil sayfalama bulgusu düzeltildi — sayfalama artık fiziksel hareket başına bir kez kurulur (yalnızca sürükleme başlangıcında; momentum artık yeniden kurmaz) ve ağ kanıtı, arama/filtre/sıralama veri kümelerinde sürükleme/savurma başına tek istek davranışını yeniden doğruladı. Stok sıralı cache sırası sınırlaması açıkça kabul edildi: güncellenen stok değeri doğrudur ve normal bir yenileme kanonik sıralamayı geri getirir. Bkz. `docs/IMPLEMENTATION_REPORT.md`.
-- Teslim edilen APK'nın API hedefi build sırasında sabitlenir; farklı bir hedef belgelenmiş yeniden build'i gerektirir.
-- Assignment odaklı altyapı: CI hattı veya E2E framework'ü yok — doğrulama, script'lenmiş kontroller artı `docs/IMPLEMENTATION_REPORT.md` içinde kayıtlı QA sürecidir.
-- Doğrulama komutları: `npm run typecheck`, `npm run lint`, `npm run test` (çevrimdışı birim), `npm run test:live --workspace shared` (çalışan backend'e karşı), `npm run build:web`.
+- Realtime kanal yok (WebSocket/SSE) — istemciler arası tutarlılık, bilinçli bir tercih olarak polling + koordineli yenilemeyle sağlanır; raporların tazelik bölümlerine bakın.
+- **Senior review bulguları çözüldü**: YÜKSEK öncelikli mobil pagination bulgusu giderildi — pagination artık fiziksel hareket başına bir kez tetiklenmeye hazırlanır (yalnızca drag başlangıcında; momentum yeniden hazırlamaz) ve ağ kayıtları, arama/filtre/sıralama kombinasyonlarında drag/fling başına tek istek davranışını yeniden doğruladı. Stok sıralamasındaki cache-sırası sınırlaması ise bilinçli olarak kabul edildi: güncellenen stok değeri doğrudur, normal bir yenileme kanonik sıralamayı geri getirir. Bkz. `docs/IMPLEMENTATION_REPORT.md`.
+- Teslim edilen APK'nın API hedefi build sırasında sabitlenir; farklı bir hedef için belgelenmiş komutlarla yeniden build gerekir.
+- Altyapı assignment ölçeğinde tutuldu: CI pipeline'ı veya E2E framework'ü yok — doğrulama, script'lenmiş kontroller artı `docs/IMPLEMENTATION_REPORT.md` içinde kayıtlı QA sürecidir.
+- Doğrulama komutları: `npm run typecheck`, `npm run lint`, `npm run test` (offline unit), `npm run test:live --workspace shared` (çalışan backend'e karşı), `npm run build:web`.
 
-## Değerlendirici derin analizleri
+## Değerlendirici raporları
 
-GitHub Pages üzerinde yayımlanıyor (her raporun kendi EN/TR anahtarı var):
+GitHub Pages'te yayında; her raporun başlığında bir **EN / TR** anahtarı var:
 
 | Rapor | Bağlantı |
 | --- | --- |
 | **Teknik genel bakış** (buradan başlayın) | [alpersarper.github.io/stokmate-assignment/reviewer](https://alpersarper.github.io/stokmate-assignment/reviewer/?lang=tr) |
-| Web yönetim paneli mimarisi | [frontend-report.html](https://alpersarper.github.io/stokmate-assignment/reviewer/frontend-report.html?lang=tr) |
+| Web admin mimarisi | [frontend-report.html](https://alpersarper.github.io/stokmate-assignment/reviewer/frontend-report.html?lang=tr) |
 | Mobil mimari | [mobile-report.html](https://alpersarper.github.io/stokmate-assignment/reviewer/mobile-report.html?lang=tr) |
 | Backend mimarisi ve değişiklikler | [backend-report.html](https://alpersarper.github.io/stokmate-assignment/reviewer/backend-report.html?lang=tr) |
 | Mühendislik kararları | [development-decisions.html](https://alpersarper.github.io/stokmate-assignment/reviewer/development-decisions.html?lang=tr) |
 | Yapay zekâ destekli geliştirme süreci | [agent-workflow-report.html](https://alpersarper.github.io/stokmate-assignment/reviewer/agent-workflow-report.html?lang=tr) |
 
-Aynı raporlar çevrimdışı olarak [`docs/reviewer/`](docs/reviewer/) altında da bulunuyor — her sayfa kendi kendine yeten, bir klondan doğrudan açılabilen tek bir HTML dosyası.
+Aynı raporlar [`docs/reviewer/`](docs/reviewer/) altında offline olarak da mevcut — her sayfa kendi başına yeterli, klondan doğrudan açılabilen tek bir HTML dosyasıdır.
